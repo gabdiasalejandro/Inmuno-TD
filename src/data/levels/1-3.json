@@ -6,7 +6,7 @@
   },
   "startEnergy": 150,
   "marrow": {
-    "amount": 25,
+    "amount": 30,
     "interval": 5
   },
   "deck": [

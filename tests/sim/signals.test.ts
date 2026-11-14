@@ -23,22 +23,30 @@ const sentinel: UnitDef = {
   emits: { signal: 'alarm', perSecond: 20, range: 2, requires: ['PAMP'] },
 };
 const siren: UnitDef = { ...sentinel, id: 'siren', emits: { ...sentinel.emits!, perSecond: 100_000 } };
+const scout: UnitDef = { ...sentinel, id: 'scout', emits: { signal: 'threat', perSecond: 20, range: 2, requires: ['PAMP'] } };
 const recruit: UnitDef = { id: 'recruit', cost: 0, cooldown: 4, hp: 10, tags: ['reserve'] };
 const regular: UnitDef = { id: 'regular', cost: 0, cooldown: 4, hp: 10 };
 
 const content: Content = {
-  units: [...base.units, bunker, picky, sentinel, siren, recruit, regular],
+  units: [...base.units, bunker, picky, sentinel, siren, scout, recruit, regular],
   enemies: [grunt, marked],
   signals: {
     alarm: { max: 100, decayPerSecond: 10, marrowBoost: 1, recruitBoost: 1, recruitTag: 'reserve' },
+    threat: { max: 100, decayPerSecond: 10, targetByEnemies: [0, 25, 50, 63, 75, 88, 100] },
   },
 };
-const deck = ['bunker', 'picky', 'sentinel', 'siren', 'recruit', 'regular', 'fighter'];
+const deck = ['bunker', 'picky', 'sentinel', 'siren', 'scout', 'recruit', 'regular', 'fighter'];
 const wave = (enemy: string) => [{ at: 0, enemy, lane: 1, count: 1, gap: 0 }];
 const setup = (enemy: string, emitter?: string) => {
   const sim = createSim(level({ deck, waves: wave(enemy), startEnergy: 0 }), content, 1);
   sim.placeUnit('bunker', 1, 2);
   if (emitter) sim.placeUnit(emitter, 1, 1);
+  return sim;
+};
+const setupMany = (count: number, emitter: string) => {
+  const sim = createSim(level({ deck, waves: [{ at: 0, enemy: 'marked', lane: 1, count, gap: 0 }], startEnergy: 0, signals: ['threat'] }), content, 1);
+  sim.placeUnit('bunker', 1, 2);
+  sim.placeUnit(emitter, 1, 1);
   return sim;
 };
 
@@ -84,6 +92,19 @@ describe('signals', () => {
     const sim = setup('marked', 'siren');
     run(sim, 5);
     expect(sim.signal('alarm')).toBe(1);
+  });
+
+  it('scale their ceiling with the number of detected enemies', () => {
+    for (const [count, expected] of [
+      [1, 0.25],
+      [2, 0.5],
+      [4, 0.75],
+      [6, 1],
+    ] as const) {
+      const sim = setupMany(count, 'scout');
+      run(sim, 30);
+      expect(sim.signal('threat')).toBeCloseTo(expected, 2);
+    }
   });
 
   it('decay back to zero when detection stops', () => {

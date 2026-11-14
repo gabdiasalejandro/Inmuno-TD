@@ -37,7 +37,7 @@
     },
     "emits": {
       "signal": "citocinas",
-      "perSecond": 14,
+      "perSecond": 12,
       "range": 2,
       "requires": [
         "PAMP"

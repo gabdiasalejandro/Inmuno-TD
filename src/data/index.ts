@@ -1,9 +1,6 @@
 import type { Content, EnemyDef, LevelDef, UnitDef } from '../sim';
 import enemies from './enemies.json';
 import introList from './intros.json';
-import level_1_1 from './levels/1-1.json';
-import level_1_2 from './levels/1-2.json';
-import level_1_3 from './levels/1-3.json';
 import signals from './signals.json';
 import units from './units.json';
 import worldList from './worlds.json';
@@ -15,11 +12,19 @@ export const content: Content = {
   signals,
 };
 
-export const levels: Record<string, LevelDef> = {
-  '1-1': level_1_1 as LevelDef,
-  '1-2': level_1_2 as LevelDef,
-  '1-3': level_1_3 as LevelDef,
-};
+/**
+ * Every JSON file in `levels/` is a level: adding a level is adding a file, nothing else.
+ * The file name must be the level id.
+ */
+const levelFiles = import.meta.glob<LevelDef>('./levels/*.json', { eager: true, import: 'default' });
+
+export const levels: Record<string, LevelDef> = Object.fromEntries(
+  Object.entries(levelFiles).map(([path, level]) => {
+    const fileId = path.slice('./levels/'.length, -'.json'.length);
+    if (level.id !== fileId) throw new Error(`Level file ${path} declares id "${level.id}"`);
+    return [fileId, level];
+  }),
+);
 
 export interface WorldDef {
   id: string;

@@ -265,7 +265,7 @@ En cada paso: anotar la inmunología para la revisión médica (2.1), consultar 
 
 ## 11. Decisiones abiertas
 
-- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 200 de vida y el 1-2 conserva las oleadas duras 5/5; el usuario lo jugó y lo ganó con macrófagos retrasados, moco delante y algún muro, y el test reproduce esa estrategia (2026-11-14). El 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
+- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 200 de vida y el 1-2 conserva las oleadas duras 5/5; el usuario lo jugó y lo ganó con macrófagos retrasados, moco delante y algún muro, y el test reproduce esa estrategia (2026-11-14). El medidor de citocinas ahora escala con las bacterias detectadas (1→25, 2→50, 3→63, 4→75, 5→88, 6+→100) y el 1-3 usa médula 30/5 para compensar (2026-11-14). El 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
 - Nombre del juego.
 - Orientación en móvil (horizontal como PvZ o vertical).
 - Números de la economía: ritmo basal de la médula, cuánto acelera cada citocina y cuánto cuesta cada unidad (el modelo ya está decidido en la sección 4).

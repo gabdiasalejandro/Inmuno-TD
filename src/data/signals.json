@@ -4,6 +4,15 @@
     "decayPerSecond": 6,
     "marrowBoost": 1,
     "recruitBoost": 1.5,
-    "recruitTag": "reclutable"
+    "recruitTag": "reclutable",
+    "targetByEnemies": [
+      0,
+      25,
+      50,
+      63,
+      75,
+      88,
+      100
+    ]
   }
 }

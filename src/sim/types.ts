@@ -17,7 +17,7 @@ export interface AttackDef {
 /** A unit that raises a global signal while it detects a matching enemy. */
 export interface EmitDef {
   signal: string;
-  /** Signal points added per second while detecting. */
+  /** Signal points added per second for each matching enemy it detects. */
   perSecond: number;
   /** Detection reach in cells ahead of the unit's own cell. */
   range: number;
@@ -30,6 +30,17 @@ export interface SignalDef {
   max: number;
   /** Points lost per second, always. */
   decayPerSecond: number;
+  /**
+   * Points the meter can reach per detected enemy. One enemy with 25 reaches a quarter of a
+   * 100-point meter. Defaults to `max` (any detection can fill it).
+   */
+  targetPerEnemy?: number;
+  /**
+   * Explicit ceiling by number of detected enemies (index 0 is unused). Overrides
+   * `targetPerEnemy`; counts past the end use `max`. Lets the meter rise slowly at first and
+   * reach the top only with a real wave.
+   */
+  targetByEnemies?: number[];
   /** Extra marrow speed at full signal: 1 means twice as fast. */
   marrowBoost?: number;
   /** Extra redeploy speed at full signal for units tagged `recruitTag`: 1 means half the cooldown. */
