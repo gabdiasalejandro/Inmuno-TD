@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor -->
+    <ellipse cx="122" cy="124" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="202" cy="124" rx="10" ry="5.5" fill="#E8A29A"/>
+    <!-- ojo izquierdo: base compartida -->
+    <ellipse cx="140" cy="104" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="137" cy="100" r="4.5" fill="#FBF7F2"/>
+    <circle cx="143.5" cy="109" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida -->
+    <ellipse cx="184" cy="104" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="181" cy="100" r="4.5" fill="#FBF7F2"/>
+    <circle cx="187.5" cy="109" r="2" fill="#FBF7F2"/>
+    <!-- parpados planos y bajos: veterano satisfecho -->
+    <path fill="#FBF7F2" d="M 127 88 H 153 V 101 H 127 Z"/>
+    <path fill="#FBF7F2" d="M 171 88 H 197 V 101 H 171 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 128 101 H 152 M 172 101 H 196"/>
+    <!-- cejas en arco suave, relajadas -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 128 82 Q 140 76 152 81 M 172 81 Q 184 76 196 82"/>
+    <!-- boca: sonrisa ladeada de satisfecho, lengua relamiendo la comisura -->
+    <path fill="#D9737A" stroke="#3A2A2A" stroke-width="3" d="M 178 131 Q 182 142 190 138 Q 194 134 190 128 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 148 130 Q 168 140 190 128"/>
+  </g>
+</svg>

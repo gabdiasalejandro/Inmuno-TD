@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- masa: cupula caida con charco ancho en la base y punta ladeada -->
+    <path fill="#CFE39B" d="M 112 64 C 112 50 124 42 136 46 C 128 52 132 60 140 62 C 176 70 192 100 194 134 C 196 162 214 176 222 194 C 228 212 212 222 192 220 C 172 218 162 226 140 224 C 118 222 104 228 84 222 C 60 216 34 220 34 202 C 34 184 60 170 62 134 C 64 100 84 70 112 64 Z"/>
+    <!-- sombra (cel shading): base y lado derecho -->
+    <path fill="#A8C46E" d="M 176 82 C 188 98 193 116 194 134 C 196 162 214 176 222 194 C 228 212 212 222 192 220 C 172 218 162 226 140 224 C 118 222 104 228 84 222 C 60 216 34 220 34 202 C 50 208 70 204 90 208 C 112 212 130 206 150 208 C 168 210 180 204 180 188 C 180 160 184 120 176 82 Z"/>
+    <!-- nucleo translucido: zona interior mas clara que sugiere transparencia -->
+    <path fill="#E2EEBF" d="M 92 150 C 92 132 104 122 116 122 C 106 132 104 146 108 162 C 112 176 126 184 142 182 C 128 192 92 186 92 150 Z"/>
+    <!-- burbujas atrapadas -->
+    <circle cx="160" cy="176" r="8" fill="#E2EEBF" stroke="#8FAE58" stroke-width="3"/>
+    <circle cx="80" cy="196" r="5" fill="#E2EEBF" stroke="#8FAE58" stroke-width="3"/>
+    <circle cx="140" cy="198" r="4" fill="#E2EEBF" stroke="#8FAE58" stroke-width="3"/>
+    <!-- brillos humedos -->
+    <path fill="#EEF4CF" d="M 82 108 C 86 92 98 80 112 76 C 104 86 96 98 92 114 C 90 120 80 118 82 108 Z"/>
+    <ellipse cx="96" cy="128" rx="4" ry="5" fill="#EEF4CF"/>
+    <ellipse cx="200" cy="196" rx="8" ry="3.5" fill="#CFE39B"/>
+    <!-- contorno -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 112 64 C 112 50 124 42 136 46 C 128 52 132 60 140 62 C 176 70 192 100 194 134 C 196 162 214 176 222 194 C 228 212 212 222 192 220 C 172 218 162 226 140 224 C 118 222 104 228 84 222 C 60 216 34 220 34 202 C 34 184 60 170 62 134 C 64 100 84 70 112 64 Z"/>
+  </g>
+</svg>

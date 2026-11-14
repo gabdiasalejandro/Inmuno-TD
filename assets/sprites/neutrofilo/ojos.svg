@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor leve -->
+    <ellipse cx="124" cy="146" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="200" cy="146" rx="10" ry="5.5" fill="#E8A29A"/>
+    <!-- ojo izquierdo: base compartida, abierto -->
+    <ellipse cx="142" cy="124" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="139" cy="120" r="4.5" fill="#FBF7F2"/>
+    <circle cx="145.5" cy="129" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida, abierto -->
+    <ellipse cx="182" cy="124" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="179" cy="120" r="4.5" fill="#FBF7F2"/>
+    <circle cx="185.5" cy="129" r="2" fill="#FBF7F2"/>
+    <!-- cejas rectas, bajando hacia el centro: ceño decidido -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 128 100 L 152 108 M 172 108 L 196 100"/>
+    <!-- boca abierta en grito de carga -->
+    <path fill="#8C3A44" stroke="#3A2A2A" stroke-width="5" d="M 150 144 Q 162 147 174 142 Q 172 158 162 158 Q 152 158 150 144 Z"/>
+    <ellipse cx="163" cy="153" rx="4" ry="2.5" fill="#D9737A"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+[
+  {
+    "id": "bacteria_gram_pos",
+    "hp": 40,
+    "speed": 0.25,
+    "attack": { "damage": 10, "rate": 1 },
+    "tags": ["bacteria", "PAMP"]
+  }
+]

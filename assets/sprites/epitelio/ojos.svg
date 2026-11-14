@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor -->
+    <ellipse cx="86" cy="132" rx="10" ry="5.5" fill="#E58E6E"/>
+    <ellipse cx="170" cy="132" rx="10" ry="5.5" fill="#E58E6E"/>
+    <!-- ojo izquierdo: base compartida -->
+    <ellipse cx="105" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="102" cy="108" r="4.5" fill="#FBF7F2"/>
+    <circle cx="108.5" cy="117" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida -->
+    <ellipse cx="151" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="148" cy="108" r="4.5" fill="#FBF7F2"/>
+    <circle cx="154.5" cy="117" r="2" fill="#FBF7F2"/>
+    <!-- parpados planos: mirada serena de portero -->
+    <path fill="#EDB07F" d="M 92 96 H 118 V 105 H 92 Z"/>
+    <path fill="#EDB07F" d="M 138 96 H 164 V 105 H 138 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 93 105 H 117 M 139 105 H 163"/>
+    <!-- cejas rectas y firmes -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 93 89 L 117 90 M 139 90 L 163 89"/>
+    <!-- boca: linea casi recta, seria pero amable -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 118 139 Q 128 136 138 139"/>
+  </g>
+</svg>

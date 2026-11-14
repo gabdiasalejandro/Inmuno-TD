@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor -->
+    <ellipse cx="88" cy="150" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="170" cy="150" rx="10" ry="5.5" fill="#E8A29A"/>
+    <!-- ojo izquierdo: base compartida -->
+    <ellipse cx="108" cy="132" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="105" cy="128" r="4.5" fill="#FBF7F2"/>
+    <circle cx="111.5" cy="137" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida -->
+    <ellipse cx="152" cy="132" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="149" cy="128" r="4.5" fill="#FBF7F2"/>
+    <circle cx="155.5" cy="137" r="2" fill="#FBF7F2"/>
+    <!-- parpados caidos: medio cerrados, soñoliento -->
+    <path fill="#CFE39B" d="M 95 116 H 121 V 131 Q 108 128 95 133 Z"/>
+    <path fill="#CFE39B" d="M 139 116 H 165 V 133 Q 152 128 139 131 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 96 133 Q 108 128 121 131 M 139 131 Q 152 128 164 133"/>
+    <!-- cejas relajadas, caidas hacia afuera -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 96 112 Q 106 108 118 111 M 142 111 Q 154 108 164 112"/>
+    <!-- boca: bostezo pequeño y ovalado -->
+    <ellipse cx="130" cy="156" rx="7" ry="9" fill="#8C3A44" stroke="#3A2A2A" stroke-width="5"/>
+    <ellipse cx="130" cy="160" rx="3.5" ry="3" fill="#D9737A"/>
+  </g>
+</svg>

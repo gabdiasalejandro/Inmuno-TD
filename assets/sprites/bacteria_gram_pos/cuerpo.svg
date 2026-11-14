@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- bacilo: capsula horizontal, la cara va en el extremo izquierdo -->
+    <path fill="#7452E0" d="M 90 104 H 166 A 38 38 0 0 1 166 180 H 90 A 38 38 0 0 1 90 104 Z"/>
+    <!-- sombra (cel shading) inferior -->
+    <path fill="#5435B8" d="M 203 150 A 38 38 0 0 1 166 180 H 90 A 38 38 0 0 1 55.5 158 Q 120 172 203 150 Z"/>
+    <!-- pared gruesa de peptidoglucano: linea interior en la mitad trasera -->
+    <path fill="none" stroke="#4A2FA6" stroke-width="4" d="M 128 114 H 166 A 28 28 0 0 1 192 152"/>
+    <!-- brillo -->
+    <path fill="#9E86F2" d="M 96 112 Q 128 108 150 111 Q 146 117 100 118 Q 92 118 96 112 Z"/>
+    <!-- contorno -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 90 104 H 166 A 38 38 0 0 1 166 180 H 90 A 38 38 0 0 1 90 104 Z"/>
+    <!-- emblema PAMP: rombo con halo claro y rombo interior, reutilizable en otros patogenos -->
+    <polygon points="167,114 187,134 167,154 147,134" fill="#8E2C6B" stroke="#F6E9EF" stroke-width="14"/>
+    <polygon points="167,114 187,134 167,154 147,134" fill="#8E2C6B" stroke="#3A2A2A" stroke-width="5"/>
+    <polygon points="167,126 175,134 167,142 159,134" fill="#F6E9EF"/>
+  </g>
+</svg>

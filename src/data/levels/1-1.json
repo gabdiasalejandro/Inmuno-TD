@@ -1,0 +1,64 @@
+{
+  "id": "1-1",
+  "grid": {
+    "rows": 5,
+    "cols": 9
+  },
+  "startEnergy": 75,
+  "marrow": {
+    "amount": 25,
+    "interval": 5
+  },
+  "deck": [
+    "epitelio",
+    "moco"
+  ],
+  "signals": [],
+  "win": {
+    "type": "survive",
+    "seconds": 60
+  },
+  "wounds": [
+    {
+      "at": 3,
+      "lane": 2
+    }
+  ],
+  "waves": [
+    {
+      "at": 5,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 1,
+      "gap": 0
+    },
+    {
+      "at": 15,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 2,
+      "gap": 4
+    },
+    {
+      "at": 27,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 2,
+      "gap": 3
+    },
+    {
+      "at": 38,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 3,
+      "gap": 3
+    },
+    {
+      "at": 48,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 3,
+      "gap": 2
+    }
+  ]
+}

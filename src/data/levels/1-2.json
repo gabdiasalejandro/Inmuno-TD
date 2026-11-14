@@ -1,0 +1,128 @@
+{
+  "id": "1-2",
+  "grid": {
+    "rows": 5,
+    "cols": 9
+  },
+  "startEnergy": 150,
+  "marrow": {
+    "amount": 30,
+    "interval": 5
+  },
+  "deck": [
+    "epitelio",
+    "moco",
+    "macrofago"
+  ],
+  "signals": [],
+  "win": {
+    "type": "clear"
+  },
+  "wounds": [
+    {
+      "at": 3,
+      "lane": 1
+    },
+    {
+      "at": 20,
+      "lane": 3
+    },
+    {
+      "at": 40,
+      "lane": 2
+    }
+  ],
+  "waves": [
+    {
+      "at": 5,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 1,
+      "gap": 0
+    },
+    {
+      "at": 16,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 2,
+      "gap": 5
+    },
+    {
+      "at": 24,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 2,
+      "gap": 5
+    },
+    {
+      "at": 42,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 3,
+      "gap": 4
+    },
+    {
+      "at": 44,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 2,
+      "gap": 5
+    },
+    {
+      "at": 52,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 3,
+      "gap": 4
+    },
+    {
+      "at": 58,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 3,
+      "gap": 4
+    },
+    {
+      "at": 64,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 5,
+      "gap": 2
+    },
+    {
+      "at": 66,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 5,
+      "gap": 2
+    },
+    {
+      "at": 68,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 5,
+      "gap": 2
+    },
+    {
+      "at": 82,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 5,
+      "gap": 1.5
+    },
+    {
+      "at": 84,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 5,
+      "gap": 1.5
+    },
+    {
+      "at": 86,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 5,
+      "gap": 1.5
+    }
+  ]
+}

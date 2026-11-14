@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <g id="volver" stroke-linejoin="round" stroke-linecap="round">
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="8" d="M 16 64 L 56 22 V 46 H 104 Q 112 46 112 54 V 74 Q 112 82 104 82 H 56 V 106 Z"/>
+    <path fill="#E1D9E8" d="M 56 82 H 104 Q 112 82 112 74 V 70 Q 100 70 56 70 Z"/>
+  </g>
+</svg>

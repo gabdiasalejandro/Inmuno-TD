@@ -1,0 +1,73 @@
+[
+  {
+    "id": "epitelio",
+    "cost": 50,
+    "cooldown": 8,
+    "hp": 300,
+    "tags": [
+      "barrera"
+    ]
+  },
+  {
+    "id": "moco",
+    "cost": 25,
+    "cooldown": 4,
+    "hp": 1,
+    "lifespan": 20,
+    "blocks": false,
+    "slow": 0.4,
+    "tags": [
+      "barrera"
+    ]
+  },
+  {
+    "id": "macrofago",
+    "lineage": "mieloide",
+    "cost": 100,
+    "cooldown": 12,
+    "hp": 250,
+    "attack": {
+      "type": "fagocitosis",
+      "damage": 40,
+      "rate": 0.25,
+      "range": 1,
+      "requires": [
+        "PAMP"
+      ]
+    },
+    "emits": {
+      "signal": "citocinas",
+      "perSecond": 14,
+      "range": 2,
+      "requires": [
+        "PAMP"
+      ]
+    },
+    "tags": [
+      "innata",
+      "fagocito"
+    ]
+  },
+  {
+    "id": "neutrofilo",
+    "lineage": "mieloide",
+    "cost": 50,
+    "cooldown": 6,
+    "hp": 40,
+    "lifespan": 10,
+    "attack": {
+      "type": "fagocitosis",
+      "damage": 40,
+      "rate": 0.5,
+      "range": 1,
+      "requires": [
+        "PAMP"
+      ]
+    },
+    "tags": [
+      "innata",
+      "fagocito",
+      "reclutable"
+    ]
+  }
+]

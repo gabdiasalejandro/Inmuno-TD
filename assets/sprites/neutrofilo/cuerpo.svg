@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- uropodo: colita trasera de la celula que migra; el cuerpo tapa su union -->
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="8" d="M 100 194 C 84 190 66 194 60 206 C 56 216 68 222 80 218 C 88 216 96 216 106 214 Z"/>
+    <path fill="#E1D9E8" d="M 60 208 C 58 216 68 222 80 218 C 88 216 96 216 106 214 L 104 208 C 92 212 72 214 60 208 Z"/>
+    <!-- cuerpo: huevo inclinado hacia adelante -->
+    <path fill="#FBF7F2" d="M 162.8 82.3 C 200.3 91.6 223.0 130.5 213.3 169.1 C 203.7 207.7 165.5 231.4 128.0 222.0 C 90.5 212.6 67.9 173.8 77.5 135.2 C 87.1 96.6 125.3 72.9 162.8 82.3 Z"/>
+    <!-- sombra (cel shading) a la derecha y abajo -->
+    <path fill="#E1D9E8" d="M 198.6 104.6 C 218.8 128.5 221.2 163.2 204.4 190.2 C 187.7 217.1 155.8 229.9 126.0 221.5 C 96.3 213.1 75.6 185.6 75.3 153.9 C 92.2 166.7 136.8 203.2 179.9 195.7 C 199.1 176.3 204.7 139.9 198.6 104.6 Z"/>
+    <!-- contorno -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 162.8 82.3 C 200.3 91.6 223.0 130.5 213.3 169.1 C 203.7 207.7 165.5 231.4 128.0 222.0 C 90.5 212.6 67.9 173.8 77.5 135.2 C 87.1 96.6 125.3 72.9 162.8 82.3 Z"/>
+    <!-- granulos finos -->
+    <g fill="#D3B6CE">
+      <circle cx="112" cy="96" r="2.5"/>
+      <circle cx="100" cy="114" r="2.5"/>
+      <circle cx="118" cy="140" r="2.5"/>
+      <circle cx="92" cy="134" r="2.5"/>
+      <circle cx="96" cy="156" r="2.5"/>
+      <circle cx="156" cy="92" r="2.5"/>
+      <circle cx="136" cy="166" r="2.5"/>
+      <circle cx="206" cy="124" r="2.5"/>
+      <circle cx="204" cy="170" r="2.5"/>
+      <circle cx="146" cy="212" r="2.5"/>
+      <circle cx="186" cy="178" r="2.5"/>
+      <circle cx="116" cy="212" r="2.5"/>
+    </g>
+    <!-- nucleo multilobulado: cuatro lobulos de distinto tamaño unidos por puentes finos -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="13" d="M 106 172 Q 112 194 126 198 Q 140 184 154 186 Q 164 198 176 196"/>
+    <path fill="none" stroke="#7B4FA3" stroke-width="5" d="M 106 172 Q 112 194 126 198 Q 140 184 154 186 Q 164 198 176 196"/>
+    <g fill="#7B4FA3" stroke="#3A2A2A" stroke-width="5">
+      <ellipse cx="106" cy="172" rx="13" ry="11"/>
+      <ellipse cx="126" cy="198" rx="12" ry="10"/>
+      <ellipse cx="154" cy="184" rx="14" ry="11"/>
+      <ellipse cx="178" cy="198" rx="11" ry="9"/>
+    </g>
+    <circle cx="110" cy="176" r="3" fill="#5E3A80"/>
+    <circle cx="130" cy="201" r="2.5" fill="#5E3A80"/>
+    <circle cx="159" cy="188" r="3" fill="#5E3A80"/>
+    <circle cx="181" cy="201" r="2.5" fill="#5E3A80"/>
+    <ellipse cx="102" cy="167" rx="4.5" ry="2.5" fill="#A47CC8"/>
+    <ellipse cx="122" cy="194" rx="4" ry="2" fill="#A47CC8"/>
+    <ellipse cx="149" cy="179" rx="5" ry="2.5" fill="#A47CC8"/>
+    <ellipse cx="174" cy="194" rx="3.5" ry="2" fill="#A47CC8"/>
+  </g>
+</svg>

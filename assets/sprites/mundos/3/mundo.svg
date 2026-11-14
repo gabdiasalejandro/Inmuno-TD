@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="mundo" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="128" cy="240" rx="108" ry="8" fill="#C9A6A0"/>
+    <!-- low courtyard wall with training cells -->
+    <path fill="#EBB7A4" stroke="#3A2A2A" stroke-width="8" d="M 16 232 V 176 Q 16 166 26 166 H 230 Q 240 166 240 176 V 232 Z"/>
+    <path fill="#CF8E82" d="M 240 176 Q 240 166 230 166 H 214 Q 224 170 224 184 V 232 H 240 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 16 190 H 92 M 164 190 H 240"/>
+    <circle cx="44" cy="214" r="11" fill="#FBF7F2" stroke="#3A2A2A" stroke-width="5"/><circle cx="44" cy="214" r="4" fill="#7B4FA3"/>
+    <circle cx="212" cy="214" r="11" fill="#FBF7F2" stroke="#3A2A2A" stroke-width="5"/><circle cx="212" cy="214" r="4" fill="#7B4FA3"/>
+    <!-- tall tower -->
+    <path fill="#EBB7A4" d="M 80 92 H 176 V 226 Q 176 234 168 234 H 88 Q 80 234 80 226 Z"/>
+    <path fill="#CF8E82" d="M 150 92 H 176 V 226 Q 176 234 168 234 H 140 Q 150 224 150 206 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 80 92 H 176 V 226 Q 176 234 168 234 H 88 Q 80 234 80 226 Z"/>
+    <!-- battlements -->
+    <path fill="#EBB7A4" stroke="#3A2A2A" stroke-width="8" d="M 72 94 V 66 H 94 V 78 H 112 V 66 H 144 V 78 H 162 V 66 H 184 V 94 Z"/>
+    <!-- flag with a T -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 128 66 V 14"/>
+    <path fill="#7B4FA3" stroke="#3A2A2A" stroke-width="6" d="M 128 14 H 192 Q 200 14 196 22 L 188 32 L 196 42 Q 200 50 192 50 H 128 Z"/>
+    <path fill="#FBF7F2" d="M 140 22 H 176 V 30 H 162 V 44 H 154 V 30 H 140 Z"/>
+    <!-- face and arched door -->
+    <ellipse cx="106" cy="126" rx="10" ry="13" fill="#3A2A2A"/><circle cx="103" cy="122" r="4.5" fill="#FBF7F2"/><circle cx="109.500" cy="131" r="2" fill="#FBF7F2"/>
+    <ellipse cx="150" cy="126" rx="10" ry="13" fill="#3A2A2A"/><circle cx="147" cy="122" r="4.5" fill="#FBF7F2"/><circle cx="153.500" cy="131" r="2" fill="#FBF7F2"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 120 148 Q 128 155 136 148"/>
+    <path fill="#7B4FA3" stroke="#3A2A2A" stroke-width="6" d="M 108 234 V 200 Q 108 180 128 180 Q 148 180 148 200 V 234 Z"/>
+  </g>
+</svg>

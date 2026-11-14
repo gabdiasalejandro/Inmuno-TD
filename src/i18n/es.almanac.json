@@ -1,0 +1,37 @@
+{
+  "almanac.title": "Almanaque",
+  "almanac.locked_name": "???",
+  "almanac.locked_hint": "Aún no has llegado a este personaje. Sigue avanzando por los niveles.",
+  "almanac.note.game": "En el juego",
+  "almanac.note.real": "En realidad",
+  "almanac.category.barrier": "Barrera corporal",
+  "almanac.category.innate_cell": "Célula inmune innata",
+  "almanac.category.organ": "Órgano",
+  "almanac.category.pathogen": "Patógeno",
+
+  "almanac.epitelio.fact": "El epitelio es la capa de células que cubre la piel y reviste el intestino y las vías respiratorias. Sus células están muy unidas y forman una barrera física que impide el paso de los microbios. Es parte de la inmunidad innata, la defensa que actúa desde el primer momento.",
+  "almanac.epitelio.note_game": "Colocas células epiteliales donde quieras, pagando energía de la médula ósea.",
+  "almanac.epitelio.note_real": "El epitelio no viene de la médula ósea ni se despliega: se regenera a partir de células del propio tejido.",
+  "almanac.epitelio.quote": "Llevo toda la vida de portero y aún no me han invitado a la fiesta de dentro. Aun así, por aquí no pasa nadie.",
+
+  "almanac.moco.fact": "El moco es una secreción pegajosa que cubre superficies húmedas como la nariz y las vías respiratorias. Atrapa a los microbios y evita que lleguen al epitelio. Después se arrastra hacia fuera, por ejemplo con el movimiento de los cilios, y se expulsa.",
+  "almanac.moco.note_game": "El moco que colocas desaparece pasados unos segundos.",
+  "almanac.moco.note_real": "El moco se produce y se renueva de forma continua, y el movimiento ciliar lo arrastra junto con lo que atrapó.",
+  "almanac.moco.quote": "Aaah... perdona, ¿decías? Tú sigue a lo tuyo: lo que se me pegue se queda conmigo a charlar un rato.",
+
+  "almanac.bacteria_gram_pos.fact": "Las bacterias grampositivas se tiñen de violeta con la tinción de Gram porque tienen una pared gruesa de peptidoglucano. Son organismos unicelulares sin núcleo. Llevan en la superficie patrones moleculares propios de los microbios, llamados PAMP, que las células innatas reconocen.",
+  "almanac.bacteria_gram_pos.quote": "Tranquilo, solo vengo a probar un poquito. Bueno, y mis primas también. Y las primas de mis primas.",
+
+  "almanac.medula_osea.fact": "La médula ósea es el tejido blando del interior de ciertos huesos. En ella se forman las células de la sangre, incluidos los leucocitos, a partir de células madre. Es un órgano linfoide primario: allí maduran los linfocitos B.",
+  "almanac.medula_osea.note_game": "Da energía a un ritmo fijo y se dibuja como un hueso largo.",
+  "almanac.medula_osea.note_real": "La producción se ajusta a la demanda. En adultos, la médula roja activa está sobre todo en vértebras, pelvis y esternón; el canal de los huesos largos contiene sobre todo grasa (médula amarilla).",
+  "almanac.medula_osea.quote": "Turno de veinticuatro horas, siete días a la semana, y sin quejas. Pero si alguien quiere aplaudir, yo no me opongo.",
+
+  "almanac.macrofago.name": "Macrófago",
+  "almanac.macrofago.fact": "El macrófago es un fagocito grande que vive en los tejidos. Reconoce y engulle microbios y restos de células, un proceso llamado fagocitosis. También da la alarma al resto del sistema inmune liberando citocinas.",
+  "almanac.macrofago.quote": "Veterano y con buen apetito: si se mueve y no es de los nuestros, me lo como. Luego aviso a los demás con una señal de humo (de citocinas, claro).",
+
+  "almanac.neutrofilo.name": "Neutrófilo",
+  "almanac.neutrofilo.fact": "El neutrófilo es el leucocito más abundante de la sangre. Es de los primeros en llegar a un tejido infectado, donde fagocita bacterias. Se reconoce por su núcleo con varios lóbulos y tiene una vida corta, así que la médula ósea lo produce sin parar.",
+  "almanac.neutrofilo.quote": "¡Yo voy primero! ¡Yo! ¿Hacia dónde? Da igual, ya estoy corriendo. Mi turno dura poco, pero qué turno."
+}

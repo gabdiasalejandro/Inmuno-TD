@@ -1,0 +1,9 @@
+{
+  "citocinas": {
+    "max": 100,
+    "decayPerSecond": 6,
+    "marrowBoost": 1,
+    "recruitBoost": 1.5,
+    "recruitTag": "reclutable"
+  }
+}

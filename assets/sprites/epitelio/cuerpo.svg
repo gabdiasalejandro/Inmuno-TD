@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- microvellosidades (borde en cepillo) -->
+    <g fill="#CF8A5A" stroke="#3A2A2A" stroke-width="5">
+      <rect x="80" y="30" width="11" height="22" rx="5.5"/>
+      <rect x="97" y="28" width="11" height="22" rx="5.5"/>
+      <rect x="114" y="27" width="11" height="22" rx="5.5"/>
+      <rect x="131" y="27" width="11" height="22" rx="5.5"/>
+      <rect x="148" y="28" width="11" height="22" rx="5.5"/>
+      <rect x="165" y="30" width="11" height="22" rx="5.5"/>
+    </g>
+    <!-- cuerpo: celula columnar, algo mas ancha en la base -->
+    <path fill="#EDB07F" d="M 88 44 H 168 Q 192 44 194 68 L 199 200 Q 199 226 173 226 H 83 Q 57 226 57 200 L 62 68 Q 64 44 88 44 Z"/>
+    <!-- sombra (cel shading) a la derecha y abajo -->
+    <path fill="#CF8A5A" d="M 180 46 Q 194 50 194 68 L 199 200 Q 199 226 173 226 H 83 Q 61 226 58 208 Q 118 216 170 206 Q 184 202 184 188 L 182 64 Q 182 54 180 46 Z"/>
+    <!-- brillo -->
+    <path fill="#F8D2AE" d="M 74 66 Q 76 56 86 56 Q 80 64 79 78 L 77 112 Q 72 112 72 104 Z"/>
+    <!-- contorno -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 88 44 H 168 Q 192 44 194 68 L 199 200 Q 199 226 173 226 H 83 Q 57 226 57 200 L 62 68 Q 64 44 88 44 Z"/>
+    <!-- nucleo basal -->
+    <ellipse cx="128" cy="196" rx="30" ry="15" fill="#7B4FA3" stroke="#3A2A2A" stroke-width="5"/>
+    <path fill="#5E3A80" d="M 155 190 Q 158 204 140 209 Q 126 212 110 209 Q 134 206 146 200 Q 154 196 155 190 Z"/>
+    <circle cx="136" cy="195" r="4" fill="#5E3A80"/>
+    <circle cx="122" cy="200" r="2.5" fill="#5E3A80"/>
+    <circle cx="146" cy="192" r="2.5" fill="#5E3A80"/>
+    <ellipse cx="112" cy="190" rx="6" ry="3" fill="#A47CC8"/>
+  </g>
+</svg>

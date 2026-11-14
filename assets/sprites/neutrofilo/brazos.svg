@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- brazo delantero: puño hacia adelante, listo para cargar -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 198 166 Q 218 166 230 152"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 198 166 Q 218 166 230 152"/>
+    <!-- brazo trasero: echado atras, como al arrancar a correr -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 92 142 Q 68 144 52 132"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 92 142 Q 68 144 52 132"/>
+  </g>
+</svg>

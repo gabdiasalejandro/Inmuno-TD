@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- pseudopodo delantero alto: se estira hacia adelante y termina en dedos romos -->
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="8" d="M 196 86 C 206 78 214 66 220 56 C 226 48 238 52 234 62 C 240 64 240 76 232 78 C 236 84 232 94 224 92 C 218 100 212 112 206 122 Z"/>
+    <path fill="#E1D9E8" d="M 232 78 C 236 84 232 94 224 92 C 218 100 214 106 210 112 C 212 100 218 88 226 82 C 228 80 230 79 232 78 Z"/>
+    <!-- pseudopodo delantero bajo: se arrastra por el suelo hacia adelante -->
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="8" d="M 204 158 C 216 158 228 166 234 178 C 240 186 240 198 232 200 C 236 208 226 214 220 208 C 216 214 206 212 206 206 Z"/>
+    <path fill="#E1D9E8" d="M 232 200 C 236 208 226 214 220 208 C 216 214 208 212 207 204 C 214 206 222 202 228 194 C 232 196 233 198 232 200 Z"/>
+    <!-- pseudopodo trasero bajo -->
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="8" d="M 46 160 C 30 158 18 168 16 182 C 14 192 20 196 24 192 C 22 202 34 206 38 198 C 42 192 46 190 52 190 Z"/>
+    <path fill="#E1D9E8" d="M 24 192 C 22 202 34 206 38 198 C 42 192 46 190 52 190 L 50 186 C 42 188 34 192 28 188 Z"/>
+  </g>
+</svg>

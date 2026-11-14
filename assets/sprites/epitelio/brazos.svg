@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- brazo izquierdo: contorno (34) y relleno (18) => trazo visible de 8 -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 70 134 Q 46 152 42 180"/>
+    <path stroke="#CF8A5A" stroke-width="18" d="M 70 134 Q 46 152 42 180"/>
+    <!-- brazo derecho -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 186 134 Q 210 152 214 180"/>
+    <path stroke="#CF8A5A" stroke-width="18" d="M 186 134 Q 210 152 214 180"/>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- flagelos inferiores: hacen de patitas -->
+    <path d="M 84 174 Q 74 186 82 196 Q 90 206 78 218"/>
+    <path d="M 114 176 Q 104 188 112 198 Q 120 208 108 220"/>
+    <path d="M 144 176 Q 134 188 142 198 Q 150 208 138 220"/>
+    <path d="M 172 172 Q 162 186 170 196 Q 178 206 166 218"/>
+    <!-- flagelo trasero: cola que se agita -->
+    <path d="M 200 132 Q 212 118 224 128 Q 234 138 240 126"/>
+  </g>
+</svg>

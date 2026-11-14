@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- brazo izquierdo: contorno (34) y relleno (18) => trazo visible de 8 -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 102 140 Q 76 146 62 168"/>
+    <path stroke="#D3BE98" stroke-width="18" d="M 102 140 Q 76 146 62 168"/>
+    <!-- brazo derecho -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 154 140 Q 180 146 194 168"/>
+    <path stroke="#D3BE98" stroke-width="18" d="M 154 140 Q 180 146 194 168"/>
+  </g>
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- hueso largo en pie: cabeza con dos condilos, diafisis corta y base con dos condilos -->
+    <path fill="#EFE2C8" d="M 128 62 C 140 46 162 40 182 50 C 206 62 210 98 190 114 C 178 124 166 126 158 128 L 158 170 C 170 166 188 172 190 192 C 192 212 174 224 158 220 C 146 218 138 214 128 214 C 118 214 110 218 98 220 C 82 224 64 212 66 192 C 68 172 86 166 98 170 L 98 128 C 90 126 78 124 66 114 C 46 98 50 62 74 50 C 94 40 116 46 128 62 Z"/>
+    <!-- sombra (cel shading) a la derecha y abajo -->
+    <path fill="#D3BE98" d="M 188 54 C 208 70 208 100 190 114 C 178 124 166 126 158 128 L 158 170 C 170 166 188 172 190 192 C 192 212 174 224 158 220 C 146 218 138 214 128 214 C 118 214 110 218 98 220 C 82 224 64 212 66 192 C 74 206 92 210 104 206 C 116 202 140 202 152 206 C 168 210 182 200 178 184 C 174 176 160 174 150 176 L 150 122 C 172 118 196 98 188 54 Z"/>
+    <!-- brillo -->
+    <path fill="#F8EFDC" d="M 62 92 C 60 74 70 58 86 54 C 78 64 74 76 74 92 C 74 100 62 100 62 92 Z"/>
+    <!-- contorno -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 128 62 C 140 46 162 40 182 50 C 206 62 210 98 190 114 C 178 124 166 126 158 128 L 158 170 C 170 166 188 172 190 192 C 192 212 174 224 158 220 C 146 218 138 214 128 214 C 118 214 110 218 98 220 C 82 224 64 212 66 192 C 68 172 86 166 98 170 L 98 128 C 90 126 78 124 66 114 C 46 98 50 62 74 50 C 94 40 116 46 128 62 Z"/>
+    <!-- corte longitudinal: canal con medula osea roja -->
+    <path fill="#C8575C" stroke="#3A2A2A" stroke-width="5" d="M 116 134 C 116 128 140 128 140 134 L 142 198 C 142 206 114 206 114 198 Z"/>
+    <path fill="#A9424C" d="M 139 140 L 140 198 C 140 202 130 203 122 202 C 132 198 134 192 134 184 L 134 140 C 134 136 138 136 139 140 Z"/>
+    <!-- trabeculas y celulas madre de la sangre -->
+    <path fill="none" stroke="#EFE2C8" stroke-width="4" d="M 118 152 Q 126 156 128 146 M 138 176 Q 130 172 128 182"/>
+    <circle cx="126" cy="166" r="5" fill="#F0A3A0" stroke="#A9424C" stroke-width="3"/>
+    <circle cx="133" cy="140" r="3.5" fill="#FBF7F2" stroke="#A9424C" stroke-width="3"/>
+    <circle cx="123" cy="190" r="3.5" fill="#F0A3A0" stroke="#A9424C" stroke-width="3"/>
+  </g>
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor -->
+    <ellipse cx="86" cy="104" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="170" cy="104" rx="10" ry="5.5" fill="#E8A29A"/>
+    <!-- ojo izquierdo: base compartida, abierto -->
+    <ellipse cx="106" cy="84" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="103" cy="80" r="4.5" fill="#FBF7F2"/>
+    <circle cx="109.5" cy="89" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida, abierto -->
+    <ellipse cx="150" cy="84" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="147" cy="80" r="4.5" fill="#FBF7F2"/>
+    <circle cx="153.5" cy="89" r="2" fill="#FBF7F2"/>
+    <!-- cejas en arco suave, alzadas: animo de trabajadora -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 94 64 Q 105 57 118 62 M 138 62 Q 151 57 162 64"/>
+    <!-- boca: linea recta con la flecha hacia abajo, sonrisa contenida -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 118 106 Q 128 111 138 106"/>
+  </g>
+</svg>
