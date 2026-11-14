@@ -53,7 +53,6 @@
   "banner.clear": "¡Elimina a las bacterias!",
   "action.start": "¡Vamos!",
   "hud.cytokines": "Citocinas",
-  "hud.remaining": "Bacterias",
   "hint.cytokines.title": "¡Alarma!",
   "hint.cytokines.body": "El macrófago detectó bacterias y libera citocinas. Mientras la barra esté alta, la médula ósea produce más rápido y los neutrófilos se recargan antes.",
   "result.won.clear": "¡Infección controlada!"

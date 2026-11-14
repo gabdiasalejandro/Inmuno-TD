@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeSignalNames, cytokineEffects, cytokineHintDue, shownSignalNames, bacteriaRemaining, digestFraction, isClearLevel, isRecruitBoosted, scheduledEnemies } from '../../src/game/levelView';
+import { activeSignalNames, cytokineEffects, cytokineHintDue, shownSignalNames, bacteriaRemaining, digestFraction, isClearLevel, isRecruitBoosted, levelProgress, scheduledEnemies } from '../../src/game/levelView';
 import type { LevelDef, SignalDef, UnitDef } from '../../src/sim';
 
 const signals: Record<string, SignalDef> = {
@@ -72,6 +72,20 @@ describe('bacteriaRemaining', () => {
 
   it('never goes below zero', () => {
     expect(bacteriaRemaining(level(), 99)).toBe(0);
+  });
+});
+
+describe('levelProgress', () => {
+  it('runs from 0 at the start to 1 when every bacterium is dead', () => {
+    expect(levelProgress(5, 5)).toBe(0);
+    expect(levelProgress(2, 5)).toBeCloseTo(0.6);
+    expect(levelProgress(0, 5)).toBe(1);
+  });
+
+  it('clamps and survives a level with no enemies', () => {
+    expect(levelProgress(-3, 5)).toBe(1);
+    expect(levelProgress(9, 5)).toBe(0);
+    expect(levelProgress(0, 0)).toBe(0);
   });
 });
 

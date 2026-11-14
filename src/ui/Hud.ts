@@ -3,6 +3,7 @@ import { CYTOKINE, CYTOKINE_DARK, UI_FONT, drawEnergyOrb, floatText, flyEnergy, 
 import { createFigure, type Figure } from '../game/figures';
 import type { ResultAction } from '../game/flow';
 import { t } from '../i18n';
+import { levelProgress } from '../game/levelView';
 import { secondsToTicks, type UnitDef } from '../sim';
 import { fitScale, formatClock, formatGain, formatMultiplier, isSpedUp } from './format';
 import {
@@ -39,6 +40,8 @@ const SELECTED = 0x7b4fa3;
 const WARN = 0xb5483f;
 const TIME_FILL = 0x8aa9b8;
 const TIME_LOW = 0xc98a6a;
+const PROGRESS = 0x8db28a;
+const PROGRESS_LIGHT = 0xb9d3a8;
 
 const SHAKE_MS = 350;
 const TOAST_MS = 1500;
@@ -160,12 +163,16 @@ export class Hud {
     text(scene, 19, true).setText(t('hud.energy')).setOrigin(0.5, 0).setPosition(ENERGY_COUNTER.x + ENERGY_COUNTER.w / 2, ENERGY_COUNTER.y + 78);
     this.energyValue = text(scene, 42, true).setOrigin(0, 0.5).setPosition(ENERGY_ICON.x + ENERGY_ICON.r + 10, ENERGY_ICON.y);
     // A stacked (short) timer panel puts label and value on one line; a tall one leaves room for a bar.
+    // Clear levels have neither: only the progress bar and its little bacterium.
     const compact = timer.h < 80;
+    const clear = options.clear;
     this.timeLabel = text(scene, compact ? 20 : 22, true)
-      .setText(t(options.clear ? 'hud.remaining' : 'hud.time_left'))
+      .setText(clear ? '' : t('hud.time_left'))
+      .setVisible(!clear)
       .setOrigin(0, compact ? 0.5 : 0)
       .setPosition(timer.x + 16, compact ? timer.y + timer.h / 2 : timer.y + 14);
     this.timeValue = text(scene, compact ? 32 : 40, true)
+      .setVisible(!clear)
       .setOrigin(1, compact ? 0.5 : 0)
       .setPosition(timer.x + timer.w - 16, compact ? timer.y + timer.h / 2 : timer.y + 6);
     if (meter) {
@@ -332,26 +339,65 @@ export class Hud {
 
   private drawTimer(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const rect = this.layout.timer;
-    const counting = m.remainingEnemies !== null;
-    const remaining = counting ? m.remainingEnemies : m.remainingSeconds;
-    const total = counting ? m.totalEnemies : m.totalSeconds;
+    // Clear levels have no countdown and no remaining count: only how much of the level is done.
+    if (m.remainingEnemies !== null) {
+      this.timeLabel.setVisible(false);
+      this.timeValue.setVisible(false);
+      const progress = levelProgress(m.remainingEnemies, m.totalEnemies);
+      const compact = rect.h < 80;
+      const bar = compact
+        ? { x: rect.x + 16, y: rect.y + 15, w: rect.w - 32, h: 18 }
+        : { x: rect.x + 18, y: rect.y + 40, w: rect.w - 36, h: 24 };
+      this.drawProgressBar(g, bar, progress, compact ? 9 : 12);
+      return;
+    }
+    const remaining = m.remainingSeconds;
+    const total = m.totalSeconds;
     const visible = remaining !== null && total !== null && total > 0;
     this.timeLabel.setVisible(visible);
     this.timeValue.setVisible(visible);
-    if (!visible) return;
+    if (!visible || remaining === null || total === null) return;
     const fraction = Math.max(0, Math.min(1, remaining / total));
-    const low = !counting && remaining <= 10;
-    this.timeValue.setText(counting ? String(remaining) : formatClock(remaining));
+    const low = remaining <= 10;
+    this.timeValue.setText(formatClock(remaining));
     if (rect.h < 80) return;
     const bar = { x: rect.x + 18, y: rect.y + 62, w: rect.w - 36, h: 24 };
     g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 12);
-    // Time drains toward the end; the bacteria bar drains as the infection is cleared.
     const w = bar.w * fraction;
     if (w > 2) {
       const pulse = low ? 0.75 + 0.25 * Math.sin(m.now / 120) : 1;
-      g.fillStyle(low ? TIME_LOW : counting ? 0xb09ae0 : TIME_FILL, pulse).fillRoundedRect(bar.x, bar.y, Math.max(w, 24), bar.h, 12);
+      g.fillStyle(low ? TIME_LOW : TIME_FILL, pulse).fillRoundedRect(bar.x, bar.y, Math.max(w, 24), bar.h, 12);
     }
     g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 12);
+  }
+
+  /** A soft green bar that fills as the level is cleared, with a tiny bacterium riding its edge. */
+  private drawProgressBar(g: Phaser.GameObjects.Graphics, bar: Rect, progress: number, radius: number): void {
+    g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, radius);
+    if (progress > 0) {
+      const w = Math.max(bar.h, Math.min(bar.w, bar.w * progress));
+      g.fillStyle(PROGRESS, 1).fillRoundedRect(bar.x, bar.y, w, bar.h, radius);
+      if (bar.h >= 20) g.fillStyle(PROGRESS_LIGHT, 0.5).fillRoundedRect(bar.x + 3, bar.y + 3, Math.max(w - 6, 4), 5, 2.5);
+    }
+    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, radius);
+    const size = bar.h + 2;
+    const half = (size * 1.1) / 2;
+    const x = Math.min(bar.x + bar.w - half, Math.max(bar.x + half, bar.x + bar.w * progress));
+    this.drawMiniBacterium(g, x, bar.y + bar.h / 2, size);
+  }
+
+  /** A violet capsule with one eye and a little tail: the level's progress marker. */
+  private drawMiniBacterium(g: Phaser.GameObjects.Graphics, x: number, y: number, size: number): void {
+    const w = size * 1.1;
+    const h = size * 0.7;
+    const left = x - w / 2;
+    const top = y - h / 2;
+    g.lineStyle(Math.max(1.5, size * 0.07), OUTLINE, 1).lineBetween(left, y, left - size * 0.32, y - size * 0.16);
+    g.fillStyle(0x7452e0, 1).fillRoundedRect(left, top, w, h, h / 2);
+    g.lineStyle(Math.max(2, size * 0.12), OUTLINE, 1).strokeRoundedRect(left, top, w, h, h / 2);
+    const eye = Math.max(1.2, size * 0.075);
+    g.fillStyle(0xfbf7f2, 1).fillCircle(x + w * 0.14, y - h * 0.12, eye * 1.5);
+    g.fillStyle(OUTLINE, 1).fillCircle(x + w * 0.16, y - h * 0.12, eye * 0.75);
   }
 
   /** Cytokine meter: a teal bar that bumps when particles arrive and shimmers while it is high. */

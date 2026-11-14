@@ -10,24 +10,24 @@ const NEUTROPHIL_RESERVE = unitCost('macrofago') + NEUTROPHIL_COST;
 const walls = holdLanes('epitelio', 4);
 const macrophages = holdLanes('macrofago', 3);
 
-/** A macrophage per open lane, then a wall just ahead of it, then mucus ahead of the wall. */
-const supported: Bot = (sim) => {
-  const missing = sim.state.openLanes.filter((lane) => unitsIn(sim, lane, 'macrofago').length === 0);
-  if (missing.length > 0) {
-    if (sim.state.energy < NEUTROPHIL_RESERVE - NEUTROPHIL_COST) return;
-    sim.placeUnit('macrofago', missing[0]!, 3);
-    return;
-  }
+/**
+ * The owner's strategy, confirmed in play: macrophages held back at column 6, mucus just ahead
+ * to slow the bacteria down, and an occasional wall to protect a macrophage.
+ */
+const heldBack: Bot = (sim) => {
+  const MACRO_COL = 6;
   for (const lane of sim.state.openLanes) {
     const front = frontCol(sim, lane) ?? 8;
-    if (!unitsIn(sim, lane, 'epitelio').some((unit) => unit.col <= front)) {
-      if (sim.state.energy >= 50 + NEUTROPHIL_RESERVE) sim.placeUnit('epitelio', lane, Math.max(0, Math.min(5, front - 1)));
+    if (unitsIn(sim, lane, 'macrofago').length === 0) {
+      if (sim.state.energy >= 100) sim.placeUnit('macrofago', lane, MACRO_COL);
       continue;
     }
-    for (const col of [8, 7, 6]) {
-      if (col <= front || !isFree(sim, lane, col)) continue;
-      if (sim.state.energy >= 25 + NEUTROPHIL_RESERVE) sim.placeUnit('moco', lane, col);
-      break;
+    if (!unitsIn(sim, lane, 'epitelio').some((unit) => unit.col <= front)) {
+      if (sim.state.energy >= 50) sim.placeUnit('epitelio', lane, Math.max(0, Math.min(MACRO_COL + 2, front - 1)));
+      continue;
+    }
+    if (MACRO_COL + 1 > front && isFree(sim, lane, MACRO_COL + 1) && sim.state.energy >= 25) {
+      sim.placeUnit('moco', lane, MACRO_COL + 1);
     }
   }
 };
@@ -70,9 +70,9 @@ describe('level 1-2 balance', () => {
     expect(play('1-2', every(3, macrophages)).status).toBe('lost');
   });
 
-  it('is won with a macrophage per lane supported by a wall and mucus, even by a slow player', () => {
-    expect(play('1-2', supported).status).toBe('won');
-    expect(play('1-2', every(3, supported)).status).toBe('won');
+  it('is won with macrophages held back, mucus ahead and the occasional wall, even by a slow player', () => {
+    expect(play('1-2', heldBack).status).toBe('won');
+    expect(play('1-2', every(3, heldBack)).status).toBe('won');
   });
 });
 

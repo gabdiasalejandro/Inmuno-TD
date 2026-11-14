@@ -31,6 +31,12 @@ export function bacteriaRemaining(level: LevelDef, defeated: number): number {
   return Math.max(0, scheduledEnemies(level) - defeated);
 }
 
+/** How far a clear level is, 0 at the start and 1 when every scheduled bacterium is dead. */
+export function levelProgress(remaining: number, total: number): number {
+  if (!(total > 0)) return 0;
+  return Math.max(0, Math.min(1, 1 - remaining / total));
+}
+
 /**
  * How full a phagocyte still is after its bite: 1 right after eating, 0 when it can attack again.
  * `rate` is the attack's attacks per second.

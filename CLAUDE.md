@@ -187,6 +187,8 @@ tests/
 ```
 
 - **Lógica separada del render.** `sim/` no importa Phaser. Se prueba sola y sobrevive a un cambio de motor.
+- **Simulación por sistemas.** `sim/world.ts` guarda el estado y las consultas compartidas; cada mecánica es un módulo en `sim/systems/` (aparición, señales, médula, combate, resultado, colocación) y `sim/sim.ts` solo fija el orden en que corren. Una mecánica nueva es un sistema nuevo, no más código en un archivo central. Falta el sistema de estados de la sección 8.1 (`opsonizado`, `infectada`...), que se añade al diseñar el 1-4 o el 1-5.
+- **Niveles autodescubiertos.** Cada JSON en `src/data/levels/` es un nivel y su nombre de archivo es su id; no hay lista manual (`tests/data/levels.test.ts` lo vigila).
 - **Contenido en datos.** Unidades, enemigos, niveles, oleadas, reglas y preguntas viven en JSON, para que un inmunólogo pueda revisarlos sin tocar código.
 - **Simulación determinista:** paso de tiempo fijo y azar con semilla. Permite tests de balance del tipo "el nivel 1-3 se gana con esta estrategia y se pierde sin neutrófilos".
 - **Textos traducibles desde el inicio.** Claves en inglés en los datos, textos visibles por identificador en `i18n/`. Español primero.
@@ -263,7 +265,7 @@ En cada paso: anotar la inmunología para la revisión médica (2.1), consultar 
 
 ## 11. Decisiones abiertas
 
-- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 250 de vida y el 1-2 ya exige muro+moco (2026-11-14); el 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
+- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 200 de vida y el 1-2 conserva las oleadas duras 5/5; el usuario lo jugó y lo ganó con macrófagos retrasados, moco delante y algún muro, y el test reproduce esa estrategia (2026-11-14). El 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
 - Nombre del juego.
 - Orientación en móvil (horizontal como PvZ o vertical).
 - Números de la economía: ritmo basal de la médula, cuánto acelera cada citocina y cuánto cuesta cada unidad (el modelo ya está decidido en la sección 4).

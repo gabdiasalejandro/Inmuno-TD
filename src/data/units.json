@@ -25,7 +25,7 @@
     "lineage": "mieloide",
     "cost": 100,
     "cooldown": 12,
-    "hp": 250,
+    "hp": 200,
     "attack": {
       "type": "fagocitosis",
       "damage": 40,
