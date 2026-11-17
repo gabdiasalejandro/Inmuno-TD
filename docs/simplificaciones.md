@@ -63,7 +63,7 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### heridas-alarma-debil
 
-- **En el juego:** una herida abierta acumula muy poca carga de citocinas (como mucho 6 puntos, a 0,5 por segundo), mucho menos que un macrófago (40 puntos, 7 por segundo). Así el jugador tiene que colocar células para dar una alarma útil.
+- **En el juego:** una herida abierta acumula muy poca carga de citocinas (como mucho 4 puntos, a 0,5 por segundo), mucho menos que un macrófago (30 puntos, 7 por segundo). Así el jugador tiene que colocar células para dar una alarma útil.
 - **En la realidad:** el tejido dañado es una fuente importante de señales de alarma (alarminas, DAMP y citocinas del epitelio); no hay motivo para pensar que su aporte sea tan pequeño frente al del macrófago.
 - **Por qué se simplifica:** decisión de jugabilidad del usuario (2026-11-17): "que las de las heridas liberen poco para que el jugador tenga que plantar más". Resta realismo a cambio de que la alarma dependa de las células que despliega el jugador.
 - **Dónde lo aclara el almanaque:** ficha del epitelio (pendiente).
@@ -84,7 +84,7 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### inflamacion-medidor-global
 
-- **En el juego:** un solo medidor de inflamación para todo el tejido. Desde el 40 % todas tus células pierden un 2 % de su vida máxima por segundo, en todos los carriles; al 100 % se pierde el nivel. Sube con las citocinas liberadas (0,5 puntos por punto) y con cada NET (3 puntos), y baja 1 punto por segundo.
+- **En el juego:** un solo medidor de inflamación para todo el tejido. Hasta el 60 % no hace daño. Del 60 % al 90 % todas tus células pierden un 1 % de su vida máxima por segundo, en todos los carriles; desde el 90 % el daño se duplica (2 % por segundo); al 100 % se pierde el nivel. Sube con las citocinas liberadas (0,42 puntos por punto) y con cada NET (3 puntos), y baja 1,1 puntos por segundo.
 - **En la realidad:** la inflamación es local: cada zona del tejido se inflama según lo que pasa en ella, y el daño colateral depende de muchas moléculas y células, no de un umbral fijo.
 - **Por qué se simplifica:** un medidor global se lee de un vistazo y enseña lo esencial: la respuesta inflamatoria ayuda, pero en exceso daña el propio tejido.
 - **Fuente:** entradas "Inflamación" y "Tormenta de citocinas" en `fuentes.md`.
@@ -108,9 +108,9 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### streptococcus-pyogenes-cambio-de-carril
 
-- **En el juego:** Streptococcus pyogenes, al chocar con un epitelio, se pasa a un carril vecino libre en lugar de atacarlo. Si los dos vecinos están bloqueados en esa columna, ataca como cualquier bacteria.
+- **En el juego:** Streptococcus pyogenes, al chocar con un epitelio, se pasa a un carril vecino libre en lugar de atacarlo. Lo hace una sola vez por bacteria: después ataca los muros como cualquier otra. Si los dos vecinos están bloqueados en esa columna, ataca como cualquier bacteria. Llega en grupos de 3 o 4 muy juntos.
 - **En la realidad:** la hialuronidasa degrada el ácido hialurónico de la matriz y la bacteria se extiende por el tejido; no esquiva barreras saltando de un sitio a otro.
-- **Por qué se simplifica:** el cambio de carril es la forma de "extenderse por el tejido" que permite una rejilla por carriles.
+- **Por qué se simplifica:** el cambio de carril es la forma de "extenderse por el tejido" que permite una rejilla por carriles; el límite de un cambio y los grupos hacen que una fila de muros sirva contra ella.
 - **Fuente:** entrada "Streptococcus pyogenes" en `fuentes.md`.
 - **Dónde lo aclara el almanaque:** ficha de Streptococcus pyogenes.
 

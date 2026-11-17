@@ -1,4 +1,5 @@
 import { TICKS_PER_SECOND } from '../time';
+import type { HarmDef } from '../types';
 import type { System, World } from '../world';
 
 /**
@@ -18,9 +19,19 @@ export function createCoupling(world: World): System {
   };
 }
 
+/** Damage per second of the highest harm tier a signal level has reached, or 0 below them all. */
+export function harmPercentAt(tiers: readonly HarmDef[], fraction: number): number {
+  let reached: HarmDef | undefined;
+  for (const tier of tiers) {
+    if (fraction >= tier.from && (!reached || tier.from > reached.from)) reached = tier;
+  }
+  return reached?.hpPercentPerSecond ?? 0;
+}
+
 /**
- * Collateral damage: while a signal with `harm` is at or above its threshold, every own unit
- * loses a share of its max hit points each tick. Units brought to zero are removed as killed.
+ * Collateral damage: while a signal with `harm` tiers is at or above the first one, every own
+ * unit loses a share of its max hit points each tick, at the rate of the highest tier reached.
+ * Units brought to zero are removed as killed.
  */
 export function createHarm(world: World): System {
   const { state } = world;
@@ -28,7 +39,7 @@ export function createHarm(world: World): System {
   return (events) => {
     let percentPerSecond = 0;
     for (const [name, def] of harmful) {
-      if (world.signalFraction(name) >= def.harm!.from) percentPerSecond += def.harm!.hpPercentPerSecond;
+      percentPerSecond += harmPercentAt(def.harm!, world.signalFraction(name));
     }
     if (percentPerSecond === 0) return;
     for (const unit of state.units) {

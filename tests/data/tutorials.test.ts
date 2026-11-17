@@ -125,7 +125,7 @@ describe('tutorial 1-4', () => {
     const seen = new Set<string>();
     const shown: number[] = [];
     while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
-      tutorial.observe({ stored: 0, signals: { inflamacion: sim.signal('inflamacion') }, seen });
+      tutorial.observe({ stored: 0, signals: { inflamacion: sim.signal('inflamacion') }, seen, enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)) });
       if (tutorial.active) {
         shown.push(tutorial.index);
         tutorial.perform({ type: 'tap' });
@@ -141,11 +141,12 @@ describe('tutorial 1-4', () => {
     return { shown, finished: tutorial.finished };
   }
 
-  it('introduces the inflammation gauge, its tiers and the first lane switch, in that order', () => {
+  it('introduces the inflammation gauge, its tiers and the first S. pyogenes on the board, in that order', () => {
     const steps = tutorials['1-4']!.steps;
     expect(steps.map((step) => step.text)).toEqual(['tutorial.1-4.inflammation', 'tutorial.1-4.tiers', 'tutorial.1-4.spread']);
     expect(steps[0]!.waitFor).toEqual({ type: 'signal', signal: 'inflamacion' });
-    expect(steps[2]!.waitFor).toEqual({ type: 'event', event: 'enemy_switched_lane' });
+    expect(steps[2]!.waitFor).toEqual({ type: 'enemy', enemy: 'streptococcus_pyogenes' });
+    expect(steps[2]!.target).toEqual({ type: 'enemy', enemy: 'streptococcus_pyogenes' });
   });
 
   it('can be followed to the end with the real rules', () => {

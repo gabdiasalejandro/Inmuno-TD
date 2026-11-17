@@ -16,6 +16,8 @@ export interface TutorialObservation {
   signals?: Readonly<Record<string, number>>;
   /** Types of the sim events reported so far in this play. */
   seen?: ReadonlySet<string>;
+  /** Ids of the enemies on the board right now. */
+  enemies?: ReadonlySet<string>;
 }
 
 /** What the player tries to do, as the tutorial needs to know it. */
@@ -52,6 +54,8 @@ function waitHolds(wait: TutorialWait, observation: TutorialObservation | null):
       return reaches(observation.signals?.[wait.signal] ?? 0, wait.atLeast);
     case 'event':
       return observation.seen?.has(wait.event) ?? false;
+    case 'enemy':
+      return observation.enemies?.has(wait.enemy) ?? false;
   }
 }
 

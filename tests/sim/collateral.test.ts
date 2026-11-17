@@ -25,18 +25,22 @@ const flyer: UnitDef = {
 };
 const stocked: UnitDef = { id: 'stocked', cost: 0, cooldown: 0, hp: 1_000_000, emits: { signal: 'alarm', capacity: 1000 } };
 const creeper: EnemyDef = { ...grunt, id: 'creeper', spreads: { around: ['shield'] } };
+const hopper: EnemyDef = { ...grunt, id: 'hopper', spreads: { around: ['shield'], maxSwitches: 1 } };
 
 const alarm: SignalDef = { max: 100, decayPerSecond: 0, releasePerSecond: 20 };
 const heat: SignalDef = {
   max: 100,
   decayPerSecond: 0,
   risesWith: { signal: 'alarm', perPoint: 0.5 },
-  harm: { from: 0.4, hpPercentPerSecond: 10 },
+  harm: [
+    { from: 0.4, hpPercentPerSecond: 10 },
+    { from: 0.8, hpPercentPerSecond: 20 },
+  ],
   defeatAt: 1,
 };
 const content: Content = {
   units: [...base.units, bunker, tower, flyer, stocked],
-  enemies: [grunt, creeper],
+  enemies: [grunt, creeper, hopper],
   signals: { alarm, heat },
 };
 const deck = ['bunker', 'tower', 'flyer', 'stocked', 'fighter', 'wall'];
@@ -85,6 +89,15 @@ describe('collateral harm', () => {
     // 10 % of 200 HP per second, for two seconds.
     expect(unitOf(sim, 'tower').hp).toBeCloseTo(160, 5);
     expect(unitOf(sim, 'wall').hp).toBeCloseTo(160, 5);
+  });
+
+  it('applies only the highest tier reached, not the sum of the tiers below it', () => {
+    const sim = quiet();
+    sim.placeUnit('tower', 0, 0);
+    sim.state.signals.heat = 80_000;
+    run(sim, 2);
+    // 20 % of 200 HP per second, for two seconds.
+    expect(unitOf(sim, 'tower').hp).toBeCloseTo(120, 5);
   });
 
   it('removes units it brings to zero and reports them killed', () => {
@@ -237,6 +250,32 @@ describe('enemies that spread around barriers', () => {
     const events = run(sim, 3);
     expect(events.some((e) => e.type === 'enemy_switched_lane')).toBe(false);
     expect(unitOf(sim, 'wall').hp).toBeLessThan(200);
+  });
+
+  /** A tagged blocker in lane 1 (lane 0 shut), then another one further on in lane 2. */
+  const twoWalls = (enemy: string) => {
+    const sim = createSim(level({ deck, signals: [], win: endless, waves: [{ at: 0, enemy, lane: 1, count: 1, gap: 0 }] }), content, 1);
+    sim.placeUnit('tower', 1, 3);
+    sim.placeUnit('bunker', 0, 3);
+    sim.placeUnit('tower', 2, 1);
+    return sim;
+  };
+  const towerIn = (sim: Sim, row: number) => sim.state.units.find((u) => u.defId === 'tower' && u.row === row)!;
+
+  it('with maxSwitches 1 switch once, then attack the next tagged blocker like any enemy', () => {
+    const sim = twoWalls('hopper');
+    const events = run(sim, 6);
+    expect(events.filter((e) => e.type === 'enemy_switched_lane')).toEqual([expect.objectContaining({ from: 1, to: 2 })]);
+    expect(sim.state.enemies[0]!.lane).toBe(2);
+    expect(towerIn(sim, 1).hp).toBe(200);
+    expect(towerIn(sim, 2).hp).toBeLessThan(200);
+  });
+
+  it('without maxSwitches keep switching at every tagged blocker', () => {
+    const sim = twoWalls('creeper');
+    const events = run(sim, 6);
+    expect(events.filter((e) => e.type === 'enemy_switched_lane').map((e) => e.type === 'enemy_switched_lane' && e.to)).toEqual([2, 1]);
+    expect(towerIn(sim, 2).hp).toBe(200);
   });
 
   it('plain enemies never switch lanes', () => {

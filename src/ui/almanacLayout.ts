@@ -1,4 +1,5 @@
 import { pointInRect, type Rect } from './layout';
+import { estimateTextWidth, fitLineFont, wrappedHeight } from './textFit';
 
 /** Almanac geometry in logical canvas pixels (1280x720). Phaser-free so it can be tested headless. */
 
@@ -107,3 +108,118 @@ export const TEXT_W = 476;
 export const BODY_X = 488;
 export const BODY_W = 748;
 export const PAGE_BOTTOM = PAGE_PANEL.y + PAGE_PANEL.h - 16;
+
+/** Where the name starts, at the top of the text column. */
+export const NAME_Y = 146;
+const NAME_FONT = 38;
+const NAME_FONT_MIN = 24;
+export const CHIP_H = 34;
+const CHIP_GAP = 8;
+const FACT_GAP = 14;
+export const FACT_LINE_SPACING = 5;
+export const NOTE_LABEL_W = 132;
+export const NOTE_LINE_SPACING = 3;
+export const NOTE_ROW_GAP = 8;
+const NOTE_PAD = 10;
+export const QUOTE_LINE_SPACING = 4;
+export const QUOTE_TEXT_X = BODY_X + 64;
+export const QUOTE_TEXT_W = BODY_W - 84;
+const QUOTE_PAD = 14;
+const QUOTE_MIN_H = 76;
+/** Space kept between stacked blocks of the page. */
+export const BLOCK_GAP = 12;
+/** Font sizes at full size and the smallest the page may shrink them to. */
+export const PAGE_FONTS = { fact: [22, 16], note: [19, 14], quote: [22, 16] } as const;
+const TILE_NAME_FONT = 19;
+const TILE_NAME_MIN = 13;
+/** Label strip at the bottom of a tile, under the thumbnail's ground line. */
+export const TILE_LABEL: Rect = { x: 8, y: 108, w: TILE_W - 16, h: TILE_H - 8 - 108 };
+
+export interface PageTexts {
+  name: string;
+  fact: string;
+  quote: string;
+  /** The simplification note's two bodies (game, reality), when the entry has one. */
+  note?: readonly string[];
+}
+
+export interface PageLayout {
+  nameFont: number;
+  nameH: number;
+  chipY: number;
+  factY: number;
+  factFont: number;
+  factH: number;
+  noteFont: number;
+  /** Top and height of the note plate; zero height without a note. */
+  noteTop: number;
+  noteH: number;
+  quoteFont: number;
+  quoteTop: number;
+  quoteH: number;
+  /** False only when even the smallest fonts overflow (the page then overlaps). */
+  fits: boolean;
+}
+
+/** Font sizes after `step` one-pixel reductions, each kept at its minimum. */
+export function pageFontsAt(step: number): { fact: number; note: number; quote: number } {
+  const at = ([max, min]: readonly [number, number]) => Math.max(min, max - step);
+  return { fact: at(PAGE_FONTS.fact), note: at(PAGE_FONTS.note), quote: at(PAGE_FONTS.quote) };
+}
+
+/** Steps it takes for every page font to reach its minimum. */
+export const PAGE_FONT_STEPS = Math.max(...Object.values(PAGE_FONTS).map(([max, min]) => max - min));
+
+/** Height of the quote box for a quote text block `textH` tall. */
+export function quoteBoxHeight(textH: number): number {
+  return Math.max(textH + QUOTE_PAD * 2, QUOTE_MIN_H);
+}
+
+/** Height of the note plate for rows of text this tall. */
+export function noteBoxHeight(rowHeights: readonly number[]): number {
+  return rowHeights.reduce((sum, h) => sum + h, 0) + NOTE_ROW_GAP * (rowHeights.length - 1) + NOTE_PAD * 2;
+}
+
+/** Top of the note plate: under the figure stage and under the fact. */
+export function noteTopFor(factBottom: number): number {
+  return Math.max(STAGE.y + STAGE.h, factBottom) + BLOCK_GAP;
+}
+
+/**
+ * Lays out an entry's page: the name on one line when a smaller font allows it, then shrinks the
+ * fact, note and quote together, a pixel at a time, until the fact and the note end above the
+ * quote, which stays anchored to the bottom of the page.
+ */
+export function pageLayout(texts: PageTexts): PageLayout {
+  const nameFont = fitLineFont(texts.name, TEXT_W, NAME_FONT, NAME_FONT_MIN, true);
+  const nameH = wrappedHeight(texts.name, TEXT_W, nameFont, 0, true);
+  const chipY = NAME_Y + nameH + CHIP_GAP;
+  const factY = chipY + CHIP_H + FACT_GAP;
+  let layout: PageLayout | null = null;
+  for (let step = 0; step <= PAGE_FONT_STEPS; step++) {
+    const fonts = pageFontsAt(step);
+    const factH = wrappedHeight(texts.fact, TEXT_W, fonts.fact, FACT_LINE_SPACING);
+    const quoteH = quoteBoxHeight(wrappedHeight(texts.quote, QUOTE_TEXT_W, fonts.quote, QUOTE_LINE_SPACING));
+    const quoteTop = PAGE_BOTTOM - quoteH;
+    const noteTop = noteTopFor(factY + factH);
+    const noteW = BODY_W - 32 - NOTE_LABEL_W;
+    const noteH = texts.note ? noteBoxHeight(texts.note.map((body) => wrappedHeight(body, noteW, fonts.note, NOTE_LINE_SPACING))) : 0;
+    const bottom = texts.note ? noteTop + noteH : factY + factH;
+    const fits = bottom <= quoteTop - BLOCK_GAP;
+    layout = { nameFont, nameH, chipY, factY, factFont: fonts.fact, factH, noteFont: fonts.note, noteTop, noteH, quoteFont: fonts.quote, quoteTop, quoteH, fits };
+    if (fits) break;
+  }
+  return layout!;
+}
+
+/** Font of a tile's name: as big as fits the label strip, wrapping onto two lines if needed. */
+export function tileNameFont(name: string): number {
+  for (let size = TILE_NAME_FONT; size > TILE_NAME_MIN; size--) {
+    if (wrappedHeight(name, TILE_LABEL.w, size, 0, true) <= TILE_LABEL.h && estimateTextWidth(longestWord(name), size, true) <= TILE_LABEL.w) return size;
+  }
+  return TILE_NAME_MIN;
+}
+
+function longestWord(text: string): string {
+  return text.split(/\s+/).reduce((a, b) => (b.length > a.length ? b : a), '');
+}

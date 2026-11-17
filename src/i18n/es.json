@@ -70,10 +70,10 @@
   "hud.inflammation": "Inflamación",
   "result.lost.inflamacion": "La inflamación dañó el tejido",
   "intro.1-4.title": "Inflamación",
-  "intro.1-4.body": "Las citocinas llaman refuerzos, pero también inflaman el tejido, igual que las NET que dejan los neutrófilos al morir. Vigila la barra: si pasa la marca, daña a tus células; si llega al final, pierdes. Y cuidado con Streptococcus pyogenes: rodea el epitelio.",
+  "intro.1-4.body": "Las citocinas traen refuerzos, pero inflaman el tejido, igual que las NET de los neutrófilos al morir. Con mucha inflamación tus células se dañan; si la barra se llena, pierdes. Streptococcus pyogenes rodea los muros sueltos: ponlos en fila.",
   "obj.1-4.inflammation": "¿Qué ventajas y qué daños tiene la inflamación?",
   "obj.1-4.net": "¿Qué son las NET y por qué también dañan el tejido?",
   "tutorial.1-4.inflammation": "¡Mira esta barra! Sube cuando liberas citocinas y cuando un neutrófilo muere y lanza su NET, una red que atrapa bacterias.",
-  "tutorial.1-4.tiers": "Si pasa la marca, la inflamación daña también a tus células. Si llega al final, pierdes. Libera con medida y deja que baje.",
-  "tutorial.1-4.spread": "¡Ese estreptococo rodeó el epitelio! Su hialuronidasa deshace el tejido: un muro solo no basta, cubre también los carriles vecinos."
+  "tutorial.1-4.tiers": "Si pasa la primera marca, la inflamación daña también a tus células; si pasa la segunda, el daño se duplica. Si llega al final, pierdes. Libera con medida y deja que baje.",
+  "tutorial.1-4.spread": "¡Llega Streptococcus pyogenes, en grupo! Su hialuronidasa le deja rodear un muro en vez de atacarlo, pero solo una vez: una fila de epitelios lo frena."
 }

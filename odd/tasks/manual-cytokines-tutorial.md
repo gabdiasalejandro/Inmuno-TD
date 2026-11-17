@@ -29,6 +29,12 @@ Objective: player-controlled cytokine release (1-3), scalable PvZ-style mini tut
 - S15 (L11). Tutorial arrow must not overlap the bubble (release-button step). Cytokines: "bajar un poquito la carga que pueden tener las células de citocinas y que el botón cargue la barra más rápido" (macrophage 40→30, epithelium 15→10, wound 6→4, release 25→40/s). Added to the 1-4 writer.
 - S16 (L11). Commit the finished work; the 1-4 writer is editing the same files, so commit after it returns.
 
+- S17 (L12). Inflammation tiers: 0–60 % none, 60–90 % collateral damage, from 90 % damage doubled, 100 % defeat. Cytokine bar fills faster. 1-4 easier: "necesitamos que la inflamación joda un poco menos y deje usar las citocinas un poco más".
+
+- S18 (L13). Fix overlap in the almanac and the intro concept card (long names collide, body text runs under "¡Vamos!"). The 1-4 tutorial presents S. pyogenes when the first one appears. "para forzar muros podemos hacer que aparezcan en grupos de 3 o 4 muy pegados y que solo puedan cambiar de carril una vez".
+
+- S19 (L14). Level 1-5 virus, approved: the virus (small, fast, low HP) infects ANY own cell instead of attacking (state `infectada`); after some seconds the infected cell bursts, dies and releases 2–3 new virions into neighbouring cells. Infected cells protect their neighbours with interferon automatically for a few seconds (protected cells cannot be infected) — "está bien para que el virus no sea una masacre". Phagocytes can eat free virions but cannot attack infected cells. NK (new unit) attacks only own `infectada` cells in range (stress-ligand recognition), never free virus. NO MHC I mechanic in world 1 ("lo del MHC lo guardamos para el mundo 2"). Viruses come mixed with bacteria. Deck epitelio, moco, macrofago, neutrofilo, NK; cytokines and inflammation stay active. The bone marrow explains it (tutorial). NK sprite: femme fatale, pretty, a colour different from macrophage and neutrophil (proposal for review).
+
 ## Tasks
 
 - T1 S1 — delegated (user asked for agents) — done, typecheck + 308 tests pass, uncommitted.
@@ -39,6 +45,9 @@ Objective: player-controlled cytokine release (1-3), scalable PvZ-style mini tut
 - T8 S5 (marrow tutor), S10 — delegated — done, 396 tests + build pass; tutorial hold step shows at 14.8 s instead of 29.6 s (waitTime fast, 2×). Effect line rewritten in first person (marrow speaking).
 - T9 S12 — delegated — done, typecheck + 398 tests + build pass, uncommitted.
 - T10 S12 fix — inline — done: bubble 680×170, text 24 px, "Siguiente" on its own row; first-release green "¡Alarma!" hint removed (trigger, levelView fn and its test). 397 tests pass.
+- T13 S19 — level 1-5 — delegated after T12 (shares files) — pending.
+- T12 S18 — delegated — done, 467 tests pass. Intro/almanac text fit, S. pyogenes groups of 3–4 with one lane switch, tutorial shows it on first appearance.
+- T11 S17 — delegated — done, 438 tests pass. Release 60/s; inflammation +0.42/pt, decay 1.1/s, harm 1 %/s from 60 %, 2 %/s from 90 %; gauge throbs from the last tier. Uncommitted.
 - T4 S6, S7, S13, S14, S15 — level 1-4 + overlap fix + cytokine tuning — delegated — done, typecheck + 436 tests + build pass. Pending playtest and S. pyogenes sprite review.
 
 ## Log
@@ -54,3 +63,6 @@ Objective: player-controlled cytokine release (1-3), scalable PvZ-style mini tut
 - L9 (2026-11-17, user): "EL hud me gusta más, el macrófago a la 6 mejor, sin botón de saltar, solo de \"siguiente\" y que se marque tanto el macrófago como la casilla inmediatamente, el toca para seguir se solapa btw, solo lo quitamos y yap. Me gusta el enemigo especial para el 1-4 el pyogens"
 - L10 (2026-11-17, user): "me gusta lo del 1-4 [...] el tutorial tiene fallas de overlap y la imágen en verde que sale la primera vez que liberas citocinas no es necesaria."
 - L11 (2026-11-17, user): "mini error de overlap aquí. lo demás ok, sí, justo te iba a decir eso, hay que hacer commit, y hay que bajar un poquito la crga que puden tener las células de citocinas y que el botón cargue la barra más rápido."
+- L12 (2026-11-17, user): "mejor sube la franja a 60 y 60-90 daño de inflamación lo del daño, y haz que la barra de citocina cargue más rápido, ahora mismo el nivel está muy difícil, pasable, pero puede frustrar, necesitamos que la inflamación joda un poco menos y deje usar las citocinas un poco más, y que del 90% el daño se duplique me parece ok"
+- L13 (2026-11-17, user): "PUes vamos a ver lo del virus, mientras tanto hay overlap en el almanaque [Image #3] y en esta card, sí lo del pyogens está ok. para forzar muros podemos hacer que aparezcan en grupos de 3 o 4 muy pegados y que solo puedan cambiar de carril una vez"
+- L14 (2026-11-17, user): "dale la 2, seguramente después de acabar el mundo 1 haya cosas de diseño, lo del MHC lo guardamos para el mundo 2, la NK está ok. y que los virus vengan con las bacterias sí. Lo de la NK sí, y tenemos que hacerla estilo femme fatale, bonita, y de otro color diferente a los macro y neutro , lo del interferón sí, está bien para que el virus no sea una masacre. y que lo explique la médula"

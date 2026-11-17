@@ -15,7 +15,16 @@ import {
   tileAt,
   tileRect,
   visibleRange,
+  BLOCK_GAP,
+  TEXT_W,
+  TILE_LABEL,
+  pageLayout,
+  tileNameFont,
+  type PageTexts,
 } from '../../src/ui/almanacLayout';
+import { ALMANAC_ENTRIES, nameKeys, type AlmanacEntry } from '../../src/ui/almanacModel';
+import { t } from '../../src/i18n';
+import { estimateTextWidth, wrapLines, wrappedHeight } from '../../src/ui/textFit';
 import { CANVAS, pointInRect } from '../../src/ui/layout';
 
 function overlap(a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }): boolean {
@@ -144,5 +153,45 @@ describe('almanac layout', () => {
     expect(almanacBackHit(30, 30)).toBe(true);
     expect(almanacBackHit(700, 400)).toBe(false);
     expect(pointInRect({ x: 0, y: 0, w: 1280, h: 720 }, 30, 30)).toBe(true);
+  });
+});
+
+describe('almanac text fits its boxes for every entry', () => {
+  const name = (entry: AlmanacEntry) => {
+    const keys = nameKeys(entry);
+    return t(keys.find((key) => t(key) !== key) ?? keys[0]!);
+  };
+  const texts = (entry: AlmanacEntry): PageTexts => ({
+    name: name(entry),
+    fact: t(`almanac.${entry.id}.fact`),
+    quote: t(`almanac.${entry.id}.quote`),
+    note: entry.note ? [t(`almanac.${entry.id}.note_game`), t(`almanac.${entry.id}.note_real`)] : undefined,
+  });
+
+  it.each(ALMANAC_ENTRIES.map((entry) => [entry.id, entry] as const))('%s: name on one line, fact and note end above the quote', (_id, entry) => {
+    const page = texts(entry);
+    const layout = pageLayout(page);
+    expect(layout.fits).toBe(true);
+    expect(estimateTextWidth(page.name, layout.nameFont, true)).toBeLessThanOrEqual(TEXT_W);
+    expect(layout.factY + layout.factH).toBeLessThanOrEqual(layout.quoteTop - BLOCK_GAP);
+    if (page.note) {
+      expect(layout.noteTop).toBeGreaterThanOrEqual(layout.factY + layout.factH);
+      expect(layout.noteTop + layout.noteH).toBeLessThanOrEqual(layout.quoteTop - BLOCK_GAP);
+    }
+    expect(layout.quoteTop + layout.quoteH).toBeLessThanOrEqual(PAGE_PANEL.y + PAGE_PANEL.h);
+  });
+
+  it.each(ALMANAC_ENTRIES.map((entry) => [entry.id, entry] as const))('%s: tile name fits its label strip', (_id, entry) => {
+    const label = name(entry);
+    const font = tileNameFont(label);
+    for (const line of wrapLines(label, TILE_LABEL.w, font, true)) expect(estimateTextWidth(line, font, true)).toBeLessThanOrEqual(TILE_LABEL.w);
+    expect(wrappedHeight(label, TILE_LABEL.w, font, 0, true)).toBeLessThanOrEqual(TILE_LABEL.h);
+  });
+
+  it('shrinks the page fonts for a long entry instead of overlapping the quote', () => {
+    const long = { name: 'Streptococcus pyogenes', fact: 'Dato largo. '.repeat(40), quote: 'Frase.', note: ['Nota del juego.', 'Nota real.'] };
+    const layout = pageLayout(long);
+    expect(layout.factFont).toBeLessThan(22);
+    expect(layout.fits).toBe(true);
   });
 });

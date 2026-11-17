@@ -42,6 +42,7 @@ export function createSpawning(world: World): { openWounds: System; spawnDue: Sy
           pos: level.grid.cols * CELL,
           hp: def.hp,
           attackReadyAt: 0,
+          switches: 0,
         };
         state.enemies.push(enemy);
         state.nextSpawn++;

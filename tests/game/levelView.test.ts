@@ -143,11 +143,11 @@ describe('cytokineEffects', () => {
 describe('gaugeSignal', () => {
   const withHeat: Record<string, SignalDef> = {
     ...signals,
-    inflamacion: { max: 100, decayPerSecond: 1, harm: { from: 0.4, hpPercentPerSecond: 2 }, defeatAt: 1 },
+    inflamacion: { max: 100, decayPerSecond: 1, harm: [{ from: 0.6, hpPercentPerSecond: 2 }, { from: 0.9, hpPercentPerSecond: 4 }], defeatAt: 1 },
   };
 
   it('is the active signal that harms or can lose the level, with its tier thresholds', () => {
-    expect(gaugeSignal(level({ signals: ['citocinas', 'inflamacion'] }), withHeat)).toEqual({ name: 'inflamacion', harmFrom: 0.4, defeatAt: 1 });
+    expect(gaugeSignal(level({ signals: ['citocinas', 'inflamacion'] }), withHeat)).toEqual({ name: 'inflamacion', tiers: [0.6, 0.9], defeatAt: 1 });
   });
 
   it('is null where that signal is not active, or where no signal harms', () => {

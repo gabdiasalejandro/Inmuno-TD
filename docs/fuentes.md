@@ -109,4 +109,4 @@ Todas **por revisar** salvo las marcadas.
 - NET: el neutrófilo suele morir al formarla (NETosis). **Estado:** dudoso (existe también NETosis "vital" sin muerte inmediata; revisar la redacción "suele morir").
 - NET: las NET también dañan el tejido propio y aumentan la inflamación (regla `raises` del 1-4, objetivo "¿Qué son las NET y por qué también dañan el tejido?"). **Estado:** por revisar.
 - Streptococcus pyogenes (enemigo del 1-4, almanaque): bacteria grampositiva, coco en cadenas; causa faringitis, impétigo e infecciones graves de piel y tejidos profundos. **Estado:** por revisar.
-- Streptococcus pyogenes: su hialuronidasa degrada el ácido hialurónico del tejido y le ayuda a extenderse (regla `spreads`: cambia de carril ante el epitelio). **Estado:** por revisar.
+- Streptococcus pyogenes: su hialuronidasa degrada el ácido hialurónico del tejido y le ayuda a extenderse (regla `spreads`: cambia de carril ante el epitelio, una sola vez por bacteria). **Estado:** por revisar.

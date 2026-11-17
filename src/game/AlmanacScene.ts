@@ -4,8 +4,21 @@ import { levels, worlds } from '../data';
 import { t } from '../i18n';
 import {
   ALMANAC_BACK,
+  BLOCK_GAP,
   BODY_W,
   BODY_X,
+  CHIP_H,
+  FACT_LINE_SPACING,
+  NAME_Y,
+  NOTE_LABEL_W,
+  NOTE_LINE_SPACING,
+  NOTE_ROW_GAP,
+  PAGE_FONTS,
+  PAGE_FONT_STEPS,
+  QUOTE_LINE_SPACING,
+  QUOTE_TEXT_W,
+  QUOTE_TEXT_X,
+  TILE_LABEL,
   LIST_PANEL,
   LIST_VIEW,
   PAGE_BOTTOM,
@@ -19,7 +32,13 @@ import {
   almanacBackHit,
   clampScroll,
   isDrag,
+  noteBoxHeight,
+  noteTopFor,
+  pageFontsAt,
+  pageLayout,
+  quoteBoxHeight,
   scrollbar,
+  tileNameFont,
   tileAt,
   tileRect,
   visibleRange,
@@ -226,7 +245,10 @@ export class AlmanacScene extends Phaser.Scene {
       this.box(r.x, r.y, TILE_W, TILE_H, 16, active ? 0xfff4e0 : PANEL, active ? 8 : 4, open ? 1 : 0.5);
       this.thumb(entry.id, r.x + TILE_W / 2, r.y + 100, 0.42, !open);
       const label = open ? this.firstTranslated(nameKeys(entry)) : t('almanac.locked_name');
-      this.text(r.x + TILE_W / 2, r.y + TILE_H - 8, label, 19, { fontStyle: 'bold', align: 'center', wordWrap: { width: TILE_W - 16 } }).setOrigin(0.5, 1);
+      const font = tileNameFont(label);
+      const text = this.text(r.x + TILE_W / 2, r.y + TILE_H - 8, label, font, { fontStyle: 'bold', align: 'center', wordWrap: { width: TILE_LABEL.w } }).setOrigin(0.5, 1);
+      // The font comes from an estimate; shrink further if the real text runs past the label strip.
+      for (let size = font - 1; (text.height > TILE_LABEL.h || text.width > TILE_LABEL.w) && size >= 10; size--) text.setFontSize(size);
     });
     // The panel border is redrawn over the tiles and kept still on screen while the list scrolls.
     this.building = [];
@@ -271,46 +293,68 @@ export class AlmanacScene extends Phaser.Scene {
     this.figure = createFigure(this, entry.id, STAGE.x + STAGE.w / 2, ground, 1).idle();
     this.figure.root.setDepth(1);
 
-    // Real name, category chip and the fact.
-    const name = this.text(TEXT_X, 146, this.firstTranslated(nameKeys(entry)), 38, { fontStyle: 'bold', wordWrap: { width: TEXT_W } });
+    // Real name (one line when a smaller font allows it), category chip, fact, note and quote.
+    const page = {
+      name: this.firstTranslated(nameKeys(entry)),
+      fact: t(`almanac.${entry.id}.fact`),
+      quote: t(`almanac.${entry.id}.quote`),
+      note: entry.note ? [t(`almanac.${entry.id}.note_game`), t(`almanac.${entry.id}.note_real`)] : undefined,
+    };
+    const layout = pageLayout(page);
+    const name = this.text(TEXT_X, NAME_Y, page.name, layout.nameFont, { fontStyle: 'bold', wordWrap: { width: TEXT_W } });
     const chipY = name.y + name.height + 8;
     const chip = this.text(TEXT_X + 14, chipY + 5, t(`almanac.category.${entry.category}`), 20, { fontStyle: 'bold' });
-    this.box(TEXT_X, chipY, chip.width + 28, 34, 17, CHIP_FILL[entry.category], 3);
+    this.box(TEXT_X, chipY, chip.width + 28, CHIP_H, 17, CHIP_FILL[entry.category], 3);
     chip.setDepth(1);
-    const fact = this.text(TEXT_X, chipY + 34 + 14, t(`almanac.${entry.id}.fact`), 22, { lineSpacing: 5, wordWrap: { width: TEXT_W } });
+
+    const fact = this.text(TEXT_X, chipY + CHIP_H + 14, page.fact, PAGE_FONTS.fact[0], { lineSpacing: FACT_LINE_SPACING, wordWrap: { width: TEXT_W } });
+    const quote = this.text(QUOTE_TEXT_X, 0, page.quote, PAGE_FONTS.quote[0], {
+      fontStyle: 'italic',
+      color: SOFT_INK,
+      lineSpacing: QUOTE_LINE_SPACING,
+      wordWrap: { width: QUOTE_TEXT_W },
+    });
+    const noteRows = page.note
+      ? [t('almanac.note.game'), t('almanac.note.real')].map((label, i) => ({
+          label: this.text(BODY_X + 16, 0, label, 18, { fontStyle: 'bold' }).setDepth(3),
+          body: this.text(BODY_X + 16 + NOTE_LABEL_W, 0, page.note![i]!, PAGE_FONTS.note[0], {
+            lineSpacing: NOTE_LINE_SPACING,
+            wordWrap: { width: BODY_W - 32 - NOTE_LABEL_W },
+          }).setDepth(3),
+        }))
+      : [];
+
+    // Shrink fact, note and quote together, measuring the real text, until they no longer overlap.
+    let quoteH = 0;
+    let noteTop = 0;
+    let noteH = 0;
+    for (let step = 0; step <= PAGE_FONT_STEPS; step++) {
+      const fonts = pageFontsAt(step);
+      fact.setFontSize(fonts.fact);
+      quote.setFontSize(fonts.quote);
+      for (const row of noteRows) row.body.setFontSize(fonts.note);
+      quoteH = quoteBoxHeight(quote.height);
+      noteTop = noteTopFor(fact.y + fact.height);
+      noteH = noteRows.length ? noteBoxHeight(noteRows.map((row) => row.body.height)) : 0;
+      const bottom = noteRows.length ? noteTop + noteH : fact.y + fact.height;
+      if (bottom <= PAGE_BOTTOM - quoteH - BLOCK_GAP) break;
+    }
 
     // Quote: anchored to the bottom of the page, lighter box, softer ink, italic, first person.
-    const quote = this.text(BODY_X + 64, 0, t(`almanac.${entry.id}.quote`), 22, { fontStyle: 'italic', color: SOFT_INK, lineSpacing: 4, wordWrap: { width: BODY_W - 84 } });
-    const quoteH = Math.max(quote.height + 28, 76);
     const quoteTop = PAGE_BOTTOM - quoteH;
     this.box(BODY_X, quoteTop, BODY_W, quoteH, 18, QUOTE_FILL, 2, 0.35).setDepth(2);
     quote.setY(quoteTop + (quoteH - quote.height) / 2).setDepth(3);
     this.text(BODY_X + 18, quoteTop + quoteH / 2, '“', 64, { fontStyle: 'bold', color: '#D6B3AD' }).setOrigin(0, 0.5).setDepth(3);
 
     // Optional note: the game's simplification and what happens in reality.
-    if (entry.note) {
-      this.drawNote(entry, Math.max(STAGE.y + STAGE.h, fact.y + fact.height) + 12);
-    }
-  }
-
-  private drawNote(entry: AlmanacEntry, top: number): void {
-    const LABEL_W = 132;
-    const rows: Array<[string, string]> = [
-      [t('almanac.note.game'), t(`almanac.${entry.id}.note_game`)],
-      [t('almanac.note.real'), t(`almanac.${entry.id}.note_real`)],
-    ];
-    const texts = rows.map(([label, body]) => ({
-      label: this.text(BODY_X + 16, 0, label, 18, { fontStyle: 'bold' }).setDepth(3),
-      body: this.text(BODY_X + 16 + LABEL_W, 0, body, 19, { lineSpacing: 3, wordWrap: { width: BODY_W - 32 - LABEL_W } }).setDepth(3),
-    }));
-    const GAP = 8;
-    const height = texts.reduce((sum, row) => sum + row.body.height, 0) + GAP * (texts.length - 1) + 20;
-    this.box(BODY_X, top, BODY_W, height, 14, PLATE, 2, 0.5).setDepth(2);
-    let y = top + 10;
-    for (const row of texts) {
-      row.label.setPosition(BODY_X + 16, y + 1);
-      row.body.setY(y);
-      y += row.body.height + GAP;
+    if (noteRows.length) {
+      this.box(BODY_X, noteTop, BODY_W, noteH, 14, PLATE, 2, 0.5).setDepth(2);
+      let y = noteTop + 10;
+      for (const row of noteRows) {
+        row.label.setPosition(BODY_X + 16, y + 1);
+        row.body.setY(y);
+        y += row.body.height + NOTE_ROW_GAP;
+      }
     }
   }
 

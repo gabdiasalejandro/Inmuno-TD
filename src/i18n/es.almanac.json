@@ -38,7 +38,7 @@
   "almanac.neutrofilo.note_real": "No todos los neutrófilos forman NET, y las NET pueden durar más tiempo. La red no aparece exactamente donde murió la célula: se extiende por el tejido de alrededor.",
 
   "almanac.streptococcus_pyogenes.fact": "Streptococcus pyogenes es una bacteria grampositiva con forma de coco que crece en cadenas. Causa faringitis, impétigo y, a veces, infecciones graves de la piel y de tejidos profundos. Produce enzimas como la hialuronidasa, que degrada el ácido hialurónico del tejido y le ayuda a extenderse.",
-  "almanac.streptococcus_pyogenes.note_game": "Cuando choca con un epitelio cambia de carril en lugar de atacarlo.",
+  "almanac.streptococcus_pyogenes.note_game": "Cuando choca con un epitelio cambia de carril en lugar de atacarlo, pero solo una vez; después ataca los muros como cualquier bacteria. Llega en grupos de 3 o 4 muy juntos.",
   "almanac.streptococcus_pyogenes.note_real": "La hialuronidasa no salta muros: deshace la matriz entre las células y la bacteria avanza por el tejido en lugar de quedarse en un punto. Además, como grampositiva, con la tinción de Gram se vería violeta; el rojo del juego solo sirve para distinguirla.",
-  "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia en fila, por si acaso."
+  "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia bien pegadita, por si acaso."
 }

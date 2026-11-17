@@ -237,7 +237,12 @@ export class GameScene extends Phaser.Scene {
     const state = this.sim.state;
     // Paused: nothing advances and the frame stays as it was; the panel on top is the only thing alive.
     if (this.paused) return;
-    this.tutorial?.observe({ stored: this.storedCharge(), signals: this.signalLevels(), seen: this.seenEvents });
+    this.tutorial?.observe({
+      stored: this.storedCharge(),
+      signals: this.signalLevels(),
+      seen: this.seenEvents,
+      enemies: new Set(this.sim.state.enemies.map((enemy) => enemy.defId)),
+    });
     this.reportHold();
     if (state.status === 'playing' && this.phase === 'play') {
       // A tutorial step can stop the clock or slow it while it waits for the player.

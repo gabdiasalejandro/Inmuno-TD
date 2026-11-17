@@ -2,7 +2,7 @@
   "citocinas": {
     "max": 100,
     "decayPerSecond": 3,
-    "releasePerSecond": 40,
+    "releasePerSecond": 60,
     "storeDecayPerSecond": 1,
     "marrowBoost": 1,
     "recruitBoost": 1.5,
@@ -14,15 +14,21 @@
   },
   "inflamacion": {
     "max": 100,
-    "decayPerSecond": 1,
+    "decayPerSecond": 1.1,
     "risesWith": {
       "signal": "citocinas",
-      "perPoint": 0.5
+      "perPoint": 0.42
     },
-    "harm": {
-      "from": 0.4,
-      "hpPercentPerSecond": 2
-    },
+    "harm": [
+      {
+        "from": 0.6,
+        "hpPercentPerSecond": 1
+      },
+      {
+        "from": 0.9,
+        "hpPercentPerSecond": 2
+      }
+    ],
     "defeatAt": 1
   }
 }

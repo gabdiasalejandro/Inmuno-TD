@@ -95,8 +95,8 @@
       "at": 62,
       "enemy": "streptococcus_pyogenes",
       "lane": 2,
-      "count": 2,
-      "gap": 4
+      "count": 3,
+      "gap": 0.6
     },
     {
       "at": 66,
@@ -109,8 +109,8 @@
       "at": 78,
       "enemy": "streptococcus_pyogenes",
       "lane": 3,
-      "count": 2,
-      "gap": 3
+      "count": 4,
+      "gap": 0.6
     },
     {
       "at": 80,
@@ -123,8 +123,8 @@
       "at": 92,
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
-      "count": 3,
-      "gap": 3
+      "count": 4,
+      "gap": 0.6
     },
     {
       "at": 95,
@@ -144,15 +144,15 @@
       "at": 110,
       "enemy": "streptococcus_pyogenes",
       "lane": 0,
-      "count": 2,
-      "gap": 3
+      "count": 3,
+      "gap": 0.6
     },
     {
       "at": 114,
       "enemy": "streptococcus_pyogenes",
       "lane": 4,
-      "count": 2,
-      "gap": 3
+      "count": 3,
+      "gap": 0.6
     },
     {
       "at": 125,
@@ -165,8 +165,8 @@
       "at": 128,
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
-      "count": 2,
-      "gap": 3
+      "count": 4,
+      "gap": 0.6
     },
     {
       "at": 145,
@@ -194,14 +194,14 @@
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
       "count": 4,
-      "gap": 2
+      "gap": 0.6
     },
     {
       "at": 147,
       "enemy": "streptococcus_pyogenes",
       "lane": 3,
       "count": 4,
-      "gap": 2
+      "gap": 0.6
     },
     {
       "at": 155,

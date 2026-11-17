@@ -58,13 +58,18 @@ export interface SignalDef {
   /** The meter also rises by `perPoint` for every point the player releases into `signal`. */
   risesWith?: { signal: string; perPoint: number };
   /** Collateral damage: from this level (0 to 1) up, every own unit loses a share of its max HP. */
-  harm?: HarmDef;
+  /**
+   * Collateral damage tiers, in any order. While the signal is at or above a tier's `from`, own
+   * units take that tier's damage; only the highest tier reached applies.
+   */
+  harm?: HarmDef[];
   /** Reaching this level (0 to 1) loses the level. */
   defeatAt?: number;
 }
 
+/** One collateral damage tier of a signal. */
 export interface HarmDef {
-  /** Level (0 to 1) from which the damage applies. */
+  /** Level (0 to 1) from which this tier's damage applies. */
   from: number;
   /** Percent of each unit's max hit points lost per second while the signal is at or above `from`. */
   hpPercentPerSecond: number;
@@ -117,9 +122,10 @@ export interface EnemyDef {
   attack: { damage: number; rate: number };
   /**
    * Spreads through the tissue: on reaching a blocking unit that carries any of `around` tags it
-   * moves to a neighbouring lane instead of attacking, when one is free at that column.
+   * moves to a neighbouring lane instead of attacking, when one is free at that column. With
+   * `maxSwitches` it does so at most that many times; after that it attacks barriers like any enemy.
    */
-  spreads?: { around: string[] };
+  spreads?: { around: string[]; maxSwitches?: number };
   tags?: string[];
 }
 
@@ -193,6 +199,8 @@ export interface EnemyState {
   pos: number;
   hp: number;
   attackReadyAt: number;
+  /** Lane switches made so far (enemies that spread around barriers). */
+  switches: number;
 }
 
 /** A trap laid on a cell (for example a NET). */

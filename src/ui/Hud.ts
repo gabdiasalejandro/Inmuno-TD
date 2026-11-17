@@ -141,7 +141,7 @@ export class Hud {
   private readonly releaseLabel: Phaser.GameObjects.Text | null = null;
   private meterBumpAt = -Infinity;
   /** Inflammation gauge: its label and the levels (0..1) where its tiers start; null without it. */
-  private readonly gauge: { label: Phaser.GameObjects.Text; harmFrom: number | null; defeatAt: number } | null = null;
+  private readonly gauge: { label: Phaser.GameObjects.Text; tiers: number[]; defeatAt: number } | null = null;
   private readonly chipTexts: { marrow: Phaser.GameObjects.Text; recruit: Phaser.GameObjects.Text } | null = null;
   private hint: { until: number; box: Phaser.GameObjects.Graphics; title: Phaser.GameObjects.Text; body: Phaser.GameObjects.Text } | null = null;
   private lastSpark = 0;
@@ -159,7 +159,7 @@ export class Hud {
   constructor(
     private readonly scene: Phaser.Scene,
     defs: UnitDef[],
-    options: { meter: boolean; clear: boolean; gauge?: { harmFrom: number | null; defeatAt: number } | null },
+    options: { meter: boolean; clear: boolean; gauge?: { tiers: number[]; defeatAt: number } | null },
   ) {
     this.layout = hudLayout(defs.length, options.meter);
     const { timer, meter } = this.layout;
@@ -487,8 +487,9 @@ export class Hud {
   }
 
   /**
-   * Inflammation gauge: a bar split into its tiers (calm, collateral damage, defeat at the end). The
-   * marks sit where the rules change; the fill turns warm in the damaging band and throbs near defeat.
+   * Inflammation gauge: a bar split into its tiers (calm, then each collateral damage tier, darker as
+   * it hurts more, defeat at the end). The marks sit where the rules change; the fill turns warm in
+   * the damaging bands and throbs near defeat.
    */
   private drawGauge(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const gauge = this.gauge;
@@ -496,21 +497,31 @@ export class Hud {
     const slot = this.layout.inflammation;
     const bar = { x: slot.x + 16, y: slot.y + 38, w: slot.w - 32, h: 16 };
     const level = Math.max(0, Math.min(1, m.inflammation / gauge.defeatAt));
-    const harm = gauge.harmFrom === null ? 1 : gauge.harmFrom / gauge.defeatAt;
-    // Tier bands under the fill: calm, then damaging.
+    const marks = gauge.tiers.map((from) => Math.min(1, from / gauge.defeatAt));
+    const harm = marks[0] ?? 1;
+    // Tier bands under the fill: calm, then each damaging tier a little hotter than the last.
     g.fillStyle(OUTLINE, 0.12).fillRoundedRect(bar.x, bar.y, bar.w * harm, bar.h, { tl: 8, bl: 8, tr: 0, br: 0 });
-    g.fillStyle(INFLAMMATION_HOT, 0.22).fillRoundedRect(bar.x + bar.w * harm, bar.y, bar.w * (1 - harm), bar.h, { tl: 0, bl: 0, tr: 8, br: 8 });
+    marks.forEach((start, i) => {
+      const end = marks[i + 1] ?? 1;
+      const last = i === marks.length - 1;
+      g.fillStyle(INFLAMMATION_HOT, 0.22 + 0.2 * i).fillRoundedRect(bar.x + bar.w * start, bar.y, bar.w * (end - start), bar.h, {
+        tl: 0,
+        bl: 0,
+        tr: last ? 8 : 0,
+        br: last ? 8 : 0,
+      });
+    });
     const w = bar.w * level;
     const harming = level >= harm;
     if (w > 2) {
-      const throb = level > 0.8 ? 0.75 + 0.25 * Math.sin(m.now / 90) : 1;
+      const throb = level >= (marks[marks.length - 1] ?? 0.8) ? 0.75 + 0.25 * Math.sin(m.now / 90) : 1;
       g.fillStyle(harming ? INFLAMMATION_HOT : INFLAMMATION, throb).fillRoundedRect(bar.x, bar.y, Math.max(w, 16), bar.h, 8);
       g.fillStyle(0xfbe3d6, 0.5).fillRoundedRect(bar.x + 3, bar.y + 2, Math.max(w, 16) - 6, 4, 2);
     }
     g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
-    // Tier mark where the damage begins, and a little flame at the end where the level is lost.
-    if (gauge.harmFrom !== null) {
-      const x = bar.x + bar.w * harm;
+    // A mark where each damage tier begins, and a little flame at the end where the level is lost.
+    for (const mark of marks) {
+      const x = bar.x + bar.w * mark;
       g.lineStyle(3, OUTLINE, 1).lineBetween(x, bar.y - 6, x, bar.y + bar.h + 4);
     }
     const ex = bar.x + bar.w;

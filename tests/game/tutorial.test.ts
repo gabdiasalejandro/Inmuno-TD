@@ -234,6 +234,16 @@ describe('waiting for a signal level or an event', () => {
     expect(tutorial.active).toBe(true);
   });
 
+  it('an enemy wait shows once an enemy of that id is on the board', () => {
+    const tutorial = createTutorial([{ text: 'e', advance: { type: 'tap' }, waitFor: { type: 'enemy', enemy: 'streptococcus_pyogenes' } }]);
+    tutorial.observe(quiet);
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, enemies: new Set(['bacteria_gram_pos']) });
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, enemies: new Set(['bacteria_gram_pos', 'streptococcus_pyogenes']) });
+    expect(tutorial.active).toBe(true);
+  });
+
   it('an event wait shows once the sim has reported that event', () => {
     const tutorial = createTutorial([{ text: 'e', advance: { type: 'tap' }, waitFor: { type: 'event', event: 'enemy_switched_lane' } }]);
     tutorial.observe({ ...quiet, seen: new Set(['enemy_spawned']) });

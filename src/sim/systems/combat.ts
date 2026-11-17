@@ -49,11 +49,13 @@ function blocksAt(world: World, row: number, col: number): boolean {
 /**
  * Lane a spreading enemy moves to instead of attacking the barrier in front of it: a neighbouring
  * lane with nothing blocking at that column, picked with the level's seeded RNG when both are free.
+ * None once the enemy has used up its `maxSwitches`.
  */
 function spreadLane(world: World, enemy: EnemyState, blocker: UnitState, col: number): number | undefined {
-  const around = world.enemyDef(enemy.defId).spreads?.around;
+  const spreads = world.enemyDef(enemy.defId).spreads;
+  if (!spreads || enemy.switches >= (spreads.maxSwitches ?? Infinity)) return undefined;
   const tags = world.unitDef(blocker.defId).tags ?? [];
-  if (!around?.some((tag) => tags.includes(tag))) return undefined;
+  if (!spreads.around.some((tag) => tags.includes(tag))) return undefined;
   const free = [enemy.lane - 1, enemy.lane + 1].filter(
     (lane) => lane >= 0 && lane < world.level.grid.rows && !blocksAt(world, lane, col),
   );
@@ -76,6 +78,7 @@ export function createEnemyActions(world: World): System {
         if (lane !== undefined) {
           events.push({ type: 'enemy_switched_lane', uid: enemy.uid, from: enemy.lane, to: lane });
           enemy.lane = lane;
+          enemy.switches++;
           continue;
         }
         if (state.tick < enemy.attackReadyAt) continue;

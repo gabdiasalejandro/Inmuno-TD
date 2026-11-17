@@ -19,16 +19,18 @@ export function shownSignalNames(level: LevelDef, signals: Record<string, Signal
 
 /**
  * The damaging global meter of the level (inflammation), shown as a tiered gauge: the first active
- * signal that harms the own units or can lose the level. Null when the level has none.
+ * signal that harms the own units or can lose the level, with the levels where its harm tiers
+ * start, in ascending order. Null when the level has none.
  */
 export function gaugeSignal(
   level: LevelDef,
   signals: Record<string, SignalDef> | undefined,
-): { name: string; harmFrom: number | null; defeatAt: number } | null {
+): { name: string; tiers: number[]; defeatAt: number } | null {
   for (const name of activeSignalNames(level, signals)) {
     const def = signals?.[name];
     if (!def || (def.harm === undefined && def.defeatAt === undefined)) continue;
-    return { name, harmFrom: def.harm?.from ?? null, defeatAt: def.defeatAt ?? 1 };
+    const tiers = (def.harm ?? []).map((tier) => tier.from).sort((a, b) => a - b);
+    return { name, tiers, defeatAt: def.defeatAt ?? 1 };
   }
   return null;
 }

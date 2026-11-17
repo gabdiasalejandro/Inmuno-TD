@@ -80,7 +80,9 @@ export type TutorialWait =
   /** A signal's level (0 to 1) reaches `atLeast` (default: any rise). */
   | { type: 'signal'; signal: string; atLeast?: number }
   /** The sim has reported an event of this type (for example `enemy_switched_lane`) at least once. */
-  | { type: 'event'; event: string };
+  | { type: 'event'; event: string }
+  /** An enemy with this id is on the board (for example the first of a new kind arriving). */
+  | { type: 'enemy'; enemy: string };
 
 export interface TutorialStep {
   /** i18n key of the tutor's line. */

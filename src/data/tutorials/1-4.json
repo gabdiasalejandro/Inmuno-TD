@@ -25,8 +25,8 @@
     {
       "text": "tutorial.1-4.spread",
       "waitFor": {
-        "type": "event",
-        "event": "enemy_switched_lane"
+        "type": "enemy",
+        "enemy": "streptococcus_pyogenes"
       },
       "target": {
         "type": "enemy",
