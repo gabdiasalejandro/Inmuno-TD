@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="100" cy="150" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="97" cy="146" r="4.5" fill="#FBF7F2"/>
+    <circle cx="103.5" cy="155" r="2" fill="#FBF7F2"/>
+    <ellipse cx="134" cy="150" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="131" cy="146" r="4.5" fill="#FBF7F2"/>
+    <circle cx="137.5" cy="155" r="2" fill="#FBF7F2"/>
+    <!-- parpados inclinados: malicioso -->
+    <path fill="#36B862" d="M 87 134 H 113 V 148 L 87 142 Z"/>
+    <path fill="#36B862" d="M 121 134 H 147 V 142 L 121 148 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 88 142 L 112 148 M 122 148 L 146 142"/>
+    <!-- cejas asimetricas -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 86 128 Q 98 120 112 129 M 122 136 L 146 126"/>
+    <!-- sonrisa ladeada con colmillo -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 96 172 Q 112 182 128 170"/>
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" d="M 107 176 L 111 185 L 116 177 Z"/>
+  </g>
+</svg>

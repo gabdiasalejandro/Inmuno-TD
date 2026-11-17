@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- pua de citoplasma en la coronilla, afilada y ladeada hacia atras -->
+    <path fill="#936AA0" stroke="#3A2A2A" stroke-width="8" d="M 150 96 L 176 46 L 128 84 Z"/>
+    <path fill="#936AA0" stroke="#3A2A2A" stroke-width="8" d="M 118 88 L 96 40 L 150 84 Z"/>
+    <!-- brazo delantero: alzado, sostiene un granulo como arma -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 182 172 Q 214 164 212 132"/>
+    <path stroke="#936AA0" stroke-width="18" d="M 182 172 Q 214 164 212 132"/>
+    <circle cx="212" cy="120" r="16" fill="#936AA0" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="212" cy="86" r="15" fill="#B8324A" stroke="#3A2A2A" stroke-width="6"/>
+    <circle cx="207" cy="80" r="4" fill="#E57A86" stroke="none"/>
+    <path stroke="#3A2A2A" stroke-width="5" d="M 200 108 L 224 108"/>
+    <!-- brazo trasero: mano en la cadera -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 76 160 Q 44 170 58 198"/>
+    <path stroke="#936AA0" stroke-width="18" d="M 76 160 Q 44 170 58 198"/>
+  </g>
+</svg>

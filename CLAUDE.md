@@ -187,7 +187,7 @@ tests/
 ```
 
 - **Lógica separada del render.** `sim/` no importa Phaser. Se prueba sola y sobrevive a un cambio de motor.
-- **Simulación por sistemas.** `sim/world.ts` guarda el estado y las consultas compartidas; cada mecánica es un módulo en `sim/systems/` (aparición, señales, médula, combate, resultado, colocación) y `sim/sim.ts` solo fija el orden en que corren. Una mecánica nueva es un sistema nuevo, no más código en un archivo central. Falta el sistema de estados de la sección 8.1 (`opsonizado`, `infectada`...), que se añade al diseñar el 1-4 o el 1-5.
+- **Simulación por sistemas.** `sim/world.ts` guarda el estado y las consultas compartidas; cada mecánica es un módulo en `sim/systems/` (aparición, señales, fuentes de citocinas, médula, combate, daño colateral, trampas, estados, resultado, colocación) y `sim/sim.ts` solo fija el orden en que corren. Una mecánica nueva es un sistema nuevo, no más código en un archivo central. Los estados de la sección 8.1 viven en `src/data/statuses.json` y `sim/systems/statuses.ts` (`infectada`, `protegida`; desde el 1-5).
 - **Niveles autodescubiertos.** Cada JSON en `src/data/levels/` es un nivel y su nombre de archivo es su id; no hay lista manual (`tests/data/levels.test.ts` lo vigila).
 - **Contenido en datos.** Unidades, enemigos, niveles, oleadas, reglas y preguntas viven en JSON, para que un inmunólogo pueda revisarlos sin tocar código.
 - **Simulación determinista:** paso de tiempo fijo y azar con semilla. Permite tests de balance del tipo "el nivel 1-3 se gana con esta estrategia y se pierde sin neutrófilos".
@@ -248,7 +248,7 @@ Los números de ambos formatos son de ejemplo. El balance se decide con tests y 
 2. **Escena Phaser con figuras provisionales** y el nivel 1-1 jugable en navegador y en móvil. _Hecho el 2026-11-14 en escritorio (`src/game/`, `src/ui/`, `src/data/levels/1-1.json`); pulido con sprites, médula visible y menú de mundos y niveles (`src/game/MenuScene.ts`); el 1-1 dura 60 s. Falta probarlo en un móvil real._
 3. **Niveles 1-2 y 1-3:** PAMP/PRR, fagocitosis y citocinas. _Hechos el 2026-11-14, con tarjeta de concepto y cartel de inicio en todos los niveles; pendiente de que el usuario los juegue y diga si divierten. Seguimiento en `odd/tasks/world-1-levels-2-3.md`._ Aquí se valida si la mecánica divierte. Si no divierte, parar y replantear con el usuario.
 4. **Flujo de arte:** sprites por piezas, animaciones, guía de estilo cerrada con los primeros personajes.
-5. **Niveles 1-4 a 1-7:** inflamación, virus y NK, complemento, nivel trampa. _1-4 hecho el 2026-11-17 (barra de inflamación, NET, Streptococcus pyogenes; sprite en propuesta); pendiente de que el usuario lo juegue._
+5. **Niveles 1-4 a 1-7:** inflamación, virus y NK, complemento, nivel trampa. _1-4 hecho el 2026-11-17 (barra de inflamación, NET, Streptococcus pyogenes; sprite en propuesta); pendiente de que el usuario lo juegue. 1-5 hecho el 2026-11-17 (virus, interferón y célula NK con el sistema de estados de 8.1; sprite del virus en propuesta); pendiente de que el usuario lo juegue._
 6. **Jefe _S. aureus_** y caso clínico.
 7. **Almanaque, preguntas y repaso espaciado.** _Almanaque bocetado el 2026-11-14 (`src/game/AlmanacScene.ts`, textos en `src/i18n/es.almanac.json`); faltan preguntas y repaso._
 8. **Pulido:** sonido, tutoriales sin texto, rendimiento en móvil, PWA.

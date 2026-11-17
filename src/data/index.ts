@@ -1,7 +1,8 @@
-import type { Content, EnemyDef, LevelDef, UnitDef } from '../sim';
+import type { Content, EnemyDef, LevelDef, StatusDef, UnitDef } from '../sim';
 import enemies from './enemies.json';
 import introList from './intros.json';
 import signals from './signals.json';
+import statuses from './statuses.json';
 import units from './units.json';
 import worldList from './worlds.json';
 
@@ -10,6 +11,7 @@ export const content: Content = {
   units: units as UnitDef[],
   enemies: enemies as EnemyDef[],
   signals,
+  statuses: statuses as Record<string, StatusDef>,
 };
 
 /**
@@ -64,7 +66,9 @@ export type TutorialTarget =
   /** The tiered gauge of the level's damaging signal (inflammation). */
   | { type: 'gauge' }
   /** The frontmost enemy of this definition on the board. */
-  | { type: 'enemy'; enemy: string };
+  | { type: 'enemy'; enemy: string }
+  /** The first own unit (in deploy order) that carries this status, for example an infected cell. */
+  | { type: 'status'; status: string };
 
 /** What the player must do for a step to end. */
 export type TutorialAdvance =
@@ -82,7 +86,9 @@ export type TutorialWait =
   /** The sim has reported an event of this type (for example `enemy_switched_lane`) at least once. */
   | { type: 'event'; event: string }
   /** An enemy with this id is on the board (for example the first of a new kind arriving). */
-  | { type: 'enemy'; enemy: string };
+  | { type: 'enemy'; enemy: string }
+  /** Some unit on the board carries this status (for example the first infected cell). */
+  | { type: 'status'; status: string };
 
 export interface TutorialStep {
   /** i18n key of the tutor's line. */

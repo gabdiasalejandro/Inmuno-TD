@@ -40,5 +40,17 @@
   "almanac.streptococcus_pyogenes.fact": "Streptococcus pyogenes es una bacteria grampositiva con forma de coco que crece en cadenas. Causa faringitis, impétigo y, a veces, infecciones graves de la piel y de tejidos profundos. Produce enzimas como la hialuronidasa, que degrada el ácido hialurónico del tejido y le ayuda a extenderse.",
   "almanac.streptococcus_pyogenes.note_game": "Cuando choca con un epitelio cambia de carril en lugar de atacarlo, pero solo una vez; después ataca los muros como cualquier bacteria. Llega en grupos de 3 o 4 muy juntos.",
   "almanac.streptococcus_pyogenes.note_real": "La hialuronidasa no salta muros: deshace la matriz entre las células y la bacteria avanza por el tejido en lugar de quedarse en un punto. Además, como grampositiva, con la tinción de Gram se vería violeta; el rojo del juego solo sirve para distinguirla.",
-  "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia bien pegadita, por si acaso."
+  "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia bien pegadita, por si acaso.",
+
+  "almanac.virus.name": "Virus",
+  "almanac.virus.fact": "Un virus es una partícula mucho más pequeña que una bacteria: material genético envuelto en proteínas y, a veces, en una membrana con espículas. No se multiplica solo: entra en una célula, la usa para fabricar copias de sí mismo y estas salen a infectar a otras.",
+  "almanac.virus.note_game": "Infecta la primera célula que toca y a los pocos segundos esta estalla y suelta 2 o 3 virus. El interferón protege a las vecinas un rato.",
+  "almanac.virus.note_real": "Los virus no caminan, y la salida de copias tarda de horas a días. El estado antiviral frena la multiplicación dentro de la célula; no impide que el virus entre.",
+  "almanac.virus.quote": "¿Pagar alquiler? Para qué, si tu célula tiene cocina, imprenta y sitio para todos mis hermanitos.",
+
+  "almanac.nk.name": "Célula NK",
+  "almanac.nk.fact": "La célula NK (asesina natural) es un linfocito de la inmunidad innata. Patrulla los tejidos y mata a las células propias infectadas o tumorales sin necesitar un aprendizaje previo. Las reconoce porque muestran en su superficie señales de estrés que activan receptores como NKG2D, y las elimina liberando perforina y granzimas, que provocan su muerte.",
+  "almanac.nk.note_game": "La célula NK solo ataca a tus células infectadas que tiene alrededor y nunca a los virus sueltos ni a las bacterias.",
+  "almanac.nk.note_real": "La NK también vigila si a la célula le falta MHC de clase I, la «identificación» que muestran casi todas las células sanas; eso llegará en el mundo 2. Además, su decisión depende del balance entre señales que la activan y que la frenan.",
+  "almanac.nk.quote": "Tranquila, cariño, solo es una revisión de rutina. Ay... esas ojeras de estrés no me gustan nada. Lo siento, de verdad."
 }

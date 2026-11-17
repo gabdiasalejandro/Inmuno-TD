@@ -25,6 +25,8 @@ export const ALMANAC_ENTRIES: readonly AlmanacEntry[] = [
   { id: 'macrofago', kind: 'unit', category: 'innate_cell', note: false },
   { id: 'neutrofilo', kind: 'unit', category: 'innate_cell', note: true },
   { id: 'streptococcus_pyogenes', kind: 'enemy', category: 'pathogen', note: true },
+  { id: 'virus', kind: 'enemy', category: 'pathogen', note: true },
+  { id: 'nk', kind: 'unit', category: 'innate_cell', note: true },
 ];
 
 /** Translation keys to try for the real name, best first: the game's own, then the almanac's fallback. */

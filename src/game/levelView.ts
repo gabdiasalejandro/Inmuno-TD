@@ -49,9 +49,12 @@ export function scheduledEnemies(level: LevelDef): number {
   return level.waves.reduce((sum, wave) => sum + wave.count, 0);
 }
 
-/** Enemies still to defeat: everything scheduled minus the ones already dead. */
-export function bacteriaRemaining(level: LevelDef, defeated: number): number {
-  return Math.max(0, scheduledEnemies(level) - defeated);
+/**
+ * Enemies still to defeat, counting those released during play (virions from a burst cell) and
+ * not counting those used up on a cell: the scheduled ones not yet arrived plus the ones alive.
+ */
+export function enemiesRemaining(level: LevelDef, spawnedFromSchedule: number, alive: number): number {
+  return Math.max(0, scheduledEnemies(level) - spawnedFromSchedule) + alive;
 }
 
 /** How far a clear level is, 0 at the start and 1 when every scheduled bacterium is dead. */

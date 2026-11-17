@@ -164,3 +164,67 @@ describe('tutorial 1-4', () => {
     }
   });
 });
+
+describe('tutorial 1-5', () => {
+  /** A player who keeps a macrophage behind an epithelium in every open lane and follows the steps. */
+  function playFollowing(maxSeconds: number) {
+    const level = levels['1-5']!;
+    const sim = createSim(level, content, 1);
+    const tutorial = createTutorial(tutorials['1-5']!.steps);
+    const shown: number[] = [];
+    let nkPlaced = false;
+    while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
+      const tick = sim.state.tick;
+      const statuses = new Set(sim.state.units.flatMap((u) => Object.keys(u.statuses).filter((name) => (u.statuses[name] ?? 0) > tick)));
+      tutorial.observe({ stored: 0, enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)), statuses });
+      const step = tutorial.step;
+      if (tutorial.active && step) {
+        if (shown[shown.length - 1] !== tutorial.index) shown.push(tutorial.index);
+        if (step.advance.type === 'tap') {
+          tutorial.perform({ type: 'tap' });
+          continue;
+        }
+        const cell = sim.state.units.find((u) => (u.statuses.infectada ?? 0) > tick) ?? sim.state.units[0]!;
+        for (const [row, col] of [[cell.row, cell.col - 1], [cell.row - 1, cell.col], [cell.row + 1, cell.col], [cell.row, cell.col + 1]] as const) {
+          if (row < 0 || row >= level.grid.rows || col < 0) continue;
+          if (sim.placeUnit('nk', row, col).ok) {
+            nkPlaced = true;
+            tutorial.perform({ type: 'place', unit: 'nk', row, col });
+            break;
+          }
+        }
+      } else {
+        for (const lane of sim.state.openLanes) {
+          if (!sim.state.units.some((u) => u.row === lane && u.defId === 'macrofago')) sim.placeUnit('macrofago', lane, 3);
+          else if (!sim.state.units.some((u) => u.row === lane && u.defId === 'epitelio')) sim.placeUnit('epitelio', lane, 4);
+        }
+      }
+      // The scene slows the clock on a slow step; one step per frame is enough for this check.
+      if (tutorial.timeScale > 0) sim.step();
+    }
+    return { shown, finished: tutorial.finished, nkPlaced };
+  }
+
+  it('presents the virus, the first infected cell, the interferon shield and the NK cell, in that order', () => {
+    const steps = tutorials['1-5']!.steps;
+    expect(steps.map((step) => step.text)).toEqual(['tutorial.1-5.virus', 'tutorial.1-5.infected', 'tutorial.1-5.interferon', 'tutorial.1-5.nk']);
+    expect(steps[1]!.target).toEqual({ type: 'status', status: 'infectada' });
+    expect(steps[3]!.advance).toEqual({ type: 'place', unit: 'nk' });
+  });
+
+  it('can be followed to the end with the real rules', () => {
+    const { shown, finished, nkPlaced } = playFollowing(240);
+    expect(finished).toBe(true);
+    expect(shown).toEqual([0, 1, 2, 3]);
+    expect(nkPlaced).toBe(true);
+  });
+
+  it('states the level objectives as exam questions that exist in the translations', () => {
+    const objectives = levels['1-5']!.objectives ?? [];
+    expect(objectives).toHaveLength(2);
+    for (const key of objectives) {
+      expect(t(key)).not.toBe(key);
+      expect(t(key).endsWith('?')).toBe(true);
+    }
+  });
+});

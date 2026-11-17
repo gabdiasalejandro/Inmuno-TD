@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- espiculas de glicoproteina de la envoltura; las dos de abajo hacen de patas -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 84 168 L 60 168"/>
+    <circle cx="60" cy="168" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 90 148 L 70 136"/>
+    <circle cx="70" cy="136" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 108 133 L 96 113"/>
+    <circle cx="96" cy="113" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 132 128 L 132 104"/>
+    <circle cx="132" cy="104" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 156 133 L 168 113"/>
+    <circle cx="168" cy="113" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 174 148 L 194 136"/>
+    <circle cx="194" cy="136" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 180 168 L 204 168"/>
+    <circle cx="204" cy="168" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 174 188 L 194 200"/>
+    <circle cx="194" cy="200" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 90 188 L 70 200"/>
+    <circle cx="70" cy="200" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 155 203 L 164 221"/>
+    <circle cx="164" cy="221" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 109 203 L 100 221"/>
+    <circle cx="100" cy="221" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+  </g>
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- virion con envoltura: esfera baja; mira a la izquierda -->
+    <ellipse cx="132" cy="168" rx="54" ry="46" fill="#36B862"/>
+    <path fill="#238A47" d="M 78 168 A 54 46 0 0 0 186 168 Q 132 190 78 168 Z"/>
+    <path fill="#86DDA2" d="M 96 140 Q 110 126 128 128 Q 112 134 100 146 Q 94 146 96 140 Z"/>
+    <ellipse cx="132" cy="168" rx="54" ry="46" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <!-- membrana de la envoltura: linea interior -->
+    <path fill="none" stroke="#238A47" stroke-width="4" d="M 150 128 A 44 37 0 0 1 176 176"/>
+    <!-- emblema PAMP en la mitad trasera -->
+    <polygon points="156,160 176,180 156,200 136,180" fill="#8E2C6B" stroke="#F6E9EF" stroke-width="14"/>
+    <polygon points="156,160 176,180 156,200 136,180" fill="#8E2C6B" stroke="#3A2A2A" stroke-width="5"/>
+    <polygon points="156,172 164,180 156,188 148,180" fill="#F6E9EF"/>
+  </g>
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="100" cy="150" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="97" cy="146" r="4.5" fill="#FBF7F2"/>
+    <circle cx="103.5" cy="155" r="2" fill="#FBF7F2"/>
+    <ellipse cx="134" cy="150" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="131" cy="146" r="4.5" fill="#FBF7F2"/>
+    <circle cx="137.5" cy="155" r="2" fill="#FBF7F2"/>
+    <!-- parpados inclinados: malicioso -->
+    <path fill="#36B862" d="M 87 134 H 113 V 148 L 87 142 Z"/>
+    <path fill="#36B862" d="M 121 134 H 147 V 142 L 121 148 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 88 142 L 112 148 M 122 148 L 146 142"/>
+    <!-- cejas asimetricas -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 86 128 Q 98 120 112 129 M 122 136 L 146 126"/>
+    <!-- sonrisa ladeada con colmillo -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 96 172 Q 112 182 128 170"/>
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" d="M 107 176 L 111 185 L 116 177 Z"/>
+  </g>
+</svg>

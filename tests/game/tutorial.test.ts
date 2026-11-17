@@ -244,6 +244,16 @@ describe('waiting for a signal level or an event', () => {
     expect(tutorial.active).toBe(true);
   });
 
+  it('a status wait shows once some unit on the board carries that status', () => {
+    const tutorial = createTutorial([{ text: 'i', advance: { type: 'tap' }, waitFor: { type: 'status', status: 'infectada' } }]);
+    tutorial.observe(quiet);
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, statuses: new Set(['protegida']) });
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, statuses: new Set(['protegida', 'infectada']) });
+    expect(tutorial.active).toBe(true);
+  });
+
   it('an event wait shows once the sim has reported that event', () => {
     const tutorial = createTutorial([{ text: 'e', advance: { type: 'tap' }, waitFor: { type: 'event', event: 'enemy_switched_lane' } }]);
     tutorial.observe({ ...quiet, seen: new Set(['enemy_spawned']) });

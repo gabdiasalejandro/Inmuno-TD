@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- virion con envoltura: esfera baja; mira a la izquierda -->
+    <ellipse cx="132" cy="168" rx="54" ry="46" fill="#36B862"/>
+    <path fill="#238A47" d="M 78 168 A 54 46 0 0 0 186 168 Q 132 190 78 168 Z"/>
+    <path fill="#86DDA2" d="M 96 140 Q 110 126 128 128 Q 112 134 100 146 Q 94 146 96 140 Z"/>
+    <ellipse cx="132" cy="168" rx="54" ry="46" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <!-- membrana de la envoltura: linea interior -->
+    <path fill="none" stroke="#238A47" stroke-width="4" d="M 150 128 A 44 37 0 0 1 176 176"/>
+    <!-- emblema PAMP en la mitad trasera -->
+    <polygon points="156,160 176,180 156,200 136,180" fill="#8E2C6B" stroke="#F6E9EF" stroke-width="14"/>
+    <polygon points="156,160 176,180 156,200 136,180" fill="#8E2C6B" stroke="#3A2A2A" stroke-width="5"/>
+    <polygon points="156,172 164,180 156,188 148,180" fill="#F6E9EF"/>
+  </g>
+</svg>

@@ -18,6 +18,8 @@ export interface TutorialObservation {
   seen?: ReadonlySet<string>;
   /** Ids of the enemies on the board right now. */
   enemies?: ReadonlySet<string>;
+  /** Statuses some unit on the board carries right now. */
+  statuses?: ReadonlySet<string>;
 }
 
 /** What the player tries to do, as the tutorial needs to know it. */
@@ -56,6 +58,8 @@ function waitHolds(wait: TutorialWait, observation: TutorialObservation | null):
       return observation.seen?.has(wait.event) ?? false;
     case 'enemy':
       return observation.enemies?.has(wait.enemy) ?? false;
+    case 'status':
+      return observation.statuses?.has(wait.status) ?? false;
   }
 }
 

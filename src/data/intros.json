@@ -32,5 +32,14 @@
       "streptococcus_pyogenes"
     ],
     "banner": "banner.clear"
+  },
+  "1-5": {
+    "title": "intro.1-5.title",
+    "body": "intro.1-5.body",
+    "feature": [
+      "virus",
+      "nk"
+    ],
+    "banner": "banner.infection"
   }
 }

@@ -10,7 +10,8 @@
       "perDamage": 0.3
     },
     "tags": [
-      "barrera"
+      "barrera",
+      "celula"
     ]
   },
   {
@@ -51,7 +52,8 @@
     },
     "tags": [
       "innata",
-      "fagocito"
+      "fagocito",
+      "celula"
     ]
   },
   {
@@ -73,7 +75,8 @@
     "tags": [
       "innata",
       "fagocito",
-      "reclutable"
+      "reclutable",
+      "celula"
     ],
     "onDeath": {
       "trap": {
@@ -88,5 +91,27 @@
         }
       }
     }
+  },
+  {
+    "id": "nk",
+    "lineage": "linfoide",
+    "cost": 75,
+    "cooldown": 10,
+    "hp": 80,
+    "attack": {
+      "type": "citotoxicidad",
+      "damage": 1000,
+      "rate": 1,
+      "range": 2,
+      "targets": "own",
+      "status": [
+        "infectada"
+      ]
+    },
+    "tags": [
+      "innata",
+      "linfocito",
+      "celula"
+    ]
   }
 ]

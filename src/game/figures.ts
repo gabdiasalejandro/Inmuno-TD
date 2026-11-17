@@ -53,6 +53,10 @@ const CHARACTERS: Record<string, CharacterSpec> = {
   // Tutor: friendly teacher, calm breathing and a gentle wave of its branches.
   dendritica: { motion: 'worker', eyes: [[106, 112], [150, 112]], lid: 0xfbf7f2 },
   neutrofilo: { motion: 'rush', eyes: [[142, 124], [182, 124]], lid: 0xfbf7f2, belly: [198, 178, 11] },
+  // Proposal pending review: calm, poised idle; drawn in assets/sprites/nk/.
+  nk: { motion: 'worker', eyes: [[104, 128], [150, 128]], lid: 0xb791be },
+  // Proposal pending review: a small enveloped virion with glycoprotein spikes, face on the left.
+  virus: { motion: 'crawler', eyes: [[100, 150], [134, 150]], lid: 0x36b862, front: 66 },
 };
 
 /** Colour of a swallowed bacterium (the gram-positive body colour) and of the receptor glow. */

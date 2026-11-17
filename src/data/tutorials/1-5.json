@@ -1,0 +1,50 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-5.virus",
+      "waitFor": {
+        "type": "enemy",
+        "enemy": "virus"
+      },
+      "target": {
+        "type": "enemy",
+        "enemy": "virus"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-5.infected",
+      "waitFor": {
+        "type": "status",
+        "status": "infectada"
+      },
+      "target": {
+        "type": "status",
+        "status": "infectada"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-5.interferon",
+      "target": {
+        "type": "status",
+        "status": "protegida"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-5.nk",
+      "time": "slow",
+      "advance": {
+        "type": "place",
+        "unit": "nk"
+      }
+    }
+  ]
+}

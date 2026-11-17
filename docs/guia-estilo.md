@@ -45,6 +45,8 @@ Sin blanco puro (`#FFFFFF`) ni negro puro (`#000000`). Sin degradados: cada zona
 | `#FBF7F2` | Brillos de los ojos, dientes. Cuerpo de leucocitos. Sustituye al blanco. |
 | `#E1D9E8` | Sombra de leucocito, pseudópodos y brazos de leucocito, interior de vacuolas. |
 | `#D3B6CE` | Gránulos finos del neutrófilo (rosa lila apagado, como en la tinción). |
+| `#B791BE` / `#936AA0` | _Propuesta:_ NK, cuerpo y sombra (malva violáceo apagado, distinto del blanco hueso de macrófago y neutrófilo y de los patógenos saturados); también brazos, púa y flequillo. |
+| `#B8324A` / `#8E2338` / `#E57A86` | _Propuesta:_ NK, gránulos citotóxicos rubí: base, trazo y brillo. |
 | `#DDBDB8` | Fondo de juego. Todo personaje debe leerse sobre él. |
 | `#8C3A44` | Interior de boca abierta. |
 | `#D9737A` | Lengua. |
@@ -56,6 +58,7 @@ Sin blanco puro (`#FFFFFF`) ni negro puro (`#000000`). Sin degradados: cada zona
 | `#7B4FA3` | Núcleo, tono base. |
 | `#5E3A80` | Sombra del núcleo, nucléolo y cromatina. |
 | `#A47CC8` | Brillo del núcleo. |
+| `#3B2260` / `#2A1745` / `#6E4C94` | _Propuesta:_ NK, núcleo redondo índigo oscuro: base, sombra y brillo. |
 
 ### Tejido propio (no leucocitos)
 

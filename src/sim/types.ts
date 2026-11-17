@@ -12,6 +12,32 @@ export interface AttackDef {
   range: number;
   /** Tags an enemy must all carry to be a valid target (for example a PAMP its receptor recognises). */
   requires?: string[];
+  /**
+   * What the unit attacks: enemies in its lane (default) or own units. Against own units `range`
+   * is a radius around the unit's cell (1 = the 8 neighbouring cells) and `status` is required.
+   */
+  targets?: 'enemies' | 'own';
+  /** Statuses an own unit must all carry to be a valid target (only with `targets: 'own'`). */
+  status?: string[];
+}
+
+/**
+ * A timed state a unit can carry (for example infected or protected). Content declares them by
+ * name; enemies and other statuses apply them.
+ */
+export interface StatusDef {
+  /** Seconds the status lasts once applied. */
+  duration: number;
+  /** Statuses that cannot be applied to a unit while it carries this one. */
+  prevents?: string[];
+  /** When newly applied, the own units within `radius` cells (1 = the 8 neighbours) receive `status`. */
+  shares?: { status: string; radius: number };
+  /**
+   * When the status runs out, the unit dies and releases between `min` and `max` enemies of
+   * `enemy` (picked with the level's seeded RNG): the first into its own cell, the rest into the
+   * same column of the neighbouring lanes.
+   */
+  burst?: { enemy: string; min: number; max: number };
 }
 
 /**
@@ -126,6 +152,14 @@ export interface EnemyDef {
    * `maxSwitches` it does so at most that many times; after that it attacks barriers like any enemy.
    */
   spreads?: { around: string[]; maxSwitches?: number };
+  /**
+   * Infects instead of attacking: on reaching a blocking own unit that carries every `requires`
+   * tag it gives that unit `status` and is consumed. When the unit cannot take the status (it
+   * already has it, or carries one that prevents it) `resisted` decides: `pass` (default) goes on
+   * through that cell, `lost` is used up on it without effect. Blocking units without the tags
+   * are attacked as usual.
+   */
+  infects?: { status: string; requires?: string[]; resisted?: 'pass' | 'lost' };
   tags?: string[];
 }
 
@@ -169,6 +203,8 @@ export interface Content {
   units: UnitDef[];
   enemies: EnemyDef[];
   signals?: Record<string, SignalDef>;
+  /** Unit statuses by name. */
+  statuses?: Record<string, StatusDef>;
 }
 
 export interface UnitState {
@@ -186,6 +222,8 @@ export interface UnitState {
   charge: number;
   /** Tick at which the unit last gained charge (stored charge decays once it goes idle). */
   chargedAt: number;
+  /** Statuses the unit carries, by name, with the tick from which each is gone. */
+  statuses: Record<string, number>;
 }
 
 export interface EnemyState {
@@ -276,6 +314,14 @@ export type SimEvent =
   | { type: 'trap_laid'; uid: number; defId: string; row: number; col: number }
   | { type: 'trap_hit'; uid: number; target: number; damage: number }
   | { type: 'enemy_switched_lane'; uid: number; from: number; to: number }
+  /** A status was given to a unit: by an enemy (`by` is its uid) or shared from a neighbour. */
+  | { type: 'status_applied'; uid: number; status: string; by?: number }
+  /** An enemy that infects used itself up on the unit `target`. */
+  | { type: 'enemy_consumed'; uid: number; target: number }
+  /** A unit's status ran out and the unit burst, releasing the enemies `released` (uids). */
+  | { type: 'status_burst'; uid: number; status: string; row: number; col: number; released: number[] }
+  /** A unit attacked an own unit (for example a marked one). */
+  | { type: 'cell_attacked'; uid: number; target: number; damage: number }
   | { type: 'won' }
   | { type: 'lost'; cause: DefeatCause };
 

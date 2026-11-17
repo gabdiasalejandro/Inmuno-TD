@@ -110,3 +110,19 @@ Todas **por revisar** salvo las marcadas.
 - NET: las NET también dañan el tejido propio y aumentan la inflamación (regla `raises` del 1-4, objetivo "¿Qué son las NET y por qué también dañan el tejido?"). **Estado:** por revisar.
 - Streptococcus pyogenes (enemigo del 1-4, almanaque): bacteria grampositiva, coco en cadenas; causa faringitis, impétigo e infecciones graves de piel y tejidos profundos. **Estado:** por revisar.
 - Streptococcus pyogenes: su hialuronidasa degrada el ácido hialurónico del tejido y le ayuda a extenderse (regla `spreads`: cambia de carril ante el epitelio, una sola vez por bacteria). **Estado:** por revisar.
+
+### Nivel 1-5 (virus, interferón, célula NK)
+
+Todas **por revisar** salvo las marcadas.
+
+- Los virus solo se multiplican dentro de una célula: entran, usan su maquinaria para hacer copias y estas salen a infectar otras células. Uso: enemigo `virus` (regla `infects`, estado `infectada` con `burst`), tutorial e intro 1-5, almanaque del virus.
+- La salida de las copias puede matar a la célula infectada (lisis). Uso: la célula infectada muere al estallar. **Estado:** dudoso como regla general (muchos virus con envoltura salen por gemación sin lisis inmediata; revisar la redacción).
+- Las células infectadas liberan interferón de tipo I, que induce un estado antiviral en las células vecinas. Uso: estado `protegida` repartido a las 8 vecinas (`shares`), tutorial, intro y objetivo "¿Para qué sirve el interferón de tipo I?".
+- El estado antiviral impide que el virus se multiplique en la célula protegida. Uso: el virus que toca una célula protegida se pierde sin infectarla (`resisted: "lost"`).
+- La célula NK es un linfocito de la inmunidad innata que mata células propias infectadas sin aprendizaje previo. Uso: unidad `nk` (ataque `targets: "own"` con `status: ["infectada"]`), almanaque, objetivo "¿Cómo reconoce y elimina una célula NK a una célula infectada?".
+- La NK reconoce señales de estrés de la célula infectada mediante receptores activadores como NKG2D. Uso: tutorial 1-5 y almanaque de la NK.
+- La NK mata con perforina y granzimas. Uso: almanaque de la NK.
+- La NK también reconoce la pérdida de MHC de clase I ("falta de lo propio"). Uso: solo se menciona en el almanaque como adelanto del mundo 2; no hay mecánica.
+- Los fagocitos (macrófagos, neutrófilos) pueden captar viriones libres. Uso: el `virus` lleva PAMP y lo atacan los fagocitos. **Estado:** dudoso (sobre todo el papel del neutrófilo; revisar que el PAMP como "emblema" de un virus no induzca a error, ya que muchos PAMP virales se detectan dentro de la célula).
+- Los macrófagos que detectan virus liberan citocinas. Uso: el macrófago acumula citocinas al ver el `virus` (lleva PAMP).
+- Los virus pueden infectar distintos tipos celulares, también macrófagos y neutrófilos. Uso: el virus infecta cualquier unidad con la etiqueta `celula` (epitelio, macrófago, neutrófilo, NK). **Estado:** dudoso (depende del virus; infectar a la propia NK es especialmente discutible).

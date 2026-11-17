@@ -32,6 +32,7 @@ export function createPlacement(world: World): (defId: string, row: number, col:
       alarmed: false,
       charge: 0,
       chargedAt: state.tick,
+      statuses: {},
     });
     return { ok: true };
   };

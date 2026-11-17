@@ -1,0 +1,20 @@
+{
+  "infectada": {
+    "duration": 6,
+    "shares": {
+      "status": "protegida",
+      "radius": 1
+    },
+    "burst": {
+      "enemy": "virus",
+      "min": 2,
+      "max": 3
+    }
+  },
+  "protegida": {
+    "duration": 5,
+    "prevents": [
+      "infectada"
+    ]
+  }
+}

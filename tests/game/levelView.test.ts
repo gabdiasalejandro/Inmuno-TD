@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeSignalNames, cytokineEffects, gaugeSignal, lostResultKey, shownSignalNames, bacteriaRemaining, digestFraction, isClearLevel, isRecruitBoosted, levelProgress, scheduledEnemies } from '../../src/game/levelView';
+import { activeSignalNames, cytokineEffects, gaugeSignal, lostResultKey, shownSignalNames, enemiesRemaining, digestFraction, isClearLevel, isRecruitBoosted, levelProgress, scheduledEnemies } from '../../src/game/levelView';
 import type { LevelDef, SignalDef, UnitDef } from '../../src/sim';
 
 const signals: Record<string, SignalDef> = {
@@ -63,15 +63,16 @@ describe('isClearLevel', () => {
   });
 });
 
-describe('bacteriaRemaining', () => {
-  it('counts every scheduled enemy and subtracts the ones already dead', () => {
+describe('enemiesRemaining', () => {
+  it('counts the scheduled enemies not yet arrived plus the ones alive', () => {
     expect(scheduledEnemies(level())).toBe(5);
-    expect(bacteriaRemaining(level(), 0)).toBe(5);
-    expect(bacteriaRemaining(level(), 2)).toBe(3);
+    expect(enemiesRemaining(level(), 0, 0)).toBe(5);
+    expect(enemiesRemaining(level(), 3, 1)).toBe(3);
   });
 
-  it('never goes below zero', () => {
-    expect(bacteriaRemaining(level(), 99)).toBe(0);
+  it('counts enemies released during play once every scheduled one has arrived', () => {
+    expect(enemiesRemaining(level(), 5, 3)).toBe(3);
+    expect(enemiesRemaining(level(), 5, 0)).toBe(0);
   });
 });
 

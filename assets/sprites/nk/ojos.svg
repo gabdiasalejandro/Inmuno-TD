@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- ojo derecho (visible): parpado inclinado, mirada afilada -->
+    <ellipse cx="150" cy="128" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="147" cy="124" r="4.5" fill="#FBF7F2"/>
+    <circle cx="153.5" cy="133" r="2" fill="#FBF7F2"/>
+    <polygon fill="#B791BE" points="134,108 166,108 166,119 134,127"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 136 127 L 164 118"/>
+    <!-- delineado alado: flicks afilados -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 164 118 L 180 106 M 162 123 L 178 118"/>
+    <!-- ceja alzada en arco -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 134 100 Q 152 84 172 96"/>
+    <!-- ojo izquierdo, medio oculto por el flequillo -->
+    <ellipse cx="104" cy="128" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="101" cy="124" r="4.5" fill="#FBF7F2"/>
+    <circle cx="107.5" cy="133" r="2" fill="#FBF7F2"/>
+    <polygon fill="#B791BE" points="88,108 120,108 120,127 88,119"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 90 119 L 118 127"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 90 119 L 76 110 M 92 123 L 78 124"/>
+    <!-- flequillo afilado sobre el ojo izquierdo -->
+    <path fill="#936AA0" stroke="#3A2A2A" stroke-width="5" d="M 92 92 C 108 80 138 82 152 92 C 134 94 116 98 104 112 L 74 122 C 88 112 90 102 92 92 Z"/>
+    <!-- sonrisa ladeada con colmillo -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 112 150 Q 134 162 158 142"/>
+    <polygon fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" points="140,155 148,153 145,164"/>
+  </g>
+</svg>

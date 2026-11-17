@@ -28,7 +28,7 @@ import { nextLevelId, resultActions } from './flow';
 import { boardRight, cellCenter, createBoardLayout, enemyFrontX, isCellFree, pixelToCell, type BoardLayout, type Cell } from './layout';
 import { shouldShowIntro } from './intro';
 import { canPause, togglePause } from './pause';
-import { bacteriaRemaining, cytokineEffects, digestFraction, gaugeSignal, isClearLevel, isRecruitBoosted, lostResultKey, scheduledEnemies, shownSignalNames } from './levelView';
+import { cytokineEffects, enemiesRemaining, digestFraction, gaugeSignal, isClearLevel, isRecruitBoosted, lostResultKey, scheduledEnemies, shownSignalNames } from './levelView';
 import { marrowCharge, marrowExcitement } from './marrow';
 import { progressStore } from './progress';
 import { preloadSprites } from './sprites';
@@ -61,6 +61,10 @@ const NET_STRAND = 0xa47cc8;
 const NET_GRANULE = 0xd3b6ce;
 /** Specks a spreading bacterium leaves as it slips into the next lane (hyaluronidase dissolving matrix). */
 const SPREAD_SPECK = 0xd2aca7;
+/** Virus body colour (assets/sprites/virus): infection marks and burst specks. */
+const VIRUS = 0x36b862;
+/** Interferon's antiviral state: a soft, pale blue shield around a protected cell. */
+const SHIELD = 0x9fd3e6;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
 const FOOT_INSET = 8;
@@ -116,13 +120,16 @@ export class GameScene extends Phaser.Scene {
   /** The meter's one-time explanation was already shown in this play. */
   private phase: 'intro' | 'play' = 'play';
   private introCard: IntroCard | null = null;
-  private defeated = 0;
   private signalNames: string[] = [];
   /** The level's damaging gauge (inflammation), or null when it has none. */
   private gauge: ReturnType<typeof gaugeSignal> = null;
   private chargeG!: Phaser.GameObjects.Graphics;
   /** Traps on the board (NETs), drawn under the figures. */
   private trapG!: Phaser.GameObjects.Graphics;
+  /** Unit statuses: interferon shields and infection marks. */
+  private statusG!: Phaser.GameObjects.Graphics;
+  /** Enemies released during play (virions of burst cells), for the progress total. */
+  private released = 0;
   /** Types of the sim events seen so far in this play, for tutorial steps that wait for one. */
   private seenEvents = new Set<string>();
   /** Drawn lane (fractional while an enemy slides into its new lane after spreading). */
@@ -171,7 +178,7 @@ export class GameScene extends Phaser.Scene {
     this.deathCause = new Map();
     this.ghost = null;
     this.resultShown = false;
-    this.defeated = 0;
+    this.released = 0;
     this.signalNames = shownSignalNames(level, content.signals, content.units);
     this.gauge = gaugeSignal(level, content.signals);
     this.seenEvents = new Set();
@@ -192,6 +199,7 @@ export class GameScene extends Phaser.Scene {
     this.barsG = this.add.graphics().setDepth(4.5);
     this.chargeG = this.add.graphics().setDepth(4.4);
     this.trapG = this.add.graphics().setDepth(1.8);
+    this.statusG = this.add.graphics().setDepth(4.3);
     const deck = level.deck.map((id) => this.unitDefs.get(id)).filter((d): d is UnitDef => d !== undefined);
     this.hud = new Hud(this, deck, { meter: this.signalNames.length > 0, clear: isClearLevel(level), gauge: this.gauge });
     // Above the result overlay and the concept card, so the player can still toggle it there.
@@ -242,6 +250,7 @@ export class GameScene extends Phaser.Scene {
       signals: this.signalLevels(),
       seen: this.seenEvents,
       enemies: new Set(this.sim.state.enemies.map((enemy) => enemy.defId)),
+      statuses: this.carriedStatuses(),
     });
     this.reportHold();
     if (state.status === 'playing' && this.phase === 'play') {
@@ -324,9 +333,6 @@ export class GameScene extends Phaser.Scene {
           }
           break;
         }
-        case 'enemy_died':
-          this.defeated++;
-          break;
         case 'signal_released':
           this.showFlow();
           break;
@@ -345,6 +351,46 @@ export class GameScene extends Phaser.Scene {
         case 'enemy_switched_lane': {
           const view = this.enemyViews.get(event.uid);
           if (view) specks(this, view.root.x, view.root.y - 25, SPREAD_SPECK, 5);
+          break;
+        }
+        case 'enemy_consumed': {
+          // The virion slips into the cell it infects instead of dying.
+          const view = this.enemyViews.get(event.uid);
+          const cell = this.sim.state.units.find((u) => u.uid === event.target);
+          if (view && cell) {
+            const { x, y } = cellCenter(layout, cell.row, cell.col);
+            this.enemyViews.delete(event.uid);
+            view.engulfedInto(x, y);
+            this.unitViews.get(event.target)?.hit();
+          }
+          break;
+        }
+        case 'status_applied':
+          if (event.status === 'protegida') {
+            const cell = this.sim.state.units.find((u) => u.uid === event.uid);
+            if (cell) {
+              const { x, y } = cellCenter(layout, cell.row, cell.col);
+              ring(this, x, y, SHIELD, 14, 44, 420);
+            }
+          }
+          break;
+        case 'status_burst': {
+          const { x, y } = cellCenter(layout, event.row, event.col);
+          this.released += event.released.length;
+          ring(this, x, y, VIRUS, 16, 90, 520);
+          specks(this, x, y, VIRUS, 9);
+          this.deathCause.set(event.uid, 'killed');
+          break;
+        }
+        case 'cell_attacked': {
+          // The NK cell strikes: a quick squeeze of its own and a hit on the infected cell.
+          this.unitViews.get(event.uid)?.squeeze();
+          this.unitViews.get(event.target)?.hit();
+          const cell = this.sim.state.units.find((u) => u.uid === event.target);
+          if (cell) {
+            const { x, y } = cellCenter(layout, cell.row, cell.col);
+            specks(this, x, y - 20, 0xb8324a, 5);
+          }
           break;
         }
         case 'won':
@@ -476,6 +522,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Level (0 to 1) of every signal active in this level, for tutorial steps that wait for one. */
+  /** Statuses some unit on the board carries right now. */
+  private carriedStatuses(): Set<string> {
+    const { tick, units } = this.sim.state;
+    return new Set(units.flatMap((unit) => Object.keys(unit.statuses).filter((name) => (unit.statuses[name] ?? 0) > tick)));
+  }
+
   private signalLevels(): Record<string, number> {
     return Object.fromEntries(Object.keys(this.sim.state.signals).map((name) => [name, this.sim.signal(name)]));
   }
@@ -525,6 +577,11 @@ export class GameScene extends Phaser.Scene {
         const front = enemies.reduce((a, b) => (b.pos < a.pos ? b : a));
         const x = enemyFrontX(layout, front.pos);
         return { x: x - 10, y: layout.y + (this.enemyRow.get(front.uid) ?? front.lane) * layout.cellH, w: layout.cellW, h: layout.cellH };
+      }
+      case 'status': {
+        const { tick } = this.sim.state;
+        const unit = this.sim.state.units.find((u) => (u.statuses[target.status] ?? 0) > tick);
+        return unit ? this.cellRect(unit.row, unit.col) : null;
       }
       case 'charged_source': {
         const source = this.signalSources().find((s) => (target.kind === undefined || s.kind === target.kind) && (this.sim.charge(s) ?? 0) > 0);
@@ -695,6 +752,7 @@ export class GameScene extends Phaser.Scene {
     this.drawCursor(now);
     this.drawCharges(now);
     this.drawTraps(now);
+    this.drawStatuses(now);
     const bars = this.barsG.clear();
 
     // Units: create on placement (with a pop), update, and play an exit when they leave the sim.
@@ -773,8 +831,8 @@ export class GameScene extends Phaser.Scene {
       selected: this.selected,
       remainingSeconds: total === null ? null : Math.max(0, total - state.tick / TICKS_PER_SECOND),
       totalSeconds: total,
-      remainingEnemies: isClearLevel(this.level) ? bacteriaRemaining(this.level, this.defeated) : null,
-      totalEnemies: scheduledEnemies(this.level),
+      remainingEnemies: isClearLevel(this.level) ? enemiesRemaining(this.level, state.nextSpawn, state.enemies.length) : null,
+      totalEnemies: scheduledEnemies(this.level) + this.released,
       charge: marrowCharge(this.sim.marrowFraction()),
       excite: marrowExcitement(cytokines ?? 0),
       cytokines,
@@ -878,6 +936,38 @@ export class GameScene extends Phaser.Scene {
         const [ex, ey] = ends[i] as [number, number];
         const k = 0.3 + 0.5 * noise(trap.uid, i, 3);
         g.fillCircle(x + (ex - x) * k, y + (ey - y) * k, 3);
+      }
+    }
+  }
+
+  /**
+   * Unit statuses: a pale shield bubble around cells protected by interferon, and on infected cells
+   * a pulsing green ring with an arc that empties as the burst approaches.
+   */
+  private drawStatuses(now: number): void {
+    const g = this.statusG.clear();
+    const { layout } = this;
+    const { tick } = this.sim.state;
+    const burstTicks = secondsToTicks(content.statuses?.infectada?.duration ?? 1);
+    for (const unit of this.sim.state.units) {
+      const { x, y } = cellCenter(layout, unit.row, unit.col);
+      const r = Math.min(layout.cellW, layout.cellH) * 0.46;
+      const shieldUntil = unit.statuses.protegida ?? 0;
+      if (shieldUntil > tick) {
+        const fade = Math.min(1, (shieldUntil - tick) / TICKS_PER_SECOND);
+        const pulse = 0.5 + 0.5 * Math.sin(now / 300 + unit.uid);
+        g.fillStyle(SHIELD, (0.16 + 0.06 * pulse) * fade).fillCircle(x, y, r);
+        g.lineStyle(3, SHIELD, 0.85 * fade).strokeCircle(x, y, r);
+      }
+      const infectedUntil = unit.statuses.infectada ?? 0;
+      if (infectedUntil > tick) {
+        const left = Math.max(0, Math.min(1, (infectedUntil - tick) / burstTicks));
+        const beat = 0.5 + 0.5 * Math.sin(now / (60 + 140 * left));
+        g.lineStyle(5, VIRUS, 0.5 + 0.4 * beat).strokeCircle(x, y, r * (0.92 + 0.06 * beat));
+        g.lineStyle(6, OUTLINE, 0.8).beginPath();
+        g.arc(x, y - r - 10, 9, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2, false).strokePath();
+        g.lineStyle(4, VIRUS, 1).beginPath();
+        g.arc(x, y - r - 10, 9, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2, false).strokePath();
       }
     }
   }

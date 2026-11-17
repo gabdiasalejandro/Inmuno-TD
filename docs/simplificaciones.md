@@ -121,3 +121,35 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **Por qué se simplifica:** hay que distinguirla de un vistazo de la bacteria grampositiva genérica.
 - **Fuente:** entrada "Streptococcus pyogenes" en `fuentes.md`.
 - **Dónde lo aclara el almanaque:** ficha de Streptococcus pyogenes.
+
+### virus-camina-por-el-carril
+
+- **En el juego:** el virus avanza por el carril como una bacteria, infecta la primera célula que toca (cualquier célula propia, el moco no) y desaparece al entrar en ella.
+- **En la realidad:** los viriones no se desplazan por sí mismos: los arrastran los fluidos o pasan de una célula a otra, y una célula suele recibir muchos.
+- **Por qué se simplifica:** encaja en la rejilla por carriles y deja ver qué célula se infecta.
+- **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha del virus.
+
+### virus-estalla-en-segundos
+
+- **En el juego:** la célula infectada estalla 6 segundos después, muere y suelta 2 o 3 virus: uno en su casilla y los demás en la misma columna de los carriles vecinos.
+- **En la realidad:** el ciclo hasta que salen nuevas copias dura de horas a días, salen cientos o miles de viriones y muchos virus salen por gemación sin matar enseguida a la célula.
+- **Por qué se simplifica:** un temporizador corto y visible da tiempo a reaccionar con la NK sin alargar la partida.
+- **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha del virus.
+
+### interferon-radio-y-duracion
+
+- **En el juego:** al infectarse, la célula protege a sus 8 casillas vecinas durante 5 segundos; un virus que toca una célula protegida se pierde sin infectarla. La protección termina antes de que estalle la célula, así que los virus que suelta pueden infectar a las vecinas.
+- **En la realidad:** el interferón de tipo I difunde por el tejido y actúa durante horas; el estado antiviral no impide la entrada del virus, sino que frena su multiplicación dentro de la célula.
+- **Por qué se simplifica:** un escudo corto y local enseña la idea (avisar a las vecinas) y deja sitio a la NK.
+- **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha del virus.
+
+### nk-sin-mhc-de-clase-i
+
+- **En el juego:** la célula NK ataca a cualquier célula propia infectada a dos casillas o menos (en cualquier dirección) y la mata de un golpe; nunca ataca virus sueltos ni bacterias.
+- **En la realidad:** la NK integra señales activadoras (por ejemplo ligandos de estrés reconocidos por NKG2D) e inhibidoras (sobre todo MHC de clase I); muchas infecciones bajan el MHC de clase I y eso también la activa.
+- **Por qué se simplifica:** el mundo 1 solo enseña el reconocimiento del estrés; el MHC de clase I llega con el mundo 2.
+- **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha de la célula NK.

@@ -6,6 +6,7 @@ import { createPlacement } from './systems/placement';
 import { createSignals } from './systems/signals';
 import { createSources } from './systems/sources';
 import { createSpawning } from './systems/spawning';
+import { createStatuses } from './systems/statuses';
 import { createTraps } from './systems/traps';
 import type { Content, LevelDef, Sim, SimEvent } from './types';
 import { createWorld, type System } from './world';
@@ -20,6 +21,7 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
   const spawning = createSpawning(world);
   const marrow = createMarrow(world);
   const sources = createSources(world);
+  const statuses = createStatuses(world);
 
   // What arrives during a tick is decided on the tick it starts...
   const beforeTick: System[] = [spawning.openWounds, spawning.spawnDue];
@@ -33,10 +35,11 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
     createExpiry(world),
     createUnitAttacks(world),
     createEnemyActions(world),
+    statuses.expire,
     createHarm(world),
     createTraps(world),
     sources.chargeFromDamage,
-    createOutcome(world, spawning.allSpawned),
+    createOutcome(world, spawning.allSpawned, statuses.pendingBurst),
   ];
 
   return {

@@ -75,5 +75,16 @@
   "obj.1-4.net": "¿Qué son las NET y por qué también dañan el tejido?",
   "tutorial.1-4.inflammation": "¡Mira esta barra! Sube cuando liberas citocinas y cuando un neutrófilo muere y lanza su NET, una red que atrapa bacterias.",
   "tutorial.1-4.tiers": "Si pasa la primera marca, la inflamación daña también a tus células; si pasa la segunda, el daño se duplica. Si llega al final, pierdes. Libera con medida y deja que baje.",
-  "tutorial.1-4.spread": "¡Llega Streptococcus pyogenes, en grupo! Su hialuronidasa le deja rodear un muro en vez de atacarlo, pero solo una vez: una fila de epitelios lo frena."
+  "tutorial.1-4.spread": "¡Llega Streptococcus pyogenes, en grupo! Su hialuronidasa le deja rodear un muro en vez de atacarlo, pero solo una vez: una fila de epitelios lo frena.",
+  "unit.nk.name": "Célula NK",
+  "enemy.virus.name": "Virus",
+  "intro.1-5.title": "Virus y célula NK",
+  "intro.1-5.body": "El virus no ataca: entra en tus células y las infecta. La célula infectada estalla al rato y suelta más virus, pero antes avisa a sus vecinas con interferón y las protege. La célula NK elimina a las infectadas antes de que estallen.",
+  "obj.1-5.nk": "¿Cómo reconoce y elimina una célula NK a una célula infectada?",
+  "obj.1-5.interferon": "¿Para qué sirve el interferón de tipo I?",
+  "tutorial.1-5.virus": "¡Un virus! Es pequeño y rápido, y no ataca: entra en tus células para multiplicarse dentro. Mis fagocitos pueden comerse los virus sueltos.",
+  "tutorial.1-5.infected": "Esta célula está infectada. Cuando se vacíe el círculo estallará y soltará más virus a su alrededor.",
+  "tutorial.1-5.interferon": "Al infectarse liberó interferón: sus vecinas, con el escudo azul, no se pueden infectar durante un rato.",
+  "tutorial.1-5.nk": "Coloca una célula NK al lado de la infectada. Reconoce las señales de estrés de su superficie y la elimina antes de que estalle.",
+  "banner.infection": "¡Acaba con la infección!"
 }

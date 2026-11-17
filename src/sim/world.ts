@@ -1,4 +1,5 @@
 import { createRng } from './rng';
+import { secondsToTicks } from './time';
 import type {
   Content,
   EnemyDef,
@@ -7,6 +8,7 @@ import type {
   SignalDef,
   SimEvent,
   SimState,
+  StatusDef,
   TrapDef,
   UnitDef,
   UnitState,
@@ -50,6 +52,20 @@ export interface World {
   enemyHas(enemy: EnemyState, requires?: string[]): boolean;
   /** Next number of the level's seeded random sequence, in [0, 1). Advances the stored state. */
   random(): number;
+  /** Status definition by name, if the content declares it. */
+  statusDef(name: string): StatusDef | undefined;
+  /** Whether the unit carries the status right now. */
+  hasStatus(unit: UnitState, name: string): boolean;
+  /** Whether the status could be newly applied to the unit: it does not carry it nor anything preventing it. */
+  canTake(unit: UnitState, name: string): boolean;
+  /**
+   * Gives the unit a status for its duration and, when the status `shares`, gives the shared one to
+   * the own units around it. Returns false (and changes nothing for this unit) when the unit cannot
+   * take it; a shared status the unit already carries is refreshed instead.
+   */
+  applyStatus(unit: UnitState, name: string, events: SimEvent[], by?: number): boolean;
+  /** Own units within `radius` cells of (row, col), the cell itself excluded, in deploy order. */
+  unitsAround(row: number, col: number, radius: number): UnitState[];
 }
 
 function indexById<T extends { id: string }>(defs: T[]): Map<string, T> {
@@ -101,6 +117,22 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
   };
 
   const trapDefs = new Map(content.units.flatMap((unit) => (unit.onDeath ? [[unit.onDeath.trap.id, unit.onDeath.trap] as const] : [])));
+  const statusDefs = content.statuses ?? {};
+  for (const [name, def] of Object.entries(statusDefs)) {
+    if (def.burst && !enemyDefs.has(def.burst.enemy)) throw new Error(`Status "${name}": unknown enemy "${def.burst.enemy}"`);
+  }
+  const hasStatus = (unit: UnitState, name: string): boolean => (unit.statuses[name] ?? 0) > state.tick;
+  const canTake = (unit: UnitState, name: string): boolean =>
+    !hasStatus(unit, name) &&
+    !Object.keys(unit.statuses).some((held) => hasStatus(unit, held) && statusDefs[held]?.prevents?.includes(name));
+  const unitsAround = (row: number, col: number, radius: number): UnitState[] =>
+    state.units.filter(
+      (unit) => (unit.row !== row || unit.col !== col) && Math.abs(unit.row - row) <= radius && Math.abs(unit.col - col) <= radius,
+    );
+  const give = (unit: UnitState, name: string, def: StatusDef): void => {
+    unit.statuses[name] = Math.max(unit.statuses[name] ?? 0, state.tick + secondsToTicks(def.duration));
+  };
+
   const enemyHas = (enemy: EnemyState, requires: string[] = []): boolean => {
     const tags = enemyDefs.get(enemy.defId)?.tags ?? [];
     return requires.every((tag) => tags.includes(tag));
@@ -158,6 +190,29 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
         events.push({ type: 'unit_died', uid: unit.uid, cause: 'killed', defId: unit.defId, row: unit.row, col: unit.col });
         return false;
       });
+    },
+    statusDef: (name) => statusDefs[name],
+    hasStatus,
+    canTake,
+    unitsAround,
+    applyStatus(unit, name, events, by) {
+      const def = statusDefs[name];
+      if (!def || !canTake(unit, name)) return false;
+      give(unit, name, def);
+      events.push(by === undefined ? { type: 'status_applied', uid: unit.uid, status: name } : { type: 'status_applied', uid: unit.uid, status: name, by });
+      const shared = def.shares && statusDefs[def.shares.status];
+      if (def.shares && shared) {
+        for (const neighbour of unitsAround(unit.row, unit.col, def.shares.radius)) {
+          if (neighbour.hp <= 0) continue;
+          if (hasStatus(neighbour, def.shares.status)) {
+            give(neighbour, def.shares.status, shared);
+          } else if (canTake(neighbour, def.shares.status)) {
+            give(neighbour, def.shares.status, shared);
+            events.push({ type: 'status_applied', uid: neighbour.uid, status: def.shares.status });
+          }
+        }
+      }
+      return true;
     },
     random() {
       const rng = createRng(state.rngState);

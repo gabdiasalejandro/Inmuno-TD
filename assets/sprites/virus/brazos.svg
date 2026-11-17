@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- espiculas de glicoproteina de la envoltura; las dos de abajo hacen de patas -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 84 168 L 60 168"/>
+    <circle cx="60" cy="168" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 90 148 L 70 136"/>
+    <circle cx="70" cy="136" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 108 133 L 96 113"/>
+    <circle cx="96" cy="113" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 132 128 L 132 104"/>
+    <circle cx="132" cy="104" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 156 133 L 168 113"/>
+    <circle cx="168" cy="113" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 174 148 L 194 136"/>
+    <circle cx="194" cy="136" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 180 168 L 204 168"/>
+    <circle cx="204" cy="168" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 174 188 L 194 200"/>
+    <circle cx="194" cy="200" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 90 188 L 70 200"/>
+    <circle cx="70" cy="200" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 155 203 L 164 221"/>
+    <circle cx="164" cy="221" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="7" d="M 109 203 L 100 221"/>
+    <circle cx="100" cy="221" r="7" fill="#86DDA2" stroke="#3A2A2A" stroke-width="4"/>
+  </g>
+</svg>
