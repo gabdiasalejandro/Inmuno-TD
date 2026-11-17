@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeSignalNames, cytokineEffects, cytokineHintDue, shownSignalNames, bacteriaRemaining, digestFraction, isClearLevel, isRecruitBoosted, levelProgress, scheduledEnemies } from '../../src/game/levelView';
+import { activeSignalNames, cytokineEffects, gaugeSignal, lostResultKey, shownSignalNames, bacteriaRemaining, digestFraction, isClearLevel, isRecruitBoosted, levelProgress, scheduledEnemies } from '../../src/game/levelView';
 import type { LevelDef, SignalDef, UnitDef } from '../../src/sim';
 
 const signals: Record<string, SignalDef> = {
@@ -41,7 +41,7 @@ describe('activeSignalNames', () => {
 });
 
 describe('shownSignalNames', () => {
-  const macro = { id: 'm', cost: 100, cooldown: 12, hp: 400, emits: { signal: 'citocinas', perSecond: 14, range: 2 } } as UnitDef;
+  const macro = { id: 'm', cost: 100, cooldown: 12, hp: 400, emits: { signal: 'citocinas', capacity: 40, perSecond: 7, range: 2 } } as UnitDef;
   const wall = { id: 'e', cost: 50, cooldown: 8, hp: 300 } as UnitDef;
 
   it('shows a signal only when it is active and some card of the deck can raise it', () => {
@@ -139,12 +139,27 @@ describe('cytokineEffects', () => {
   });
 });
 
-describe('cytokineHintDue', () => {
-  it('is due once, when the level first goes above 5%', () => {
-    expect(cytokineHintDue(0, false)).toBe(false);
-    expect(cytokineHintDue(0.05, false)).toBe(false);
-    expect(cytokineHintDue(0.06, false)).toBe(true);
-    expect(cytokineHintDue(0.9, true)).toBe(false);
-    expect(cytokineHintDue(null, false)).toBe(false);
+
+describe('gaugeSignal', () => {
+  const withHeat: Record<string, SignalDef> = {
+    ...signals,
+    inflamacion: { max: 100, decayPerSecond: 1, harm: { from: 0.4, hpPercentPerSecond: 2 }, defeatAt: 1 },
+  };
+
+  it('is the active signal that harms or can lose the level, with its tier thresholds', () => {
+    expect(gaugeSignal(level({ signals: ['citocinas', 'inflamacion'] }), withHeat)).toEqual({ name: 'inflamacion', harmFrom: 0.4, defeatAt: 1 });
+  });
+
+  it('is null where that signal is not active, or where no signal harms', () => {
+    expect(gaugeSignal(level({ signals: ['citocinas'] }), withHeat)).toBeNull();
+    expect(gaugeSignal(level({ signals: ['citocinas'] }), signals)).toBeNull();
+  });
+});
+
+describe('lostResultKey', () => {
+  it('names the signal that lost the level, and the breach otherwise', () => {
+    expect(lostResultKey({ type: 'signal', signal: 'inflamacion' })).toBe('result.lost.inflamacion');
+    expect(lostResultKey({ type: 'breach' })).toBe('result.lost');
+    expect(lostResultKey(null)).toBe('result.lost');
   });
 });

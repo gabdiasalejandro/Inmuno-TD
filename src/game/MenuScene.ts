@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { bindCursor } from './cursor';
 import { levels, worlds } from '../data';
 import { t } from '../i18n';
 import {
@@ -94,6 +95,7 @@ export class MenuScene extends Phaser.Scene {
 
     this.drawFolds();
 
+    bindCursor(this, (p) => this.target(p.x, p.y) !== null);
     this.input.on('pointerdown', this.onPointerDown, this);
     this.input.on('pointerup', this.onPointerUp, this);
     this.input.on('pointermove', this.onPointerMove, this);

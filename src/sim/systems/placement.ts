@@ -30,6 +30,8 @@ export function createPlacement(world: World): (defId: string, row: number, col:
       bornAt: state.tick,
       attackReadyAt: 0,
       alarmed: false,
+      charge: 0,
+      chargedAt: state.tick,
     });
     return { ok: true };
   };

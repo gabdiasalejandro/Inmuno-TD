@@ -4,28 +4,37 @@ import { createFigure, type Figure } from '../game/figures';
 import type { ResultAction } from '../game/flow';
 import { t } from '../i18n';
 import { levelProgress } from '../game/levelView';
+import { PAUSE_ACTIONS, type PauseAction } from '../game/pause';
 import { secondsToTicks, type UnitDef } from '../sim';
 import { fitScale, formatClock, formatGain, formatMultiplier, isSpedUp } from './format';
 import {
   CANVAS,
   ENERGY_COUNTER,
   ENERGY_ICON,
+  ENERGY_VALUE,
+  LEFT_COLUMN,
+  MARROW_FIGURE_SCALE,
   MARROW_ANCHOR,
   MARROW_LABEL,
   MARROW_CORE,
   MARROW_PANEL,
   MARROW_RING,
   HINT_BUBBLE,
+  LINK_X,
   LINK_Y,
-  MARROW_LINK_X,
+  PAUSE_PANEL,
+  PAUSE_TITLE,
   RESULT_PANEL,
+  TOAST_POS,
   cardSlots,
   hintTail,
   hudLayout,
   meterChips,
+  pauseMenuButtons,
   pointInRect,
   resultButtons,
   type HudLayout,
+  type PauseMenuButton,
   type Rect,
   type ResultButton,
 } from './layout';
@@ -36,16 +45,19 @@ const WARN_TEXT = '#A8392F';
 const OUTLINE = 0x3a2a2a;
 const PANEL = 0xf3e4e0;
 const PANEL_SHADE = 0xc9a6a1;
+/** The left column's own fill, a notch darker than the cards standing on it. */
+const COLUMN = 0xe9d6d1;
 const SELECTED = 0x7b4fa3;
 const WARN = 0xb5483f;
 const TIME_FILL = 0x8aa9b8;
 const TIME_LOW = 0xc98a6a;
 const PROGRESS = 0x8db28a;
 const PROGRESS_LIGHT = 0xb9d3a8;
+const INFLAMMATION = 0xe39a6c;
+const INFLAMMATION_HOT = 0xc9503f;
 
 const SHAKE_MS = 350;
 const TOAST_MS = 1500;
-const MARROW_SCALE = 0.6;
 const HINT_MS = 5200;
 const ENERGY_HOT = 0xe8602c;
 const ENERGY_BASE = 0xf3a23a;
@@ -55,6 +67,8 @@ function lerpHex(a: number, b: number, k: number): number {
   return (mix(16) << 16) | (mix(8) << 8) | mix(0);
 }
 const RESULT_FIGURE_SCALE = 0.62;
+
+const PAUSE_LABELS: Record<PauseAction, string> = { resume: 'action.resume', restart: 'action.restart', menu: 'action.menu' };
 
 export interface HudModel {
   /** Scene clock in ms, used for UI-only animation. */
@@ -79,6 +93,13 @@ export interface HudModel {
   effects: { marrow: number; recruit: number } | null;
   /** Ids of the cards whose redeploy is currently speeded up by cytokines. */
   boosted: ReadonlySet<string>;
+  /**
+   * Hold-to-release button: cytokine charge stored in the cells (points), the meter maximum it is
+   * compared with, and whether the player is holding it. Null without the signal.
+   */
+  release: { stored: number; max: number; held: boolean } | null;
+  /** Inflammation level 0..1, or null in levels without it. */
+  inflammation: number | null;
   shake: { defId: string; until: number } | null;
 }
 
@@ -109,13 +130,18 @@ export class Hud {
   private readonly g: Phaser.GameObjects.Graphics;
   private readonly cards: CardView[];
   private readonly marrow: Figure;
+  /** The marrow is presenting a tutorial: it animates as if talking. */
+  private marrowTalking = false;
   private readonly core: Phaser.GameObjects.Graphics;
   private readonly energyValue: Phaser.GameObjects.Text;
   private readonly timeLabel: Phaser.GameObjects.Text;
   private readonly timeValue: Phaser.GameObjects.Text;
   private readonly layout: HudLayout;
   private readonly meterLabel: Phaser.GameObjects.Text | null = null;
+  private readonly releaseLabel: Phaser.GameObjects.Text | null = null;
   private meterBumpAt = -Infinity;
+  /** Inflammation gauge: its label and the levels (0..1) where its tiers start; null without it. */
+  private readonly gauge: { label: Phaser.GameObjects.Text; harmFrom: number | null; defeatAt: number } | null = null;
   private readonly chipTexts: { marrow: Phaser.GameObjects.Text; recruit: Phaser.GameObjects.Text } | null = null;
   private hint: { until: number; box: Phaser.GameObjects.Graphics; title: Phaser.GameObjects.Text; body: Phaser.GameObjects.Text } | null = null;
   private lastSpark = 0;
@@ -127,61 +153,78 @@ export class Hud {
   private bumpAt = -Infinity;
   private overlay: Array<Phaser.GameObjects.GameObject | Figure> = [];
   private buttons: ResultButton[] = [];
+  private pauseOverlay: Phaser.GameObjects.GameObject[] = [];
+  private pauseButtonList: PauseMenuButton[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
     defs: UnitDef[],
-    options: { meter: boolean; clear: boolean },
+    options: { meter: boolean; clear: boolean; gauge?: { harmFrom: number | null; defeatAt: number } | null },
   ) {
     this.layout = hudLayout(defs.length, options.meter);
     const { timer, meter } = this.layout;
     const statics = scene.add.graphics().setDepth(5);
-    panel(statics, MARROW_PANEL, 22);
-    panel(statics, timer, 18);
-    if (meter) panel(statics, meter, 18);
-    this.drawMenuButton(statics);
+    panel(statics, LEFT_COLUMN, 22, COLUMN);
+    panel(statics, MARROW_PANEL, 16);
+    panel(statics, timer, 16);
+    if (meter) panel(statics, meter, 16);
+    if (options.gauge) panel(statics, this.layout.inflammation, 16);
+    this.drawPauseButton(statics);
 
     this.g = scene.add.graphics().setDepth(6);
-    this.marrow = createFigure(scene, 'medula_osea', MARROW_ANCHOR.x, MARROW_ANCHOR.y, MARROW_SCALE).setDepth(6.5).idle();
+    this.marrow = createFigure(scene, 'medula_osea', MARROW_ANCHOR.x, MARROW_ANCHOR.y, MARROW_FIGURE_SCALE).setDepth(6.5).idle();
     // Above the marrow figure: the batch growing inside its cavity.
     this.core = scene.add.graphics().setDepth(6.8);
 
     // Name tag over the marrow's feet: the one place the HUD says what produces the energy.
-    const marrowName = text(scene, 15, true).setText(t('hud.marrow')).setOrigin(0.5, 0.5).setPosition(MARROW_LABEL.x, MARROW_LABEL.y);
-    const tagW = marrowName.width + 18;
+    const marrowName = text(scene, 12, true).setText(t('hud.marrow')).setOrigin(0.5, 0.5).setPosition(MARROW_LABEL.x, MARROW_LABEL.y);
+    const tagW = marrowName.width + 12;
     const tag = scene.add.graphics().setDepth(6.9);
-    tag.fillStyle(PANEL, 1).fillRoundedRect(MARROW_LABEL.x - tagW / 2, MARROW_LABEL.y - 12, tagW, 24, 12);
-    tag.lineStyle(3, OUTLINE, 1).strokeRoundedRect(MARROW_LABEL.x - tagW / 2, MARROW_LABEL.y - 12, tagW, 24, 12);
+    tag.fillStyle(PANEL, 1).fillRoundedRect(MARROW_LABEL.x - tagW / 2, MARROW_LABEL.y - 10, tagW, 20, 10);
+    tag.lineStyle(3, OUTLINE, 1).strokeRoundedRect(MARROW_LABEL.x - tagW / 2, MARROW_LABEL.y - 10, tagW, 20, 10);
 
     this.cards = defs.map((def, i) => ({
       def,
-      figure: createFigure(scene, def.id, 0, 0, cardSlots((this.layout.cards[i] as Rect).w).figureScale).setDepth(6.5).idle(),
+      figure: createFigure(scene, def.id, 0, 0, cardSlots((this.layout.cards[i] as Rect).w, (this.layout.cards[i] as Rect).h).figureScale).setDepth(6.5).idle(),
       name: text(scene, 18, true).setOrigin(0.5, 0),
-      cost: text(scene, cardSlots((this.layout.cards[i] as Rect).w).costFont, true).setOrigin(1, 0.5),
+      cost: text(scene, cardSlots((this.layout.cards[i] as Rect).w, (this.layout.cards[i] as Rect).h).costFont, true).setOrigin(1, 0.5),
     }));
 
-    text(scene, 19, true).setText(t('hud.energy')).setOrigin(0.5, 0).setPosition(ENERGY_COUNTER.x + ENERGY_COUNTER.w / 2, ENERGY_COUNTER.y + 78);
-    this.energyValue = text(scene, 42, true).setOrigin(0, 0.5).setPosition(ENERGY_ICON.x + ENERGY_ICON.r + 10, ENERGY_ICON.y);
-    // A stacked (short) timer panel puts label and value on one line; a tall one leaves room for a bar.
+    this.energyValue = text(scene, 36, true).setOrigin(0.5, 0.5).setPosition(ENERGY_VALUE.x, ENERGY_VALUE.y);
+    // Label and value share one row: label left, value right, and the bar under both.
     // Clear levels have neither: only the progress bar and its little bacterium.
-    const compact = timer.h < 80;
     const clear = options.clear;
-    this.timeLabel = text(scene, compact ? 20 : 22, true)
+    this.timeLabel = text(scene, 17, true)
       .setText(clear ? '' : t('hud.time_left'))
       .setVisible(!clear)
-      .setOrigin(0, compact ? 0.5 : 0)
-      .setPosition(timer.x + 16, compact ? timer.y + timer.h / 2 : timer.y + 14);
-    this.timeValue = text(scene, compact ? 32 : 40, true)
+      .setOrigin(0, 0)
+      .setPosition(timer.x + 16, timer.y + 9);
+    this.timeValue = text(scene, 26, true)
       .setVisible(!clear)
-      .setOrigin(1, compact ? 0.5 : 0)
-      .setPosition(timer.x + timer.w - 16, compact ? timer.y + timer.h / 2 : timer.y + 6);
+      .setOrigin(1, 0)
+      .setPosition(timer.x + timer.w - 16, timer.y + 4);
+    const { release } = this.layout;
+    if (release) {
+      this.releaseLabel = text(scene, 15, true)
+        .setText(t('hud.release'))
+        .setAlign('center')
+        .setWordWrapWidth(release.w - 24)
+        .setLineSpacing(-3)
+        .setOrigin(0.5, 0.5)
+        .setDepth(7.1);
+    }
     if (meter) {
-      this.meterLabel = text(scene, 16, true).setText(t('hud.cytokines')).setPosition(meter.x + 16, meter.y + 5);
+      this.meterLabel = text(scene, 16, true).setText(t('hud.cytokines')).setPosition(meter.x + 16, meter.y + 7);
       this.chipTexts = { marrow: text(scene, 13, true).setOrigin(1, 0.5), recruit: text(scene, 13, true).setOrigin(1, 0.5) };
     }
 
+    if (options.gauge) {
+      const slot = this.layout.inflammation;
+      this.gauge = { ...options.gauge, label: text(scene, 16, true).setText(t('hud.inflammation')).setPosition(slot.x + 16, slot.y + 7) };
+    }
+
     this.toastBox = scene.add.graphics().setDepth(9);
-    this.toast = text(scene, 24, true, INK_LIGHT).setOrigin(0.5, 0.5).setPosition(CANVAS.w / 2, 190).setDepth(10).setAlpha(0);
+    this.toast = text(scene, 24, true, INK_LIGHT).setOrigin(0.5, 0.5).setPosition(TOAST_POS.x, TOAST_POS.y).setDepth(10).setAlpha(0);
   }
 
   get cardCount(): number {
@@ -192,6 +235,16 @@ export class Hud {
   get meterTarget(): { x: number; y: number } | null {
     const m = this.layout.meter;
     return m ? { x: m.x + m.w / 2, y: m.y + m.h - 14 } : null;
+  }
+
+  /** The hold-to-release button, or null in levels without the meter. */
+  get releaseRect(): Rect | null {
+    return this.layout.release;
+  }
+
+  /** The inflammation gauge's panel, or null in levels without it. */
+  get gaugeRect(): Rect | null {
+    return this.gauge ? this.layout.inflammation : null;
   }
 
   /** A cytokine arrived: the meter bumps. */
@@ -213,6 +266,16 @@ export class Hud {
     this.toastUntil = now + TOAST_MS;
   }
 
+  /** The marrow talks (a tutorial bubble comes out of it): livelier idle and a rhythmic swell. */
+  setMarrowTalking(talking: boolean): void {
+    this.marrowTalking = talking;
+  }
+
+  /** A short squeeze of the marrow, for when it starts a new line. */
+  nudgeMarrow(): void {
+    this.marrow.squeeze();
+  }
+
   /**
    * A batch of energy leaves the marrow and flies to the counter; the counter only counts it
    * on arrival, so the number visibly comes from the marrow.
@@ -223,7 +286,7 @@ export class Hud {
     flyEnergy(this.scene, MARROW_CORE, ENERGY_ICON, 14, () => {
       this.pending = Math.max(0, this.pending - amount);
       this.bumpAt = this.scene.time.now;
-      floatText(this.scene, ENERGY_ICON.x + 66, ENERGY_ICON.y - 20, formatGain(amount), '#F7C56E', 28, 11);
+      floatText(this.scene, ENERGY_ICON.x + 30, ENERGY_ICON.y - 18, formatGain(amount), '#F7C56E', 26, 11);
     });
   }
 
@@ -235,6 +298,8 @@ export class Hud {
     this.cards.forEach((card, i) => this.drawCard(g, card, i, m, shown));
     this.drawTimer(g, m);
     this.drawMeter(g, m);
+    this.drawRelease(g, m);
+    this.drawGauge(g, m);
     this.drawLinks(g, m);
     this.drawHint(m.now);
     this.drawToast(m.now);
@@ -256,10 +321,13 @@ export class Hud {
       g.strokePath();
     }
     // The batch itself grows inside the marrow cavity and glows when nearly ready.
-    this.marrow.setExcite(excite).setSwell(0.04 * charge * charge + 0.03 * excite * throb);
+    const talk = this.marrowTalking ? 0.5 + 0.5 * Math.sin(m.now / 120) : 0;
+    this.marrow
+      .setExcite(this.marrowTalking ? Math.max(excite, 0.6) : excite)
+      .setSwell(0.04 * charge * charge + 0.03 * excite * throb + (this.marrowTalking ? 0.035 * talk : 0));
     const glow = charge > 0.8 ? 0.5 + 0.5 * Math.sin(m.now / 60) : 0;
     if (glow > 0) g.fillStyle(0xf7c56e, 0.25 * glow).fillCircle(x, cy, ring - 8);
-    drawEnergyOrb(this.core.clear(), MARROW_CORE.x, MARROW_CORE.y, 3 + 10 * charge, 0.6 + 0.4 * charge);
+    drawEnergyOrb(this.core.clear(), MARROW_CORE.x, MARROW_CORE.y, 3 + 8 * charge, 0.6 + 0.4 * charge);
     if (excite > 0.15 && m.now - this.lastSpark > 140 - 90 * excite) {
       this.lastSpark = m.now;
       const angle = Math.random() * Math.PI * 2;
@@ -271,7 +339,8 @@ export class Hud {
     const k = Math.max(0, 1 - (now - this.bumpAt) / 260);
     const bump = 1 + 0.2 * Math.sin(k * Math.PI);
     drawEnergyOrb(g, ENERGY_ICON.x, ENERGY_ICON.y, ENERGY_ICON.r * bump);
-    this.energyValue.setText(String(Math.floor(energy))).setScale(bump);
+    this.energyValue.setText(String(Math.floor(energy)));
+    this.energyValue.setScale(fitScale(this.energyValue.width, ENERGY_COUNTER.w - 6) * bump);
   }
 
   private drawCard(g: Phaser.GameObjects.Graphics, card: CardView, index: number, m: HudModel, energy: number): void {
@@ -287,23 +356,23 @@ export class Hud {
     const boosted = m.boosted.has(def.id);
     const dx = shaking ? Math.sin((m.now / SHAKE_MS) * Math.PI * 8) * 7 : 0;
     const x = r.x + dx;
-    const y = r.y - (selected ? 6 : 0);
+    const y = r.y;
     const alpha = usable ? 1 : 0.7;
     const slots = cardSlots(r.w, r.h);
     const figureX = x + slots.figureX;
 
-    g.fillStyle(PANEL_SHADE, 1).fillRoundedRect(x, y + 5, r.w, r.h, 16);
-    g.fillStyle(selected ? 0xfbf3ef : PANEL, 1).fillRoundedRect(x, y, r.w, r.h, 16);
+    g.fillStyle(PANEL_SHADE, 1).fillRoundedRect(x, y + 4, r.w, r.h, 14);
+    g.fillStyle(selected ? 0xfff6d8 : PANEL, 1).fillRoundedRect(x, y, r.w, r.h, 14);
     // Figure plinth: a soft disc the character stands on.
-    g.fillStyle(PANEL_SHADE, 0.55).fillEllipse(figureX, y + slots.figureGround - 2, Math.min(76, slots.figureZone.w), 14);
+    g.fillStyle(PANEL_SHADE, 0.55).fillEllipse(figureX, y + slots.figureGround - 2, Math.min(64, slots.figureZone.w), 12);
     g.lineStyle(selected ? 7 : 4, selected ? SELECTED : shaking ? WARN : OUTLINE, 1);
-    g.strokeRoundedRect(x, y, r.w, r.h, 16);
+    g.strokeRoundedRect(x, y, r.w, r.h, 14);
 
     card.figure.setPosition(figureX, y + slots.figureGround).setDim(!usable);
 
     if (cooling > 0 && cooldownTotal > 0) {
       const h = (r.h - 8) * Math.min(1, cooling / cooldownTotal);
-      const radii = { tl: 12, tr: 12, bl: h > r.h - 20 ? 12 : 0, br: h > r.h - 20 ? 12 : 0 };
+      const radii = { tl: 10, tr: 10, bl: h > r.h - 20 ? 10 : 0, br: h > r.h - 20 ? 10 : 0 };
       g.fillStyle(boosted ? CYTOKINE_DARK : OUTLINE, boosted ? 0.45 : 0.3).fillRoundedRect(x + 4, y + 4, r.w - 8, h, radii);
       // Cytokines at work: arrows climb the card, and the cooldown edge glows, so it reads as "refilling faster".
       if (boosted) {
@@ -311,7 +380,7 @@ export class Hud {
         for (let k = 0; k < 3; k++) {
           const t = ((m.now / 520 + k / 3) % 1);
           const ay = y + r.h - 12 - t * (r.h - 24);
-          this.arrow(g, x + r.w - 22, ay, 1 - Math.abs(t - 0.5) * 1.6);
+          this.arrow(g, x + slots.figureX + 30, ay, 1 - Math.abs(t - 0.5) * 1.6);
         }
       }
     }
@@ -320,12 +389,13 @@ export class Hud {
       const bx = x + slots.badge.x;
       const by = y + slots.badge.y;
       const pulse = 0.5 + 0.5 * Math.sin(m.now / 140);
-      g.fillStyle(CYTOKINE, 1).fillCircle(bx, by, 11 + pulse * 1.5);
-      g.lineStyle(3, OUTLINE, 1).strokeCircle(bx, by, 11 + pulse * 1.5);
-      g.fillStyle(0xe8fbf8, 1).fillTriangle(bx, by - 6, bx - 6, by + 4, bx + 6, by + 4);
+      const k = slots.badge.r / 14;
+      g.fillStyle(CYTOKINE, 1).fillCircle(bx, by, (11 + pulse * 1.5) * k);
+      g.lineStyle(3, OUTLINE, 1).strokeCircle(bx, by, (11 + pulse * 1.5) * k);
+      g.fillStyle(0xe8fbf8, 1).fillTriangle(bx, by - 6 * k, bx - 6 * k, by + 4 * k, bx + 6 * k, by + 4 * k);
     }
 
-    card.name.setText(t(`unit.${def.id}.name`)).setScale(fitScale(card.name.width, slots.name.w)).setPosition(x + slots.name.x + slots.name.w / 2, y + 8).setAlpha(alpha);
+    card.name.setText(t(`unit.${def.id}.name`)).setScale(fitScale(card.name.width, slots.name.w)).setPosition(x + slots.name.x + slots.name.w / 2, y + slots.name.y + 2).setAlpha(alpha);
     const costRight = x + slots.cost.x + slots.cost.w;
     const costY = y + slots.cost.y + slots.cost.h / 2;
     card.cost.setText(String(def.cost)).setPosition(costRight, costY).setAlpha(alpha);
@@ -344,11 +414,7 @@ export class Hud {
       this.timeLabel.setVisible(false);
       this.timeValue.setVisible(false);
       const progress = levelProgress(m.remainingEnemies, m.totalEnemies);
-      const compact = rect.h < 80;
-      const bar = compact
-        ? { x: rect.x + 16, y: rect.y + 15, w: rect.w - 32, h: 18 }
-        : { x: rect.x + 18, y: rect.y + 40, w: rect.w - 36, h: 24 };
-      this.drawProgressBar(g, bar, progress, compact ? 9 : 12);
+      this.drawProgressBar(g, { x: rect.x + 16, y: rect.y + 22, w: rect.w - 32, h: 24 }, progress, 12);
       return;
     }
     const remaining = m.remainingSeconds;
@@ -360,15 +426,14 @@ export class Hud {
     const fraction = Math.max(0, Math.min(1, remaining / total));
     const low = remaining <= 10;
     this.timeValue.setText(formatClock(remaining));
-    if (rect.h < 80) return;
-    const bar = { x: rect.x + 18, y: rect.y + 62, w: rect.w - 36, h: 24 };
-    g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 12);
+    const bar = { x: rect.x + 16, y: rect.y + 40, w: rect.w - 32, h: 18 };
+    g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
     const w = bar.w * fraction;
     if (w > 2) {
       const pulse = low ? 0.75 + 0.25 * Math.sin(m.now / 120) : 1;
-      g.fillStyle(low ? TIME_LOW : TIME_FILL, pulse).fillRoundedRect(bar.x, bar.y, Math.max(w, 24), bar.h, 12);
+      g.fillStyle(low ? TIME_LOW : TIME_FILL, pulse).fillRoundedRect(bar.x, bar.y, Math.max(w, 18), bar.h, 9);
     }
-    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 12);
+    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
   }
 
   /** A soft green bar that fills as the level is cleared, with a tiny bacterium riding its edge. */
@@ -403,10 +468,10 @@ export class Hud {
   /** Cytokine meter: a teal bar that bumps when particles arrive and shimmers while it is high. */
   private drawMeter(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const rect = this.layout.meter;
-    if (!rect || m.cytokines === null) return;
+    const bar = this.layout.meterBar;
+    if (!rect || !bar || m.cytokines === null) return;
     const level = Math.max(0, Math.min(1, m.cytokines));
     const bump = Math.max(0, 1 - (m.now - this.meterBumpAt) / 220);
-    const bar = { x: rect.x + 14, y: rect.y + 26, w: rect.w - 28, h: 15 };
     g.fillStyle(OUTLINE, 0.16).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
     const w = bar.w * level;
     if (w > 2) {
@@ -414,16 +479,72 @@ export class Hud {
       g.fillStyle(0xe8fbf8, 0.5).fillRoundedRect(bar.x + 3, bar.y + 2, Math.max(w, 16) - 6, 4, 2);
     }
     if (bump > 0) {
-      g.lineStyle(4, CYTOKINE, bump).strokeRoundedRect(rect.x - 3 * bump, rect.y - 3 * bump, rect.w + 6 * bump, rect.h + 6 * bump, 20);
+      g.lineStyle(4, CYTOKINE, bump).strokeRoundedRect(rect.x - 3 * bump, rect.y - 3 * bump, rect.w + 6 * bump, rect.h + 6 * bump, 18);
     }
     g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
     this.meterLabel?.setColor(level > 0.05 ? '#1B7F76' : INK);
-    if (m.effects) this.drawChips(g, m.effects, rect);
+    if (m.effects) this.drawChips(g, m.effects, rect, bar);
+  }
+
+  /**
+   * Inflammation gauge: a bar split into its tiers (calm, collateral damage, defeat at the end). The
+   * marks sit where the rules change; the fill turns warm in the damaging band and throbs near defeat.
+   */
+  private drawGauge(g: Phaser.GameObjects.Graphics, m: HudModel): void {
+    const gauge = this.gauge;
+    if (!gauge || m.inflammation === null) return;
+    const slot = this.layout.inflammation;
+    const bar = { x: slot.x + 16, y: slot.y + 38, w: slot.w - 32, h: 16 };
+    const level = Math.max(0, Math.min(1, m.inflammation / gauge.defeatAt));
+    const harm = gauge.harmFrom === null ? 1 : gauge.harmFrom / gauge.defeatAt;
+    // Tier bands under the fill: calm, then damaging.
+    g.fillStyle(OUTLINE, 0.12).fillRoundedRect(bar.x, bar.y, bar.w * harm, bar.h, { tl: 8, bl: 8, tr: 0, br: 0 });
+    g.fillStyle(INFLAMMATION_HOT, 0.22).fillRoundedRect(bar.x + bar.w * harm, bar.y, bar.w * (1 - harm), bar.h, { tl: 0, bl: 0, tr: 8, br: 8 });
+    const w = bar.w * level;
+    const harming = level >= harm;
+    if (w > 2) {
+      const throb = level > 0.8 ? 0.75 + 0.25 * Math.sin(m.now / 90) : 1;
+      g.fillStyle(harming ? INFLAMMATION_HOT : INFLAMMATION, throb).fillRoundedRect(bar.x, bar.y, Math.max(w, 16), bar.h, 8);
+      g.fillStyle(0xfbe3d6, 0.5).fillRoundedRect(bar.x + 3, bar.y + 2, Math.max(w, 16) - 6, 4, 2);
+    }
+    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
+    // Tier mark where the damage begins, and a little flame at the end where the level is lost.
+    if (gauge.harmFrom !== null) {
+      const x = bar.x + bar.w * harm;
+      g.lineStyle(3, OUTLINE, 1).lineBetween(x, bar.y - 6, x, bar.y + bar.h + 4);
+    }
+    const ex = bar.x + bar.w;
+    g.fillStyle(WARN, 1).fillTriangle(ex - 7, bar.y - 2, ex + 7, bar.y - 2, ex, bar.y - 16);
+    g.lineStyle(2, OUTLINE, 1).strokeTriangle(ex - 7, bar.y - 2, ex + 7, bar.y - 2, ex, bar.y - 16);
+    gauge.label.setColor(harming ? WARN_TEXT : INK);
+  }
+
+  /**
+   * Hold-to-release button. Its teal fill shows how much charge the cells hold (against the
+   * meter's maximum, the most one hold can matter); it sinks while held and greys out when empty.
+   */
+  private drawRelease(g: Phaser.GameObjects.Graphics, m: HudModel): void {
+    const rect = this.layout.release;
+    const label = this.releaseLabel;
+    if (!rect || !label || !m.release) return;
+    const { stored, max, held } = m.release;
+    const ready = stored >= 0.5;
+    const sink = held ? 4 : 0;
+    const r = { ...rect, y: rect.y + sink };
+    if (!held) g.fillStyle(PANEL_SHADE, 1).fillRoundedRect(r.x, r.y + 4, r.w, r.h, 22);
+    g.fillStyle(held ? 0xd7ece9 : 0xfbf3ef, 1).fillRoundedRect(r.x, r.y, r.w, r.h, 22);
+    const share = Math.max(0, Math.min(1, stored / max));
+    if (share > 0) {
+      const glow = held ? 0.55 + 0.25 * Math.sin(m.now / 90) : 0.4;
+      g.fillStyle(CYTOKINE, glow).fillRoundedRect(r.x + 4, r.y + 4, Math.max(18, (r.w - 8) * share), r.h - 8, 18);
+    }
+    g.lineStyle(held ? 5 : 4, held ? CYTOKINE_DARK : OUTLINE, 1).strokeRoundedRect(r.x, r.y, r.w, r.h, 22);
+    label.setPosition(r.x + r.w / 2, r.y + r.h / 2).setColor(ready ? INK : '#9C8A87');
   }
 
   /** Two chips under the label: what the meter does right now. Idle (grey) at x1, teal when it speeds things up. */
-  private drawChips(g: Phaser.GameObjects.Graphics, effects: { marrow: number; recruit: number }, meter: Rect): void {
-    const chips = meterChips(meter);
+  private drawChips(g: Phaser.GameObjects.Graphics, effects: { marrow: number; recruit: number }, meter: Rect, bar: Rect): void {
+    const chips = meterChips(meter, bar);
     const entries = [
       { rect: chips.marrow, value: effects.marrow, text: this.chipTexts?.marrow, icon: 'orb' },
       { rect: chips.recruit, value: effects.recruit, text: this.chipTexts?.recruit, icon: 'cell' },
@@ -451,8 +572,9 @@ export class Hud {
   }
 
   /**
-   * A thin teal line under the strip ties the meter to the things it speeds up: the marrow panel
-   * and every card whose redeploy is boosted. Only while the multipliers are above x1.
+   * A thin teal line ties the meter to the things it speeds up: it runs along the gap under the
+   * top bar, then down the gap beside the left column to the marrow panel and every card whose
+   * redeploy is boosted. Only while the multipliers are above x1.
    */
   private drawLinks(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const meter = this.layout.meter;
@@ -460,18 +582,22 @@ export class Hud {
     const marrowOn = isSpedUp(m.effects.marrow);
     const cards = this.layout.cards.filter((_, i) => m.boosted.has(this.cards[i]?.def.id ?? ''));
     if (!marrowOn && cards.length === 0) return;
-    const meterX = meter.x + meter.w - 24;
-    const ends: Array<{ x: number; from: number }> = [{ x: meterX, from: meter.y + meter.h }];
-    if (marrowOn) ends.push({ x: MARROW_LINK_X, from: MARROW_PANEL.y + MARROW_PANEL.h });
-    for (const c of cards) ends.push({ x: c.x + c.w / 2, from: c.y + c.h });
-    const xs = ends.map((e) => e.x);
-    g.lineStyle(3, CYTOKINE, 0.85).lineBetween(Math.min(...xs), LINK_Y, Math.max(...xs), LINK_Y);
-    for (const e of ends) {
-      g.lineBetween(e.x, e.from, e.x, LINK_Y);
-      g.fillStyle(CYTOKINE, 0.85).fillCircle(e.x, e.from, 4);
+    const meterX = meter.x + 24;
+    const columnEdge = LEFT_COLUMN.x + LEFT_COLUMN.w;
+    const stubs: number[] = [];
+    if (marrowOn) stubs.push(MARROW_PANEL.y + MARROW_PANEL.h / 2);
+    for (const c of cards) stubs.push(c.y + c.h / 2);
+    g.lineStyle(3, CYTOKINE, 0.85);
+    g.lineBetween(meterX, meter.y + meter.h, meterX, LINK_Y);
+    g.lineBetween(LINK_X, LINK_Y, meterX, LINK_Y);
+    g.lineBetween(LINK_X, LINK_Y, LINK_X, Math.max(...stubs));
+    g.fillStyle(CYTOKINE, 0.85).fillCircle(meterX, meter.y + meter.h, 4);
+    for (const y of stubs) {
+      g.lineBetween(columnEdge, y, LINK_X, y);
+      g.fillStyle(CYTOKINE, 0.85).fillCircle(columnEdge, y, 4);
     }
-    if (marrowOn) g.lineStyle(4, CYTOKINE, 0.7).strokeRoundedRect(MARROW_PANEL.x - 3, MARROW_PANEL.y - 3, MARROW_PANEL.w + 6, MARROW_PANEL.h + 6, 24);
-    for (const c of cards) g.lineStyle(4, CYTOKINE, 0.7).strokeRoundedRect(c.x - 3, c.y - 3, c.w + 6, c.h + 6, 19);
+    if (marrowOn) g.lineStyle(4, CYTOKINE, 0.7).strokeRoundedRect(MARROW_PANEL.x - 3, MARROW_PANEL.y - 3, MARROW_PANEL.w + 6, MARROW_PANEL.h + 6, 19);
+    for (const c of cards) g.lineStyle(4, CYTOKINE, 0.7).strokeRoundedRect(c.x - 3, c.y - 3, c.w + 6, c.h + 6, 17);
   }
 
   /** Shows the one-time explanation of the meter for a few seconds; a tap anywhere on it closes it. */
@@ -501,13 +627,18 @@ export class Hud {
 
   /** True when a tap at this point lands on the visible hint. It closes it and the tap goes no further. */
   tapHint(x: number, y: number): boolean {
+    if (!this.overHint(x, y)) return false;
+    this.closeHint();
+    return true;
+  }
+
+  /** True when the point is over the visible hint, without closing it (for the cursor). */
+  overHint(x: number, y: number): boolean {
     if (!this.hint) return false;
     const meter = this.layout.meter;
     const h = Math.max(HINT_BUBBLE.h, 40 + this.hint.body.height + 14);
     const onTail = meter ? Math.abs(x - hintTail(meter).tipX) < 24 && y >= meter.y + meter.h && y <= HINT_BUBBLE.y : false;
-    if (!pointInRect({ ...HINT_BUBBLE, h }, x, y) && !onTail) return false;
-    this.closeHint();
-    return true;
+    return pointInRect({ ...HINT_BUBBLE, h }, x, y) || onTail;
   }
 
   private closeHint(): void {
@@ -527,17 +658,63 @@ export class Hud {
     for (const o of [hint.box, hint.title, hint.body]) o.setAlpha(Math.max(0, alpha));
   }
 
-  private drawMenuButton(g: Phaser.GameObjects.Graphics): void {
-    const r = this.layout.menu;
-    panel(g, r, 18);
-    const cx = r.x + r.w / 2;
-    // The fullscreen toggle sits above it, so the menu button is short: icon and label stack tighter.
-    const compact = r.h < 76;
-    const iconY = r.y + (compact ? 22 : 32);
-    const gap = compact ? 6 : 10;
-    g.lineStyle(compact ? 5 : 6, OUTLINE, 1);
-    for (const dy of [-gap, 0, gap]) g.lineBetween(cx - 20, iconY + dy, cx + 20, iconY + dy);
-    text(this.scene, compact ? 17 : 20, true).setText(t('action.menu')).setOrigin(0.5, 0).setPosition(cx, r.y + (compact ? 38 : 50));
+  /** Pause button: two bars, centred in its square. */
+  private drawPauseButton(g: Phaser.GameObjects.Graphics): void {
+    const r = this.layout.pause;
+    panel(g, r, 16);
+    const barW = 10;
+    const barH = 32;
+    const gap = 8;
+    const left = r.x + (r.w - (2 * barW + gap)) / 2;
+    const top = r.y + (r.h - barH) / 2;
+    g.fillStyle(OUTLINE, 1);
+    g.fillRoundedRect(left, top, barW, barH, 3).fillRoundedRect(left + barW + gap, top, barW, barH, 3);
+  }
+
+  /** The pause button's rectangle, for hit tests. */
+  get pauseRect(): Rect {
+    return this.layout.pause;
+  }
+
+  /** Buttons of the pause panel currently on screen (empty while not paused). */
+  get pauseButtons(): PauseMenuButton[] {
+    return this.pauseButtonList;
+  }
+
+  /** Dim overlay with a centred panel: "Pausa" and its buttons. Idempotent. */
+  showPause(): void {
+    if (this.pauseOverlay.length > 0) return;
+    const scene = this.scene;
+    const dim = scene.add.graphics().setDepth(20);
+    dim.fillStyle(OUTLINE, 0.6).fillRect(0, 0, CANVAS.w, CANVAS.h);
+    panel(dim, PAUSE_PANEL, 26);
+    const title = scene.add
+      .text(PAUSE_TITLE.x, PAUSE_TITLE.y, t('action.pause'), { fontFamily: UI_FONT, fontSize: '44px', fontStyle: 'bold', color: INK })
+      .setOrigin(0.5)
+      .setDepth(21);
+    this.pauseButtonList = pauseMenuButtons(PAUSE_ACTIONS);
+    const labels = this.pauseButtonList.map(({ action, rect }) => {
+      const primary = action === 'resume';
+      dim.fillStyle(PANEL_SHADE, 1).fillRoundedRect(rect.x, rect.y + 5, rect.w, rect.h, 18);
+      dim.fillStyle(primary ? SELECTED : 0xfbf3ef, 1).fillRoundedRect(rect.x, rect.y, rect.w, rect.h, 18);
+      dim.lineStyle(4, OUTLINE, 1).strokeRoundedRect(rect.x, rect.y, rect.w, rect.h, 18);
+      return scene.add
+        .text(rect.x + rect.w / 2, rect.y + rect.h / 2, t(PAUSE_LABELS[action]), {
+          fontFamily: UI_FONT,
+          fontSize: '30px',
+          fontStyle: 'bold',
+          color: primary ? INK_LIGHT : INK,
+        })
+        .setOrigin(0.5)
+        .setDepth(21);
+    });
+    this.pauseOverlay = [dim, title, ...labels];
+  }
+
+  hidePause(): void {
+    for (const o of this.pauseOverlay) o.destroy();
+    this.pauseOverlay = [];
+    this.pauseButtonList = [];
   }
 
   private drawToast(now: number): void {
@@ -548,12 +725,12 @@ export class Hud {
     const w = this.toast.width + 48;
     const h = 48;
     const rise = (1 - Math.min(1, (TOAST_MS - (this.toastUntil - now)) / 150)) * 10;
-    this.toast.setY(190 + rise);
-    this.toastBox.fillStyle(OUTLINE, 0.9 * alpha).fillRoundedRect(CANVAS.w / 2 - w / 2, 190 + rise - h / 2, w, h, 24);
+    this.toast.setY(TOAST_POS.y + rise);
+    this.toastBox.fillStyle(OUTLINE, 0.9 * alpha).fillRoundedRect(TOAST_POS.x - w / 2, TOAST_POS.y + rise - h / 2, w, h, 24);
   }
 
   /** Dim overlay with the translated result, a few characters and the given buttons. Idempotent. */
-  showResult(status: 'won' | 'lost', actions: ResultAction[], clear = false): void {
+  showResult(status: 'won' | 'lost', actions: ResultAction[], clear = false, lostKey = 'result.lost'): void {
     if (this.overlay.length > 0) return;
     this.closeHint();
     const scene = this.scene;
@@ -567,7 +744,7 @@ export class Hud {
     dim.fillStyle(PANEL_SHADE, 0.6).fillEllipse(CANVAS.w / 2, 420, 420, 30);
 
     const title = scene.add
-      .text(CANVAS.w / 2, ribbon.y + ribbon.h / 2, t(status === 'won' && clear ? 'result.won.clear' : `result.${status}`), {
+      .text(CANVAS.w / 2, ribbon.y + ribbon.h / 2, t(status === 'won' ? (clear ? 'result.won.clear' : 'result.won') : lostKey), {
         fontFamily: UI_FONT,
         fontSize: '32px',
         fontStyle: 'bold',
@@ -578,10 +755,18 @@ export class Hud {
       .setOrigin(0.5)
       .setDepth(21);
 
-    const cast = status === 'won' ? ['moco', 'medula_osea', 'epitelio'] : ['bacteria_gram_pos', 'bacteria_gram_pos', 'bacteria_gram_pos'];
+    const cast =
+      status === 'won'
+        ? ['moco', 'medula_osea', 'epitelio']
+        : lostKey === 'result.lost'
+          ? ['bacteria_gram_pos', 'bacteria_gram_pos', 'bacteria_gram_pos']
+          : // Lost to the body's own response: the own cells, worn out.
+            ['neutrofilo', 'epitelio', 'macrofago'];
     const figures = cast.map((id, i) => {
       const f = createFigure(scene, id, CANVAS.w / 2 + (i - 1) * 140, 424, RESULT_FIGURE_SCALE).setDepth(21).idle();
-      if (status === 'won') {
+      if (status === 'lost' && lostKey !== 'result.lost') {
+        f.setWear(1, scene.time.now);
+      } else if (status === 'won') {
         scene.tweens.add({ targets: f.root, y: 404, duration: 260, yoyo: true, repeat: -1, delay: i * 120, ease: 'Quad.easeOut' });
       } else {
         f.setMoving(true);

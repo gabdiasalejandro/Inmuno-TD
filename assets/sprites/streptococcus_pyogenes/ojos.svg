@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- ojo izquierdo (delantero): base compartida -->
+    <ellipse cx="72" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="69" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="75.5" cy="139" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida -->
+    <ellipse cx="106" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="103" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="109.5" cy="139" r="2" fill="#FBF7F2"/>
+    <!-- parpados inclinados hacia el centro: mirada maliciosa -->
+    <path fill="#E04A5A" d="M 59 118 H 85 V 132 L 59 126 Z"/>
+    <path fill="#E04A5A" d="M 93 118 H 119 V 126 L 93 132 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 60 126 L 84 132 M 94 132 L 118 126"/>
+    <!-- cejas asimetricas, las dos fruncidas hacia el centro: escurridizo y con prisa -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 58 112 Q 70 104 84 113 M 94 120 L 118 110"/>
+    <!-- boca: sonrisa ladeada con colmillo -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 70 156 Q 88 166 104 153"/>
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" d="M 83 160 L 87 169 L 92 161 Z"/>
+  </g>
+</svg>

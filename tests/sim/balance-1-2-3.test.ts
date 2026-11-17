@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { content, levels } from '../../src/data';
-import { every, frontCol, holdLanes, isFree, play, together, unitsIn, type Bot } from './bots';
+import { every, frontCol, holdLanes, holdRelease, isFree, play, pulseRelease, together, unitsIn, type Bot } from './bots';
 
 const unitCost = (id: string): number => content.units.find((unit) => unit.id === id)!.cost;
 const NEUTROPHIL_COST = unitCost('neutrofilo');
@@ -79,17 +79,25 @@ describe('level 1-2 balance', () => {
 describe('level 1-3 balance', () => {
   const both = together(macrophages, neutrophils);
 
-  it('is lost with macrophages alone: they are overwhelmed', () => {
+  it('is lost with macrophages alone, even holding the release all along: they are overwhelmed', () => {
     expect(play('1-3', macrophages).status).toBe('lost');
+    expect(play('1-3', together(macrophages, holdRelease)).status).toBe('lost');
   });
 
-  it('is lost with neutrophils alone: nobody raises the alarm', () => {
+  it('is lost with neutrophils alone, even releasing what the wounds charge: wounds hold too little', () => {
     expect(play('1-3', neutrophils).status).toBe('lost');
+    expect(play('1-3', together(neutrophils, holdRelease)).status).toBe('lost');
   });
 
-  it('is won when macrophages raise the alarm and neutrophils answer, even by a slow player', () => {
-    expect(play('1-3', both).status).toBe('won');
-    expect(play('1-3', every(2, both)).status).toBe('won');
+  it('is won when macrophages detect, the player holds the release and neutrophils answer, even by a slow or sloppy player', () => {
+    expect(play('1-3', together(both, holdRelease)).status).toBe('won');
+    expect(play('1-3', every(2, together(both, holdRelease))).status).toBe('won');
+    expect(play('1-3', together(both, pulseRelease(2, 6))).status).toBe('won');
+  });
+
+  it('is lost by the same macrophages and neutrophils when the player never releases the cytokines', () => {
+    expect(play('1-3', both).status).toBe('lost');
+    expect(play('1-3', every(2, both)).status).toBe('lost');
   });
 });
 

@@ -1,9 +1,4 @@
 [
-  {
-    "id": "bacteria_gram_pos",
-    "hp": 40,
-    "speed": 0.25,
-    "attack": { "damage": 10, "rate": 1 },
-    "tags": ["bacteria", "PAMP"]
-  }
+  {"id": "bacteria_gram_pos", "hp": 40, "speed": 0.25, "attack": {"damage": 10, "rate": 1}, "tags": ["bacteria", "PAMP"]},
+  {"id": "streptococcus_pyogenes", "hp": 40, "speed": 0.25, "attack": {"damage": 10, "rate": 1}, "spreads": {"around": ["barrera"]}, "tags": ["bacteria", "PAMP"]}
 ]

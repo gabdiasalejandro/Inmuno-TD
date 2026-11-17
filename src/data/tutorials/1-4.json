@@ -1,0 +1,40 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-4.inflammation",
+      "waitFor": {
+        "type": "signal",
+        "signal": "inflamacion"
+      },
+      "target": {
+        "type": "gauge"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-4.tiers",
+      "target": {
+        "type": "gauge"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-4.spread",
+      "waitFor": {
+        "type": "event",
+        "event": "enemy_switched_lane"
+      },
+      "target": {
+        "type": "enemy",
+        "enemy": "streptococcus_pyogenes"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    }
+  ]
+}

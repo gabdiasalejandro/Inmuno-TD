@@ -1,6 +1,6 @@
 /** What the scene shows for a level, decided from data. Phaser-free so it can be tested headless. */
 
-import { TICKS_PER_SECOND, type LevelDef, type SignalDef, type UnitDef } from '../sim';
+import { TICKS_PER_SECOND, type DefeatCause, type LevelDef, type SignalDef, type UnitDef } from '../sim';
 
 /** Signals that act in this level: all of the content's when the level does not restrict them. */
 export function activeSignalNames(level: LevelDef, signals: Record<string, SignalDef> | undefined): string[] {
@@ -15,6 +15,27 @@ export function activeSignalNames(level: LevelDef, signals: Record<string, Signa
 export function shownSignalNames(level: LevelDef, signals: Record<string, SignalDef> | undefined, units: UnitDef[]): string[] {
   const emitted = new Set(units.filter((u) => level.deck.includes(u.id) && u.emits).map((u) => u.emits?.signal));
   return activeSignalNames(level, signals).filter((name) => emitted.has(name));
+}
+
+/**
+ * The damaging global meter of the level (inflammation), shown as a tiered gauge: the first active
+ * signal that harms the own units or can lose the level. Null when the level has none.
+ */
+export function gaugeSignal(
+  level: LevelDef,
+  signals: Record<string, SignalDef> | undefined,
+): { name: string; harmFrom: number | null; defeatAt: number } | null {
+  for (const name of activeSignalNames(level, signals)) {
+    const def = signals?.[name];
+    if (!def || (def.harm === undefined && def.defeatAt === undefined)) continue;
+    return { name, harmFrom: def.harm?.from ?? null, defeatAt: def.defeatAt ?? 1 };
+  }
+  return null;
+}
+
+/** Translation key of the defeat text: a breach, or the signal that overran the tissue. */
+export function lostResultKey(defeat: DefeatCause | null): string {
+  return defeat?.type === 'signal' ? `result.lost.${defeat.signal}` : 'result.lost';
 }
 
 /** Levels default to `clear`, like the sim. */
@@ -84,7 +105,3 @@ export function cytokineEffects(
   return { marrow: 1 + marrow, recruit: 1 + recruit };
 }
 
-/** The one-time explanation of the meter is due when it first rises and was not shown yet. */
-export function cytokineHintDue(level: number | null, alreadyShown: boolean): boolean {
-  return !alreadyShown && level !== null && level > SIGNAL_RISEN;
-}

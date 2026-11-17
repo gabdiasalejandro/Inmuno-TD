@@ -39,6 +39,8 @@ const CHARACTERS: Record<string, CharacterSpec> = {
   epitelio: { motion: 'wall', eyes: [[105, 112], [151, 112]], lid: 0xedb07f },
   moco: { motion: 'jelly', eyes: [[108, 132], [152, 132]], lid: 0xcfe39b },
   bacteria_gram_pos: { motion: 'crawler', eyes: [[80, 136], [114, 136]], lid: 0x7452e0, front: 56 },
+  // Proposal pending review: a chain of cocci, face on the leading coccus.
+  streptococcus_pyogenes: { motion: 'crawler', eyes: [[72, 134], [106, 134]], lid: 0xe04a5a, front: 52 },
   medula_osea: { motion: 'worker', eyes: [[106, 84], [150, 84]], lid: 0xefe2c8 },
   macrofago: {
     motion: 'heavy',
@@ -48,6 +50,8 @@ const CHARACTERS: Record<string, CharacterSpec> = {
     receptors: [[160, 48], [177, 56], [203, 88], [211, 124]],
     belly: [153, 178, 16],
   },
+  // Tutor: friendly teacher, calm breathing and a gentle wave of its branches.
+  dendritica: { motion: 'worker', eyes: [[106, 112], [150, 112]], lid: 0xfbf7f2 },
   neutrofilo: { motion: 'rush', eyes: [[142, 124], [182, 124]], lid: 0xfbf7f2, belly: [198, 178, 11] },
 };
 

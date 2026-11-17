@@ -7,6 +7,7 @@ import type {
   SignalDef,
   SimEvent,
   SimState,
+  TrapDef,
   UnitDef,
   UnitState,
 } from './types';
@@ -33,12 +34,22 @@ export interface World {
   unitAt(row: number, col: number): UnitState | undefined;
   /** Nearest enemy to the base in the unit's lane, from the unit's own cell up to `range` cells ahead. */
   findTarget(unit: UnitState, range: number, requires?: string[]): EnemyState | undefined;
-  /** Matching enemies in the same detection window, for signals that scale with the threat. */
-  countTargets(unit: UnitState, range: number, requires?: string[]): number;
   /** Level of a signal from 0 to 1. Unknown or inactive signals read 0. */
   signalFraction(name: string): number;
   /** Sum over all active signals of `boost * level`, for one of the boost kinds a signal can grant. */
   boostFrom(pick: (def: SignalDef) => number | undefined): number;
+  /** Adds points to an active signal, capped at its maximum. Inactive signals ignore it. */
+  raise(name: string, points: number): void;
+  /** Removes units at zero hit points, reporting each as killed. */
+  removeDeadUnits(events: SimEvent[]): void;
+  /** Speed multiplier the traps on this cell apply to this enemy (1 without traps). */
+  trapSlow(enemy: EnemyState, col: number): number;
+  /** Trap definition by id (traps are declared on the units that lay them). */
+  trapDef(id: string): TrapDef;
+  /** Whether an enemy carries every tag in `requires`. */
+  enemyHas(enemy: EnemyState, requires?: string[]): boolean;
+  /** Next number of the level's seeded random sequence, in [0, 1). Advances the stored state. */
+  random(): number;
 }
 
 function indexById<T extends { id: string }>(defs: T[]): Map<string, T> {
@@ -75,13 +86,24 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     energy: level.startEnergy,
     units: [],
     enemies: [],
+    traps: [],
+    defeat: null,
     deployReadyAt: {},
     nextSpawn: 0,
     openLanes: level.wounds ? [] : Array.from({ length: level.grid.rows }, (_, lane) => lane),
     nextUid: 1,
     signals: Object.fromEntries(signalDefs.map(([name]) => [name, 0])),
+    woundCharge: {},
+    releasing: false,
+    released: Object.fromEntries(signalDefs.map(([name]) => [name, 0])),
     marrowCharge: 0,
     rngState: createRng(seed).state,
+  };
+
+  const trapDefs = new Map(content.units.flatMap((unit) => (unit.onDeath ? [[unit.onDeath.trap.id, unit.onDeath.trap] as const] : [])));
+  const enemyHas = (enemy: EnemyState, requires: string[] = []): boolean => {
+    const tags = enemyDefs.get(enemy.defId)?.tags ?? [];
+    return requires.every((tag) => tags.includes(tag));
   };
 
   // Ids were validated above or come from state the sim itself created.
@@ -112,20 +134,36 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
       }
       return target;
     },
-    countTargets(unit, range, requires = []) {
-      const nearEdge = unit.col * CELL;
-      const farEdge = (unit.col + 1 + range) * CELL;
-      let count = 0;
-      for (const enemy of state.enemies) {
-        if (enemy.lane !== unit.row || enemy.hp <= 0) continue;
-        if (enemy.pos <= nearEdge || enemy.pos > farEdge) continue;
-        const tags = enemyDef(enemy.defId).tags ?? [];
-        if (!requires.every((tag) => tags.includes(tag))) continue;
-        count++;
-      }
-      return count;
-    },
     signalFraction,
     boostFrom: (pick) => signalDefs.reduce((sum, [name, def]) => sum + (pick(def) ?? 0) * signalFraction(name), 0),
+    trapDef: (id) => trapDefs.get(id)!,
+    enemyHas,
+    trapSlow(enemy, col) {
+      let slow = 1;
+      for (const trap of state.traps) {
+        if (trap.row !== enemy.lane || trap.col !== col) continue;
+        const def = trapDefs.get(trap.defId)!;
+        if (enemyHas(enemy, def.requires)) slow *= def.slow;
+      }
+      return slow;
+    },
+    raise(name, points) {
+      const def = activeSignals.get(name);
+      if (!def) return;
+      state.signals[name] = Math.min(def.max * MILLI, (state.signals[name] ?? 0) + Math.round(points * MILLI));
+    },
+    removeDeadUnits(events) {
+      state.units = state.units.filter((unit) => {
+        if (unit.hp > 0) return true;
+        events.push({ type: 'unit_died', uid: unit.uid, cause: 'killed', defId: unit.defId, row: unit.row, col: unit.col });
+        return false;
+      });
+    },
+    random() {
+      const rng = createRng(state.rngState);
+      const value = rng.next();
+      state.rngState = rng.state;
+      return value;
+    },
   };
 }

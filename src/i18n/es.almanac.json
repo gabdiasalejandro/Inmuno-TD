@@ -32,6 +32,13 @@
   "almanac.macrofago.quote": "Veterano y con buen apetito: si se mueve y no es de los nuestros, me lo como. Luego aviso a los demás con una señal de humo (de citocinas, claro).",
 
   "almanac.neutrofilo.name": "Neutrófilo",
-  "almanac.neutrofilo.fact": "El neutrófilo es el leucocito más abundante de la sangre. Es de los primeros en llegar a un tejido infectado, donde fagocita bacterias. Se reconoce por su núcleo con varios lóbulos y tiene una vida corta, así que la médula ósea lo produce sin parar.",
-  "almanac.neutrofilo.quote": "¡Yo voy primero! ¡Yo! ¿Hacia dónde? Da igual, ya estoy corriendo. Mi turno dura poco, pero qué turno."
+  "almanac.neutrofilo.fact": "El neutrófilo es el leucocito más abundante de la sangre. Es de los primeros en llegar a un tejido infectado, donde fagocita bacterias. Se reconoce por su núcleo con varios lóbulos y tiene una vida corta, así que la médula ósea lo produce sin parar. Puede además expulsar su ADN junto con proteínas de sus gránulos y formar una red, la NET (trampa extracelular de neutrófilo), que atrapa microbios; al hacerlo suele morir, y la red también puede dañar el tejido propio.",
+  "almanac.neutrofilo.quote": "¡Yo voy primero! ¡Yo! ¿Hacia dónde? Da igual, ya estoy corriendo. Mi turno dura poco, pero qué turno.",
+  "almanac.neutrofilo.note_game": "Al morir, todo neutrófilo deja una NET en su casilla durante unos 3 segundos.",
+  "almanac.neutrofilo.note_real": "No todos los neutrófilos forman NET, y las NET pueden durar más tiempo. La red no aparece exactamente donde murió la célula: se extiende por el tejido de alrededor.",
+
+  "almanac.streptococcus_pyogenes.fact": "Streptococcus pyogenes es una bacteria grampositiva con forma de coco que crece en cadenas. Causa faringitis, impétigo y, a veces, infecciones graves de la piel y de tejidos profundos. Produce enzimas como la hialuronidasa, que degrada el ácido hialurónico del tejido y le ayuda a extenderse.",
+  "almanac.streptococcus_pyogenes.note_game": "Cuando choca con un epitelio cambia de carril en lugar de atacarlo.",
+  "almanac.streptococcus_pyogenes.note_real": "La hialuronidasa no salta muros: deshace la matriz entre las células y la bacteria avanza por el tejido en lugar de quedarse en un punto. Además, como grampositiva, con la tinción de Gram se vería violeta; el rojo del juego solo sirve para distinguirla.",
+  "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia en fila, por si acaso."
 }

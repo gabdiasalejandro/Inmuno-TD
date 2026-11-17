@@ -1,9 +1,12 @@
+import { createCoupling, createHarm } from './systems/collateral';
 import { createEnemyActions, createExpiry, createUnitAttacks } from './systems/combat';
 import { createMarrow } from './systems/marrow';
 import { createOutcome } from './systems/outcome';
 import { createPlacement } from './systems/placement';
 import { createSignals } from './systems/signals';
+import { createSources } from './systems/sources';
 import { createSpawning } from './systems/spawning';
+import { createTraps } from './systems/traps';
 import type { Content, LevelDef, Sim, SimEvent } from './types';
 import { createWorld, type System } from './world';
 
@@ -16,16 +19,23 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
   const { state } = world;
   const spawning = createSpawning(world);
   const marrow = createMarrow(world);
+  const sources = createSources(world);
 
   // What arrives during a tick is decided on the tick it starts...
   const beforeTick: System[] = [spawning.openWounds, spawning.spawnDue];
   // ...and everything else resolves once the tick has elapsed.
   const afterTick: System[] = [
     createSignals(world),
+    sources.charge,
+    sources.release,
+    createCoupling(world),
     marrow.produce,
     createExpiry(world),
     createUnitAttacks(world),
     createEnemyActions(world),
+    createHarm(world),
+    createTraps(world),
+    sources.chargeFromDamage,
     createOutcome(world, spawning.allSpawned),
   ];
 
@@ -34,6 +44,9 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
     signal: world.signalFraction,
     marrowFraction: marrow.fraction,
     placeUnit: createPlacement(world),
+    setReleasing: sources.setReleasing,
+    charge: sources.chargeOf,
+    stored: sources.stored,
 
     step() {
       if (state.status !== 'playing') return [];

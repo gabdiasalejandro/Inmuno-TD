@@ -15,6 +15,8 @@ export interface FullscreenButtonOptions {
   /** Draw a drop shadow in this colour, matching the HUD's buttons. */
   shade?: number;
   depth?: number;
+  /** Draw the glyph alone, centred, without the label under it. */
+  iconOnly?: boolean;
 }
 
 /**
@@ -27,6 +29,7 @@ export class FullscreenButton {
   private readonly slots: FullscreenSlots;
   private readonly fill: number;
   private readonly shade: number | undefined;
+  private readonly iconOnly: boolean;
   private readonly g: Phaser.GameObjects.Graphics;
   private readonly label: Phaser.GameObjects.Text;
   private destroyed = false;
@@ -36,7 +39,8 @@ export class FullscreenButton {
     private readonly rect: Rect,
     options: FullscreenButtonOptions = {},
   ) {
-    this.slots = fullscreenSlots(rect);
+    this.slots = fullscreenSlots(rect, options.iconOnly ?? false);
+    this.iconOnly = options.iconOnly ?? false;
     this.fill = options.fill ?? PANEL;
     this.shade = options.shade;
     const depth = options.depth ?? 8;
@@ -84,7 +88,7 @@ export class FullscreenButton {
     g.fillStyle(this.fill, 1).fillRoundedRect(r.x, r.y, r.w, r.h, 18);
     g.lineStyle(4, OUTLINE, 1).strokeRoundedRect(r.x, r.y, r.w, r.h, 18);
     this.drawGlyph(g, active);
-    this.label.setText(t(active ? 'action.fullscreen_exit' : 'action.fullscreen'));
+    this.label.setText(this.iconOnly ? '' : t(active ? 'action.fullscreen_exit' : 'action.fullscreen'));
   }
 
   /**

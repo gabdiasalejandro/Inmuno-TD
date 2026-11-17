@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { content, levelIntros, levels, worlds } from '../data';
+import { content, levelIntros, levels, tutorials, worlds, type TutorialTarget } from '../data';
 import { t } from '../i18n';
 import {
   SIM_TICK_MS,
@@ -10,24 +10,29 @@ import {
   type LevelDef,
   type PlaceFailure,
   type Sim,
+  type SignalSource,
   type SimEvent,
   type UnitDef,
 } from '../sim';
 import { Hud } from '../ui/Hud';
 import { IntroCard } from '../ui/IntroCard';
+import { TutorialGuide } from '../ui/TutorialGuide';
 import { createFullscreenButton, type FullscreenButton } from '../ui/FullscreenButton';
 import { HUD_FULLSCREEN } from '../ui/fullscreenLayout';
-import { cardAt, hudLayout, introHit, pointInRect, resultButtonAt } from '../ui/layout';
+import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, resultButtonAt, type Rect } from '../ui/layout';
+import { bindCursor } from './cursor';
 import { CYTOKINE, banner, flyParticle, ring, specks } from './effects';
 import { BOARD_SCALE, createFigure, frontOffset, type Figure } from './figures';
 import { createStepper, type Stepper } from './fixedStep';
 import { nextLevelId, resultActions } from './flow';
 import { boardRight, cellCenter, createBoardLayout, enemyFrontX, isCellFree, pixelToCell, type BoardLayout, type Cell } from './layout';
 import { shouldShowIntro } from './intro';
-import { bacteriaRemaining, cytokineEffects, cytokineHintDue, digestFraction, isClearLevel, isRecruitBoosted, scheduledEnemies, shownSignalNames } from './levelView';
+import { canPause, togglePause } from './pause';
+import { bacteriaRemaining, cytokineEffects, digestFraction, gaugeSignal, isClearLevel, isRecruitBoosted, lostResultKey, scheduledEnemies, shownSignalNames } from './levelView';
 import { marrowCharge, marrowExcitement } from './marrow';
 import { progressStore } from './progress';
 import { preloadSprites } from './sprites';
+import { createTutorial, needsNext, shouldRunTutorial, targetsFor, type Tutorial, type TutorialAction } from './tutorial';
 
 /** Longest catch-up per frame: 5 steps = 250 ms of simulated time. */
 const MAX_STEPS_PER_FRAME = 5;
@@ -38,8 +43,6 @@ const MATRIX = 0xd2aca7;
 const CELL_A = 0xe1c3be;
 const CELL_B = 0xdec0bb;
 const CELL_NUCLEUS = 0xcfa9a5;
-const VESSEL = 0xcf9a98;
-const VESSEL_EDGE = 0xb98682;
 // Barrier at the right edge of each lane: epithelial lining, same palette as the epitelio sprite.
 const LINING = 0xedb07f;
 const LINING_SHADE = 0xcf8a5a;
@@ -52,14 +55,23 @@ const BAR_BACK = 0x3a2a2a;
 const BAR_OK = 0x8db28a;
 const BAR_LOW = 0xb5483f;
 const BAR_TIME = 0x8aa9b8;
+/** NET strands: decondensed chromatin, the nucleus colour of the stain, pale. */
+const NET_STRAND = 0xa47cc8;
+/** Granule proteins caught in a NET: the neutrophil's fine granules. */
+const NET_GRANULE = 0xd3b6ce;
+/** Specks a spreading bacterium leaves as it slips into the next lane (hyaluronidase dissolving matrix). */
+const SPREAD_SPECK = 0xd2aca7;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
 const FOOT_INSET = 8;
 const FLASH_MS = 400;
 const BARRIER_W = 44;
-const CANVAS_CENTER_X = 640;
-/** Seconds-of-feel between cytokine particles from one alarmed macrophage. */
-const PARTICLE_GAP_MS = 170;
+/** While the release is held, each charged source sends a cytokine particle to the meter this often. */
+const FLOW_EVERY_MS = 140;
+/** Most sources that send a particle on one flow beat, so a crowded board stays readable. */
+const FLOW_SOURCES = 8;
+/** Strip right of the board where a wound's breach is drawn. */
+const BREACH_HIT_W = BARRIER_W + 16;
 /** Where a swallowed bacterium is pulled to, relative to the phagocyte's ground point. */
 const MOUTH = { dx: 24, dy: -42 };
 
@@ -102,12 +114,27 @@ export class GameScene extends Phaser.Scene {
   private resultShown = false;
   private retry = false;
   /** The meter's one-time explanation was already shown in this play. */
-  private cytokineHintShown = false;
   private phase: 'intro' | 'play' = 'play';
   private introCard: IntroCard | null = null;
   private defeated = 0;
   private signalNames: string[] = [];
-  private nextParticleAt = new Map<number, number>();
+  /** The level's damaging gauge (inflammation), or null when it has none. */
+  private gauge: ReturnType<typeof gaugeSignal> = null;
+  private chargeG!: Phaser.GameObjects.Graphics;
+  /** Traps on the board (NETs), drawn under the figures. */
+  private trapG!: Phaser.GameObjects.Graphics;
+  /** Types of the sim events seen so far in this play, for tutorial steps that wait for one. */
+  private seenEvents = new Set<string>();
+  /** Drawn lane (fractional while an enemy slides into its new lane after spreading). */
+  private enemyRow = new Map<number, number>();
+  /** Guided tutorial of this level; null when it has none or the level was already beaten. */
+  private tutorial: Tutorial | null = null;
+  private guide: TutorialGuide | null = null;
+  /** The pointer holding the release button and when the hold began (scene ms); null when not held. */
+  private hold: { pointer: number; since: number } | null = null;
+  private lastFlowAt = -Infinity;
+  /** The pause panel is open: the sim, the clocks and the tweens are frozen. */
+  private paused = false;
 
   constructor() {
     super('game');
@@ -117,7 +144,6 @@ export class GameScene extends Phaser.Scene {
     this.levelId = data?.levelId ?? '1-1';
     this.retry = data?.retry ?? false;
     // Scene instances are reused on restart: every play explains the meter again.
-    this.cytokineHintShown = false;
   }
 
   preload(): void {
@@ -147,17 +173,35 @@ export class GameScene extends Phaser.Scene {
     this.resultShown = false;
     this.defeated = 0;
     this.signalNames = shownSignalNames(level, content.signals, content.units);
-    this.nextParticleAt = new Map();
+    this.gauge = gaugeSignal(level, content.signals);
+    this.seenEvents = new Set();
+    this.enemyRow = new Map();
     this.introCard = null;
+    this.tutorial = null;
+    this.guide = null;
+    this.hold = null;
+    this.lastFlowAt = -Infinity;
+    // The scene's clock and tween manager outlive a restart: never carry a pause into the next play.
+    this.paused = false;
+    this.time.paused = false;
+    this.tweens.resumeAll();
 
     this.drawBoard();
     this.lanesG = this.add.graphics().setDepth(1);
     this.cursorG = this.add.graphics().setDepth(1.5);
     this.barsG = this.add.graphics().setDepth(4.5);
+    this.chargeG = this.add.graphics().setDepth(4.4);
+    this.trapG = this.add.graphics().setDepth(1.8);
     const deck = level.deck.map((id) => this.unitDefs.get(id)).filter((d): d is UnitDef => d !== undefined);
-    this.hud = new Hud(this, deck, { meter: this.signalNames.length > 0, clear: isClearLevel(level) });
+    this.hud = new Hud(this, deck, { meter: this.signalNames.length > 0, clear: isClearLevel(level), gauge: this.gauge });
     // Above the result overlay and the concept card, so the player can still toggle it there.
-    this.fullscreen = createFullscreenButton(this, HUD_FULLSCREEN, { fill: 0xf3e4e0, shade: 0xc9a6a1, depth: 22 });
+    this.fullscreen = createFullscreenButton(this, HUD_FULLSCREEN, { fill: 0xf3e4e0, shade: 0xc9a6a1, depth: 22, iconOnly: true });
+
+    const tutorialDef = tutorials[this.levelId];
+    if (shouldRunTutorial(tutorialDef, progressStore().load().completed.includes(this.levelId)) && tutorialDef) {
+      this.tutorial = createTutorial(tutorialDef.steps);
+      this.guide = new TutorialGuide(this, this.hud);
+    }
 
     // The concept card holds the simulation until the player starts; a retry goes straight to play.
     const intro = levelIntros[this.levelId];
@@ -168,22 +212,36 @@ export class GameScene extends Phaser.Scene {
       this.beginPlay();
     }
 
+    bindCursor(this, (p) => this.overClickable(p.worldX, p.worldY));
     this.input.on('pointerdown', this.onPointerDown, this);
     this.input.on('pointermove', this.onPointerMove, this);
     this.input.on('pointerup', this.onPointerUp, this);
+    this.input.on('pointerupoutside', this.onPointerUp, this);
+    this.input.keyboard?.on('keydown-ESC', this.onPauseKey, this);
+    this.input.keyboard?.on('keydown-P', this.onPauseKey, this);
     this.events.once('shutdown', () => {
+      this.input.keyboard?.off('keydown-ESC', this.onPauseKey, this);
+      this.input.keyboard?.off('keydown-P', this.onPauseKey, this);
       this.input.off('pointerdown', this.onPointerDown, this);
       this.input.off('pointermove', this.onPointerMove, this);
       this.input.off('pointerup', this.onPointerUp, this);
+      this.input.off('pointerupoutside', this.onPointerUp, this);
       this.fullscreen?.destroy();
       this.fullscreen = null;
+      this.guide?.destroy();
+      this.guide = null;
     });
   }
 
   update(_time: number, delta: number): void {
     const state = this.sim.state;
+    // Paused: nothing advances and the frame stays as it was; the panel on top is the only thing alive.
+    if (this.paused) return;
+    this.tutorial?.observe({ stored: this.storedCharge(), signals: this.signalLevels(), seen: this.seenEvents });
+    this.reportHold();
     if (state.status === 'playing' && this.phase === 'play') {
-      const { steps, alpha } = this.stepper.advance(delta);
+      // A tutorial step can stop the clock or slow it while it waits for the player.
+      const { steps, alpha } = this.stepper.advance(delta * (this.tutorial?.timeScale ?? 1));
       this.alpha = alpha;
       for (let i = 0; i < steps && this.sim.state.status === 'playing'; i++) {
         this.prevPos = new Map(state.enemies.map((e) => [e.uid, e.pos]));
@@ -191,13 +249,15 @@ export class GameScene extends Phaser.Scene {
       }
     }
     if (state.status !== 'playing' && !this.resultShown) {
+      this.endHold();
       this.alpha = 1;
       this.resultShown = true;
       this.selected = null;
       const next = nextLevelId(this.levelId, worlds, levels);
-      this.hud.showResult(state.status, resultActions(state.status, next), isClearLevel(this.level));
+      this.hud.showResult(state.status, resultActions(state.status, next), isClearLevel(this.level), lostResultKey(state.defeat));
     }
     this.render(this.time.now);
+    this.updateGuide(this.time.now);
   }
 
   /** Closes the concept card (if any) and starts the clock with the level's banner. */
@@ -208,13 +268,14 @@ export class GameScene extends Phaser.Scene {
     const intro = levelIntros[this.levelId];
     if (!intro) return;
     const { layout } = this;
-    banner(this, t(intro.banner), CANVAS_CENTER_X, layout.y + (layout.rows * layout.cellH) / 2);
+    banner(this, t(intro.banner), layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2);
   }
 
   private handleEvents(events: SimEvent[]): void {
     const { layout } = this;
     const died = new Set(events.flatMap((e) => (e.type === 'enemy_died' ? [e.uid] : [])));
     for (const event of events) {
+      this.seenEvents.add(event.type);
       switch (event.type) {
         case 'energy_gained':
           this.hud.produce(event.amount);
@@ -261,9 +322,26 @@ export class GameScene extends Phaser.Scene {
         case 'enemy_died':
           this.defeated++;
           break;
+        case 'signal_released':
+          this.showFlow();
+          break;
         case 'unit_died':
           this.deathCause.set(event.uid, event.cause);
           break;
+        case 'trap_laid': {
+          // The neutrophil casts its net: a burst of strands from its cell.
+          const { x, y } = cellCenter(layout, event.row, event.col);
+          ring(this, x, y, NET_STRAND, 12, 60, 420);
+          break;
+        }
+        case 'trap_hit':
+          this.enemyViews.get(event.target)?.hit();
+          break;
+        case 'enemy_switched_lane': {
+          const view = this.enemyViews.get(event.uid);
+          if (view) specks(this, view.root.x, view.root.y - 25, SPREAD_SPECK, 5);
+          break;
+        }
         case 'won':
           progressStore().markCompleted(this.levelId);
           break;
@@ -281,6 +359,10 @@ export class GameScene extends Phaser.Scene {
       this.fullscreen.toggle();
       return;
     }
+    if (this.paused) {
+      this.onPauseAction(pauseMenuButtonAt(this.hud.pauseButtons, x, y));
+      return;
+    }
     if (this.phase === 'intro') {
       if (introHit(x, y) === 'start') this.beginPlay();
       return;
@@ -296,34 +378,263 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.hud.tapHint(x, y)) return;
-    if (pointInRect(hudLayout(this.hud.cardCount, this.signalNames.length > 0).menu, x, y)) {
-      this.scene.start('menu');
+    if (pointInRect(this.hud.pauseRect, x, y)) {
+      this.setPaused(true);
+      return;
+    }
+    if (this.tutorialPointerDown(x, y)) return;
+    if (this.overRelease(x, y)) {
+      if (!this.tutorialAllows({ type: 'hold', seconds: 0 })) {
+        this.blockedByTutorial();
+        return;
+      }
+      this.startHold(p.id);
       return;
     }
     const cardIndex = cardAt(x, y, this.hud.cardCount);
     if (cardIndex !== null) {
       const id = this.hud.cardId(cardIndex) ?? null;
+      if (id !== null && !this.tutorialAllows({ type: 'select', unit: id })) {
+        this.blockedByTutorial();
+        return;
+      }
       this.selected = this.selected === id ? null : id;
       return;
     }
     const cell = pixelToCell(this.layout, x, y);
     this.hover = cell;
-    if (cell && this.selected) this.tryPlace(this.selected, cell);
+    if (cell && this.selected) {
+      if (!this.tutorialAllows({ type: 'place', unit: this.selected, row: cell.row, col: cell.col })) {
+        this.blockedByTutorial();
+        return;
+      }
+      this.tryPlace(this.selected, cell);
+    }
+  }
+
+  // ---- pause ----
+
+  private onPauseKey(): void {
+    this.setPaused(togglePause(this.paused, canPause(this.phase, this.sim.state.status)));
+  }
+
+  private onPauseAction(action: ReturnType<typeof pauseMenuButtonAt>): void {
+    if (action === 'resume') this.setPaused(false);
+    else if (action === 'restart') this.scene.restart({ levelId: this.levelId, retry: true });
+    else if (action === 'menu') this.scene.start('menu');
+  }
+
+  /**
+   * Freezes everything that advances the play (the sim loop, the clock, every tween) and opens the
+   * pause panel, or undoes it. The tutorial, the selection and the sim keep their state untouched.
+   */
+  private setPaused(paused: boolean): void {
+    if (paused === this.paused) return;
+    if (paused && !canPause(this.phase, this.sim.state.status)) return;
+    this.paused = paused;
+    if (paused) {
+      this.endHold();
+      this.hover = null;
+      this.guide?.update(null, this.time.now);
+      this.hud.showPause();
+      this.tweens.pauseAll();
+      this.time.paused = true;
+      return;
+    }
+    this.time.paused = false;
+    this.tweens.resumeAll();
+    this.hud.hidePause();
+    const pointer = this.input.activePointer;
+    if (!pointer.wasTouch) this.hover = pixelToCell(this.layout, pointer.worldX, pointer.worldY);
+  }
+
+  // ---- tutorial ----
+
+  /** Whether the tutorial lets the player do this right now (always, without a tutorial). */
+  private tutorialAllows(action: TutorialAction): boolean {
+    return this.tutorial?.allows(action) ?? true;
+  }
+
+  private blockedByTutorial(): void {
+    this.hud.showToast(t('tutorial.blocked'), this.time.now);
+  }
+
+  /** Handles the clicks that belong to the tutorial itself; true when it swallowed this one. */
+  private tutorialPointerDown(x: number, y: number): boolean {
+    const tutorial = this.tutorial;
+    if (!tutorial || tutorial.finished || !tutorial.active) return false;
+    if (this.guide?.overNext(x, y)) {
+      tutorial.perform({ type: 'tap' });
+      return true;
+    }
+    return false;
+  }
+
+  /** Level (0 to 1) of every signal active in this level, for tutorial steps that wait for one. */
+  private signalLevels(): Record<string, number> {
+    return Object.fromEntries(Object.keys(this.sim.state.signals).map((name) => [name, this.sim.signal(name)]));
+  }
+
+  /** Charge stored in every source of the signals this level shows, in signal points. */
+  private storedCharge(): number {
+    return this.signalNames.reduce((sum, name) => sum + this.sim.stored(name), 0);
+  }
+
+  private signalSources(): SignalSource[] {
+    return [
+      ...this.sim.state.units.map((u): SignalSource => ({ kind: 'unit', uid: u.uid })),
+      ...this.sim.state.openLanes.map((lane): SignalSource => ({ kind: 'wound', lane })),
+    ];
+  }
+
+  private cellRect(row: number, col: number): Rect {
+    const { x, y } = cellCenter(this.layout, row, col);
+    return { x: x - this.layout.cellW / 2, y: y - this.layout.cellH / 2, w: this.layout.cellW, h: this.layout.cellH };
+  }
+
+  /** Screen rectangle a tutorial target stands for right now, or null when it is not there. */
+  private targetRect(target: TutorialTarget): Rect | null {
+    const { layout } = this;
+    switch (target.type) {
+      case 'card': {
+        const index = this.level.deck.indexOf(target.unit);
+        return index < 0 ? null : cardRect(index, this.level.deck.length);
+      }
+      case 'cell':
+        return this.cellRect(target.row, target.col);
+      case 'unit': {
+        const unit = this.sim.state.units.find((u) => u.defId === target.unit);
+        return unit ? this.cellRect(unit.row, unit.col) : null;
+      }
+      case 'marrow':
+        return MARROW_PANEL;
+      case 'meter':
+        return hudLayout(this.hud.cardCount, this.signalNames.length > 0).meter;
+      case 'release_button':
+        return this.hud.releaseRect;
+      case 'gauge':
+        return this.hud.gaugeRect;
+      case 'enemy': {
+        const enemies = this.sim.state.enemies.filter((e) => e.defId === target.enemy);
+        if (enemies.length === 0) return null;
+        const front = enemies.reduce((a, b) => (b.pos < a.pos ? b : a));
+        const x = enemyFrontX(layout, front.pos);
+        return { x: x - 10, y: layout.y + (this.enemyRow.get(front.uid) ?? front.lane) * layout.cellH, w: layout.cellW, h: layout.cellH };
+      }
+      case 'charged_source': {
+        const source = this.signalSources().find((s) => (target.kind === undefined || s.kind === target.kind) && (this.sim.charge(s) ?? 0) > 0);
+        if (!source) return null;
+        if (source.kind === 'wound') return { x: boardRight(layout), y: layout.y + source.lane * layout.cellH, w: BREACH_HIT_W, h: layout.cellH };
+        const unit = this.sim.state.units.find((u) => u.uid === source.uid);
+        return unit ? this.cellRect(unit.row, unit.col) : null;
+      }
+    }
+  }
+
+  private updateGuide(now: number): void {
+    const { tutorial, guide } = this;
+    if (!tutorial || !guide) return;
+    const step = tutorial.step;
+    if (!step || !tutorial.active || this.phase !== 'play' || this.sim.state.status !== 'playing') {
+      guide.update(null, now);
+      return;
+    }
+    const targets = targetsFor(step).flatMap((target) => this.targetRect(target) ?? []);
+    guide.update({ text: t(step.text), targets, next: needsNext(step) }, now);
+  }
+
+  // ---- release button ----
+
+  private overRelease(x: number, y: number): boolean {
+    const rect = this.hud.releaseRect;
+    return rect !== null && pointInRect(rect, x, y);
+  }
+
+  /** The player pressed the release button: stored charge flows into the meter until let go. */
+  private startHold(pointer: number): void {
+    this.hold = { pointer, since: this.time.now };
+    this.sim.setReleasing(true);
+  }
+
+  private endHold(): void {
+    if (!this.hold) return;
+    this.hold = null;
+    this.sim.setReleasing(false);
+  }
+
+  /** Tells the tutorial how long the button has been held, every frame it is. */
+  private reportHold(): void {
+    if (!this.hold) return;
+    this.tutorial?.perform({ type: 'hold', seconds: (this.time.now - this.hold.since) / 1000 });
+  }
+
+  /**
+   * Charge is flowing: every few beats each source still holding some sends a particle to the
+   * meter, so the player sees where the cytokines come from.
+   */
+  private showFlow(): void {
+    const now = this.time.now;
+    const target = this.hud.meterTarget;
+    if (!target || now - this.lastFlowAt < FLOW_EVERY_MS) return;
+    this.lastFlowAt = now;
+    const holding = this.signalSources().filter((source) => (this.sim.charge(source) ?? 0) > 0);
+    for (const source of holding.slice(0, FLOW_SOURCES)) {
+      const at = this.sourcePoint(source);
+      if (at) flyParticle(this, at, target, CYTOKINE, () => this.hud.bumpMeter(this.time.now));
+    }
+  }
+
+  /** Where a source's charge is drawn: above a unit, or on a lane's breach. */
+  private sourcePoint(source: SignalSource): { x: number; y: number } | null {
+    const { layout } = this;
+    if (source.kind === 'wound') return { x: boardRight(layout) + 4 + BARRIER_W / 2, y: cellCenter(layout, source.lane, 0).y };
+    const unit = this.sim.state.units.find((u) => u.uid === source.uid);
+    if (!unit) return null;
+    const { x, y } = cellCenter(layout, unit.row, unit.col);
+    return { x: x + 30, y: y - layout.cellH * 0.32 };
+  }
+
+  /** Mirrors `onPointerDown`: true when a click at this point would do something. */
+  private overClickable(x: number, y: number): boolean {
+    if (this.fullscreen?.hit(x, y)) return true;
+    if (this.paused) return pauseMenuButtonAt(this.hud.pauseButtons, x, y) !== null;
+    if (this.phase === 'intro') return introHit(x, y) === 'start';
+    if (this.sim.state.status !== 'playing') return resultButtonAt(this.hud.resultButtons, x, y) !== null;
+    if (this.hud.overHint(x, y)) return true;
+    if (pointInRect(this.hud.pauseRect, x, y)) return true;
+    if (this.overTutorial(x, y)) return true;
+    const cardIndex = cardAt(x, y, this.hud.cardCount);
+    if (cardIndex !== null) return this.tutorialAllows({ type: 'select', unit: this.hud.cardId(cardIndex) ?? '' });
+    if (this.overRelease(x, y)) return this.tutorialAllows({ type: 'hold', seconds: 0 });
+    const cell = this.selected === null ? null : pixelToCell(this.layout, x, y);
+    return cell !== null && this.selected !== null && this.tutorialAllows({ type: 'place', unit: this.selected, row: cell.row, col: cell.col });
+  }
+
+  /** Mirrors `tutorialPointerDown`: the "Siguiente" button of a tap-to-continue step. */
+  private overTutorial(x: number, y: number): boolean {
+    const tutorial = this.tutorial;
+    if (!tutorial || tutorial.finished || !tutorial.active) return false;
+    return this.guide?.overNext(x, y) ?? false;
   }
 
   private onPointerMove(p: Phaser.Input.Pointer): void {
+    if (this.paused) return;
     this.hover = pixelToCell(this.layout, p.worldX, p.worldY);
+    // Sliding off the button lets go of it, as with any held button.
+    if (this.hold?.pointer === p.id && !this.overRelease(p.worldX, p.worldY)) this.endHold();
   }
 
   private onPointerUp(p: Phaser.Input.Pointer): void {
     // A finger leaves no hover; a mouse keeps it.
     if (p.wasTouch) this.hover = null;
+    if (this.hold?.pointer === p.id) this.endHold();
   }
 
   private tryPlace(defId: string, cell: Cell): void {
     const result = this.sim.placeUnit(defId, cell.row, cell.col);
     if (result.ok) {
       this.selected = null;
+      this.tutorial?.perform({ type: 'place', unit: defId, row: cell.row, col: cell.col });
       return;
     }
     this.giveFeedback(result.reason, defId, cell);
@@ -370,12 +681,6 @@ export class GameScene extends Phaser.Scene {
         g.fillStyle(CELL_NUCLEUS, 0.4).fillCircle(cx + cellW * noise(r, c, 9), cy + cellH * noise(r, c, 10), 3);
       }
     }
-    // A capillary down the left: the inside of the body, where the marrow's cells arrive from.
-    g.fillStyle(VESSEL, 1).fillRoundedRect(16, y + 4, 30, h - 8, 15);
-    g.lineStyle(3, VESSEL_EDGE, 1).strokeRoundedRect(16, y + 4, 30, h - 8, 15);
-    for (let i = 0; i < 9; i++) {
-      g.fillStyle(0xc8575c, 0.55).fillEllipse(31 + (noise(i, 1, 1) - 0.5) * 8, y + 30 + i * (h - 60) / 8, 14, 9);
-    }
   }
 
   private render(now: number): void {
@@ -383,6 +688,8 @@ export class GameScene extends Phaser.Scene {
     const { layout } = this;
     this.drawLanes(now);
     this.drawCursor(now);
+    this.drawCharges(now);
+    this.drawTraps(now);
     const bars = this.barsG.clear();
 
     // Units: create on placement (with a pop), update, and play an exit when they leave the sim.
@@ -399,11 +706,10 @@ export class GameScene extends Phaser.Scene {
       }
       view.setPosition(x, foot);
       if (!def) continue;
-      // Detection: the receptors glow, and with a cytokine meter in play the macrophage sends
-      // small particles up to it. Digestion: a bite leaves the phagocyte full for a while.
+      // Detection: the receptors glow (the cytokine charge is drawn by `drawCharges`).
+      // Digestion: a bite leaves the phagocyte full for a while.
       view.setAlarm(unit.alarmed, now);
       if (def.attack?.type === 'fagocitosis') view.setDigest(digestFraction(unit.attackReadyAt, state.tick, def.attack.rate), now);
-      if (unit.alarmed && def.emits && this.signalNames.includes(def.emits.signal)) this.emitCytokine(unit.uid, x + 36, foot - 80, now);
       const barW = layout.cellW * 0.56;
       if (def.lifespan !== undefined) {
         const lifeLeft = Math.max(0, 1 - (state.tick - unit.bornAt) / secondsToTicks(def.lifespan));
@@ -427,7 +733,11 @@ export class GameScene extends Phaser.Scene {
       liveEnemies.add(enemy.uid);
       const prev = this.prevPos.get(enemy.uid) ?? enemy.pos;
       const pos = prev + (enemy.pos - prev) * this.alpha;
-      const { y } = cellCenter(layout, enemy.lane, 0);
+      // An enemy that spreads to another lane slides across instead of jumping.
+      const shownRow = this.enemyRow.get(enemy.uid) ?? enemy.lane;
+      const row = Math.abs(enemy.lane - shownRow) < 0.02 ? enemy.lane : shownRow + (enemy.lane - shownRow) * 0.18;
+      this.enemyRow.set(enemy.uid, row);
+      const y = layout.y + (row + 0.5) * layout.cellH;
       const foot = y + layout.cellH / 2 - FOOT_INSET;
       const x = enemyFrontX(layout, pos) + frontOffset(enemy.defId) * BOARD_SCALE;
       let view = this.enemyViews.get(enemy.uid);
@@ -435,7 +745,8 @@ export class GameScene extends Phaser.Scene {
         view = createFigure(this, enemy.defId, x, foot).setDepth(2.05 + enemy.lane * 0.1).idle().pop();
         this.enemyViews.set(enemy.uid, view);
       }
-      view.setPosition(x, foot).setMoving(enemy.pos !== prev);
+      view.setPosition(x, foot).setMoving(enemy.pos !== prev || row !== enemy.lane);
+      view.setDepth(2.05 + row * 0.1);
       const def = this.enemyDefs.get(enemy.defId);
       if (def && enemy.hp < def.hp) this.drawBar(bars, x - 30, foot - 70, 60, 6, enemy.hp / def.hp, BAR_LOW);
     }
@@ -444,14 +755,11 @@ export class GameScene extends Phaser.Scene {
       specks(this, view.root.x, view.root.y - 25, 0x7452e0, 6);
       view.die('killed');
       this.enemyViews.delete(uid);
+      this.enemyRow.delete(uid);
     }
 
     const total = this.level.win?.type === 'survive' ? this.level.win.seconds : null;
     const cytokines = this.signalNames.length > 0 ? this.sim.signal(this.signalNames[0] as string) : null;
-    if (cytokineHintDue(cytokines, this.cytokineHintShown)) {
-      this.cytokineHintShown = true;
-      this.hud.showCytokineHint(this.time.now);
-    }
     this.hud.update({
       now,
       tick: state.tick,
@@ -469,6 +777,11 @@ export class GameScene extends Phaser.Scene {
       boosted: new Set(
         [...this.unitDefs.values()].filter((d) => isRecruitBoosted(d, content.signals, this.signalNames, this.sim.signal)).map((d) => d.id),
       ),
+      release:
+        cytokines === null
+          ? null
+          : { stored: this.storedCharge(), max: content.signals?.[this.signalNames[0] as string]?.max ?? 100, held: this.hold !== null },
+      inflammation: this.gauge ? this.sim.signal(this.gauge.name) : null,
       shake: this.cardShake,
     });
   }
@@ -494,12 +807,74 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  /** One cytokine particle from an alarmed macrophage to the HUD meter, at most one per gap. */
-  private emitCytokine(uid: number, x: number, y: number, now: number): void {
-    const target = this.hud.meterTarget;
-    if (!target || now < (this.nextParticleAt.get(uid) ?? 0)) return;
-    this.nextParticleAt.set(uid, now + PARTICLE_GAP_MS);
-    flyParticle(this, { x, y }, target, CYTOKINE, () => this.hud.bumpMeter(this.time.now));
+  /**
+   * Cytokine charge of every source in play: a small teal dial that fills toward the source's
+   * capacity, so the player sees which cells hold charge for the release button.
+   */
+  private drawCharges(now: number): void {
+    const g = this.chargeG.clear();
+    if (this.sim.state.status !== 'playing') return;
+    for (const source of this.signalSources()) {
+      const charge = this.sim.charge(source);
+      if (charge === null || charge <= 0) continue;
+      const at = this.sourcePoint(source);
+      if (!at) continue;
+      const r = 10;
+      if (charge >= 1) {
+        // Full: a faint halo while the player releases, so the flowing sources stand out.
+        if (this.hold) g.fillStyle(CYTOKINE, 0.2 + 0.15 * Math.sin(now / 120)).fillCircle(at.x, at.y, r + 6);
+        g.fillStyle(CYTOKINE, 1).fillCircle(at.x, at.y, r);
+        g.fillStyle(0xe8fbf8, 1).fillCircle(at.x - 3, at.y - 3, 2.5);
+        g.lineStyle(3, OUTLINE, 1).strokeCircle(at.x, at.y, r);
+        continue;
+      }
+      g.fillStyle(0xfbf7f2, 0.85).fillCircle(at.x, at.y, r);
+      g.fillStyle(CYTOKINE, 0.9).slice(at.x, at.y, r, -Math.PI / 2, -Math.PI / 2 + charge * Math.PI * 2, false).fillPath();
+      g.lineStyle(3, OUTLINE, 0.9).strokeCircle(at.x, at.y, r);
+    }
+  }
+
+  /**
+   * NETs: a web of chromatin strands over the cell, with granules caught in it. It fades out over
+   * its last second.
+   */
+  private drawTraps(now: number): void {
+    const g = this.trapG.clear();
+    const { layout } = this;
+    const { tick } = this.sim.state;
+    for (const trap of this.sim.state.traps) {
+      const left = (trap.until - tick) / TICKS_PER_SECOND;
+      const alpha = Math.min(1, left) * Math.min(1, (tick - trap.laidAt) / 4 + 0.3);
+      const { x, y } = cellCenter(layout, trap.row, trap.col);
+      const r = Math.min(layout.cellW, layout.cellH) * 0.44;
+      const sway = Math.sin(now / 260 + trap.uid) * 0.06;
+      const spokes = 7;
+      const ends: Array<[number, number]> = [];
+      for (let i = 0; i < spokes; i++) {
+        const a = (i / spokes) * Math.PI * 2 + sway + noise(trap.uid, i, 1) * 0.4;
+        const k = 0.8 + 0.2 * noise(trap.uid, i, 2);
+        ends.push([x + Math.cos(a) * r * k, y + Math.sin(a) * r * k * 0.85]);
+      }
+      g.lineStyle(4, OUTLINE, 0.55 * alpha);
+      for (const [ex, ey] of ends) g.lineBetween(x, y, ex, ey);
+      g.lineStyle(2.5, NET_STRAND, 0.95 * alpha);
+      for (const [ex, ey] of ends) g.lineBetween(x, y, ex, ey);
+      // Two loose rings of strands joining the spokes.
+      for (const ring of [0.45, 0.8]) {
+        for (let i = 0; i < spokes; i++) {
+          const [ax, ay] = ends[i] as [number, number];
+          const [bx, by] = ends[(i + 1) % spokes] as [number, number];
+          g.lineBetween(x + (ax - x) * ring, y + (ay - y) * ring, x + (bx - x) * ring, y + (by - y) * ring);
+        }
+      }
+      // Granule proteins caught in the web.
+      g.fillStyle(NET_GRANULE, 0.9 * alpha);
+      for (let i = 0; i < 5; i++) {
+        const [ex, ey] = ends[i] as [number, number];
+        const k = 0.3 + 0.5 * noise(trap.uid, i, 3);
+        g.fillCircle(x + (ex - x) * k, y + (ey - y) * k, 3);
+      }
+    }
   }
 
   /** Target cell while a card is selected: a ghost of the unit if it fits, a refusal mark if not. */

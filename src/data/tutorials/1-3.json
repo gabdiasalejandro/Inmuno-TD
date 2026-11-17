@@ -1,0 +1,25 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-3.place",
+      "advance": { "type": "place", "unit": "macrofago", "row": 2, "col": 6 }
+    },
+    {
+      "text": "tutorial.1-3.hold",
+      "waitFor": { "type": "stored", "atLeast": 15 },
+      "advance": { "type": "hold", "seconds": 1 },
+      "waitTime": "fast",
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-3.effect",
+      "target": { "type": "marrow" },
+      "advance": { "type": "tap" }
+    },
+    {
+      "text": "tutorial.1-3.sources",
+      "target": { "type": "release_button" },
+      "advance": { "type": "tap" }
+    }
+  ]
+}

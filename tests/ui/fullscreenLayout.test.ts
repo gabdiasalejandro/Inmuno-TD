@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CANVAS_FULLSCREEN, HUD_FULLSCREEN, fullscreenHit, fullscreenSlots } from '../../src/ui/fullscreenLayout';
-import { CANVAS, MENU_BUTTON, type Rect } from '../../src/ui/layout';
+import { CANVAS, PAUSE_BUTTON, type Rect } from '../../src/ui/layout';
 import { ALMANAC_BUTTON } from '../../src/ui/menuLayout';
 
 function overlaps(a: Rect, b: Rect): boolean {
@@ -12,10 +12,7 @@ function insideCanvas(r: Rect): boolean {
 }
 
 describe('fullscreen button layout', () => {
-  for (const [name, rect, compact] of [
-    ['menu and almanac', CANVAS_FULLSCREEN, false],
-    ['game HUD', HUD_FULLSCREEN, true],
-  ] as const) {
+  for (const [name, rect, compact] of [['menu and almanac', CANVAS_FULLSCREEN, false]] as const) {
     describe(name, () => {
       it('sits inside the canvas and keeps a phone-sized tap target', () => {
         expect(insideCanvas(rect)).toBe(true);
@@ -44,13 +41,31 @@ describe('fullscreen button layout', () => {
     });
   }
 
-  it('stacks above the menu button in the game, sharing its column', () => {
-    expect(HUD_FULLSCREEN.x).toBe(MENU_BUTTON.x);
-    expect(HUD_FULLSCREEN.w).toBe(MENU_BUTTON.w);
-    expect(HUD_FULLSCREEN.y + HUD_FULLSCREEN.h).toBeLessThan(MENU_BUTTON.y);
-    expect(overlaps(HUD_FULLSCREEN, MENU_BUTTON)).toBe(false);
-    // Inside the HUD strip, which ends above the board.
-    expect(HUD_FULLSCREEN.y + HUD_FULLSCREEN.h).toBeLessThanOrEqual(150);
+  describe('game HUD (icon only)', () => {
+    const slots = fullscreenSlots(HUD_FULLSCREEN, true);
+
+    it('is a square the size of the pause button, inside the canvas and a comfortable tap target', () => {
+      expect(insideCanvas(HUD_FULLSCREEN)).toBe(true);
+      expect(HUD_FULLSCREEN.w).toBe(PAUSE_BUTTON.w);
+      expect(HUD_FULLSCREEN.h).toBe(PAUSE_BUTTON.h);
+      expect(HUD_FULLSCREEN.w).toBeGreaterThanOrEqual(64);
+    });
+
+    it('centres the glyph in the button', () => {
+      expect(slots.iconX).toBe(HUD_FULLSCREEN.x + HUD_FULLSCREEN.w / 2);
+      expect(slots.iconY).toBe(HUD_FULLSCREEN.y + HUD_FULLSCREEN.h / 2);
+      expect(slots.iconSize * 2).toBeLessThan(HUD_FULLSCREEN.w);
+    });
+
+    it('answers a hit inside only', () => {
+      expect(fullscreenHit(HUD_FULLSCREEN, HUD_FULLSCREEN.x, HUD_FULLSCREEN.y)).toBe(true);
+      expect(fullscreenHit(HUD_FULLSCREEN, HUD_FULLSCREEN.x + HUD_FULLSCREEN.w, HUD_FULLSCREEN.y)).toBe(false);
+    });
+  });
+
+  it('sits at the right end of the top bar, beside the pause button without overlapping it', () => {
+    expect(HUD_FULLSCREEN.x).toBeGreaterThanOrEqual(PAUSE_BUTTON.x + PAUSE_BUTTON.w);
+    expect(overlaps(HUD_FULLSCREEN, PAUSE_BUTTON)).toBe(false);
   });
 
   it('sits beside the almanac button on the menu without covering it or the title', () => {

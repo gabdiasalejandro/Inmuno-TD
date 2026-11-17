@@ -36,7 +36,7 @@ Estados posibles: `por revisar` (implementado, sin fuente), `verificado` (con fu
 - **Fuente:** (a) Paudel S, Ghimire L, Jin L, Jeansonne D, Jeyaseelan S. "Regulation of emergency granulopoiesis during infection". _Frontiers in Immunology_ 2022. PMC9485265. (b) Carnevale S, Ghasemi S, Rigatelli A, Jaillon S. "The complexity of neutrophils in health and disease: Focus on cancer". _Seminars in Immunology_ 2020;48. PMC7500440.
 - **Qué dice la fuente:** (a) "release massive amounts of granulopoietic cytokines (such as G-CSF, GM-CSF, IL-6) during local or systemic infection." (b) "In inflammatory conditions, expression levels of granulopoietic cytokines, such as G-CSF, GM-CSF and IL-6 are increased".
 - **Matiz:** las citocinas son redundantes entre sí: Wirths 2013 indica que la granulopoyesis de emergencia se induce incluso en ratones sin G-CSF ni GM-CSF. No afirmar que una sola citocina es imprescindible. Parte de la evidencia es murina. No está verificado que aumente la _liberación_ de neutrófilos maduros a sangre; el juego solo puede afirmar aumento de producción.
-- **Dónde se usa:** aceleración de la médula por citocinas (pendiente de implementar).
+- **Dónde se usa:** aceleración de la médula por citocinas (`marrowBoost`, nivel 1-3).
 - **Estado:** verificado
 - **Verificado por / fecha:** verificador Haiku; cita (a) comprobada por el jefe, cita (b) sin comprobar por el jefe, 2026-11-14.
 
@@ -46,7 +46,7 @@ Estados posibles: `por revisar` (implementado, sin fuente), `verificado` (con fu
 - **Fuente:** Paudel S et al. 2022 (ver arriba), sección "Hematopoietic and non-hematopoietic cells".
 - **Qué dice la fuente:** "Tissue resident macrophages and circulating monocytes are equipped with PRRs, sense pathogens at the site of entry, and release massive amounts of granulopoietic cytokines (such as G-CSF, GM-CSF, IL-6) during local or systemic infection." Y a continuación: "we speculate that monocytes and macrophages are not the sole players. Although there is lack of careful in vivo experimentation proving direct roles of these cells in emergency granulopoiesis, the abundance of data suggests their role is largely mediated b[y]..."
 - **Matiz:** está respaldado que el macrófago detecta con PRR y libera G-CSF, GM-CSF e IL-6. Que eso sea lo que dispara la granulopoyesis de emergencia es, según la propia revisión, una hipótesis antigua sin demostración directa in vivo, y los macrófagos no son la única fuente. La fuente no menciona TNF y no respalda IL-1 de macrófago para esta mecánica: no usar esos nombres aquí.
-- **Dónde se usa:** nivel 1-3 (pendiente de implementar).
+- **Dónde se usa:** nivel 1-3 (el jugador libera las citocinas con un clic en el macrófago).
 - **Estado:** pendiente. Se puede implementar "el macrófago libera G-CSF, GM-CSF e IL-6" pero falta decidir con el usuario cómo presentar el vínculo causal y registrar la simplificación.
 - **Verificado por / fecha:** verificador Haiku; citas comprobadas por el jefe, que corrigió una cita que el verificador había parafraseado entre comillas, 2026-11-14.
 
@@ -82,7 +82,9 @@ Estados posibles: `por revisar` (implementado, sin fuente), `verificado` (con fu
 
 - El macrófago residente vive en el tejido y reconoce patrones de los microbios (PAMP) con sus receptores (PRR). Uso: `macrofago` solo ataca enemigos con etiqueta `PAMP`. **Estado:** por revisar.
 - El macrófago fagocita: engulle al microbio entero y lo digiere. Uso: ataque `fagocitosis`, una bacteria por bocado y 4 s de digestión. **Estado:** por revisar.
-- El macrófago que detecta microbios libera citocinas. Uso: señal `citocinas` del nivel 1-3. **Estado:** verificado en parte (ver `macrofago-citocinas-granulopoyeticas`).
+- El macrófago que detecta microbios libera citocinas. Uso: señal `citocinas` del nivel 1-3; el macrófago acumula carga mientras detecta un PAMP con su PRR y el jugador la libera manteniendo pulsado el botón "Liberar citocinas" (`emits` en `src/data/units.json`, `src/sim/systems/sources.ts`). **Estado:** verificado en parte (ver `macrofago-citocinas-granulopoyeticas`).
+- El epitelio dañado libera señales de alarma (alarminas y citocinas) que avisan al sistema inmune. Uso: las heridas abiertas del nivel 1-3 acumulan algo de carga de `citocinas` (`fromWounds` en `src/data/signals.json`; poca a propósito, ver `heridas-alarma-debil` en `simplificaciones.md`). **Estado:** por revisar.
+- Las células epiteliales que reciben daño liberan citocinas y alarminas, más cuanto mayor es el daño. Uso: la unidad `epitelio` acumula carga de `citocinas` en proporción al daño que recibe (`emits.perDamage` en `src/data/units.json`, nivel 1-3). **Estado:** por revisar (la proporcionalidad con el daño es una suposición de jugabilidad).
 - Las citocinas hacen que la médula produzca más neutrófilos. Uso: la médula se acelera con la señal. **Estado:** verificado (ver `granulopoyesis-de-emergencia`), con el vínculo causal directo del macrófago marcado como hipótesis.
 - Las citocinas reclutan neutrófilos al foco con rapidez. Uso: los neutrófilos se recargan antes con la señal alta. **Estado:** por revisar (el reclutamiento al tejido depende sobre todo de quimiocinas; aquí se agrupa todo como "citocinas").
 - El neutrófilo fagocita rápido y vive poco. Uso: `neutrofilo` ataca cada 2 s y caduca a los 10 s. **Estado:** por revisar.
@@ -100,3 +102,11 @@ Todas **por revisar** salvo las marcadas.
 - Macrófago: fagocito grande que vive en los tejidos; engulle microbios y restos de células; da la alarma liberando citocinas. Nota: en el juego solo ataca enemigos con PAMP; "restos de células" va más allá de la regla del juego.
 - Neutrófilo: de los primeros en llegar al tejido infectado, donde fagocita bacterias; núcleo con varios lóbulos; vida corta y reposición continua desde la médula.
 - Neutrófilo: "es el leucocito más abundante de la sangre". **Estado:** dudoso (cierto en humanos; revisar redacción).
+- Inflamación (nivel 1-4, barra de inflamación, almanaque e intro 1-4): la inflamación recluta defensas pero también causa daño colateral al tejido propio. **Estado:** por revisar.
+- Inflamación (regla de la barra): las citocinas liberadas aumentan la inflamación. **Estado:** por revisar.
+- Tormenta de citocinas (derrota del 1-4 por inflamación al 100 %, texto "La inflamación dañó el tejido"): una respuesta inflamatoria excesiva puede dañar gravemente los tejidos. **Estado:** dudoso (el juego no usa el término; revisar si el desenlace se presenta bien).
+- NET (neutrófilo, regla `onDeath`, tutorial e intro 1-4, almanaque del neutrófilo): el neutrófilo puede expulsar su ADN con proteínas de sus gránulos formando una red que atrapa y mata bacterias. **Estado:** por revisar.
+- NET: el neutrófilo suele morir al formarla (NETosis). **Estado:** dudoso (existe también NETosis "vital" sin muerte inmediata; revisar la redacción "suele morir").
+- NET: las NET también dañan el tejido propio y aumentan la inflamación (regla `raises` del 1-4, objetivo "¿Qué son las NET y por qué también dañan el tejido?"). **Estado:** por revisar.
+- Streptococcus pyogenes (enemigo del 1-4, almanaque): bacteria grampositiva, coco en cadenas; causa faringitis, impétigo e infecciones graves de piel y tejidos profundos. **Estado:** por revisar.
+- Streptococcus pyogenes: su hialuronidasa degrada el ácido hialurónico del tejido y le ayuda a extenderse (regla `spreads`: cambia de carril ante el epitelio). **Estado:** por revisar.

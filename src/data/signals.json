@@ -1,18 +1,28 @@
 {
   "citocinas": {
     "max": 100,
-    "decayPerSecond": 6,
+    "decayPerSecond": 3,
+    "releasePerSecond": 40,
+    "storeDecayPerSecond": 1,
     "marrowBoost": 1,
     "recruitBoost": 1.5,
     "recruitTag": "reclutable",
-    "targetByEnemies": [
-      0,
-      25,
-      50,
-      63,
-      75,
-      88,
-      100
-    ]
+    "fromWounds": {
+      "capacity": 4,
+      "perSecond": 0.5
+    }
+  },
+  "inflamacion": {
+    "max": 100,
+    "decayPerSecond": 1,
+    "risesWith": {
+      "signal": "citocinas",
+      "perPoint": 0.5
+    },
+    "harm": {
+      "from": 0.4,
+      "hpPercentPerSecond": 2
+    },
+    "defeatAt": 1
   }
 }

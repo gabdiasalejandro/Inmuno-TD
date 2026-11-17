@@ -1,14 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { cellCenter, createBoardLayout, enemyFrontX, isCellFree, pixelToCell } from '../../src/game/layout';
+import { boardRight, cellCenter, createBoardLayout, enemyFrontX, isCellFree, pixelToBreachLane, pixelToCell } from '../../src/game/layout';
 
 const layout = createBoardLayout(5, 9);
 
 describe('board layout', () => {
-  it('fits the whole grid inside the 1280x720 canvas below the HUD strip', () => {
-    expect(layout.x).toBeGreaterThanOrEqual(0);
+  it('fits the whole grid inside the 1280x720 canvas, right of the left column and below the top bar', () => {
+    expect(layout.x).toBe(216);
     expect(layout.x + layout.cols * layout.cellW).toBeLessThanOrEqual(1280);
-    expect(layout.y).toBeGreaterThanOrEqual(140);
+    expect(layout.y).toBe(96);
     expect(layout.y + layout.rows * layout.cellH).toBeLessThanOrEqual(720);
+  });
+
+  it('gives a 9x5 board cells of about 111x120 and leaves room right of it for the wound breach strip', () => {
+    expect(layout.cellW).toBe(111);
+    expect(layout.cellH).toBe(120);
+    expect(1280 - boardRight(layout)).toBeGreaterThanOrEqual(50);
   });
 
   it('maps a cell to its center and back to the same cell', () => {
@@ -45,5 +51,23 @@ describe('isCellFree', () => {
     expect(isCellFree(units, { row: 2, col: 3 })).toBe(false);
     expect(isCellFree(units, { row: 3, col: 2 })).toBe(true);
     expect(isCellFree([], { row: 0, col: 0 })).toBe(true);
+  });
+});
+
+describe('pixelToBreachLane', () => {
+  const board = createBoardLayout(5, 9);
+  const right = boardRight(board);
+
+  it('finds the lane of the breach strip just right of the board', () => {
+    expect(pixelToBreachLane(board, right + 20, board.y + board.cellH * 2.5, 50)).toBe(2);
+    expect(pixelToBreachLane(board, right + 1, board.y + 1, 50)).toBe(0);
+  });
+
+  it('is null on the board itself, past the strip, above or below the lanes', () => {
+    expect(pixelToBreachLane(board, right - 1, board.y + 10, 50)).toBeNull();
+    expect(pixelToBreachLane(board, right + 51, board.y + 10, 50)).toBeNull();
+    expect(pixelToBreachLane(board, right + 20, board.y - 1, 50)).toBeNull();
+    expect(pixelToBreachLane(board, right + 20, board.y + board.cellH * 5, 50)).toBeNull();
+    expect(pixelToBreachLane(board, Number.NaN, board.y + 10, 50)).toBeNull();
   });
 });

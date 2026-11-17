@@ -14,38 +14,80 @@ export interface AttackDef {
   requires?: string[];
 }
 
-/** A unit that raises a global signal while it detects a matching enemy. */
-export interface EmitDef {
+/**
+ * Something that stores signal charge for the player to release. Charge is in signal points;
+ * rates are per second.
+ */
+export interface ChargeDef {
+  /** Most signal points the source can hold. */
+  capacity: number;
+  /** Points gained per second while the source is generating (a unit detecting, a wound open). */
+  perSecond?: number;
+  /** Points gained per hit point of damage the source takes. */
+  perDamage?: number;
+}
+
+/**
+ * A unit that stores charge of a signal: while it detects a matching enemy (when `range` is set)
+ * and/or when it takes damage (`perDamage`).
+ */
+export interface EmitDef extends ChargeDef {
   signal: string;
-  /** Signal points added per second for each matching enemy it detects. */
-  perSecond: number;
-  /** Detection reach in cells ahead of the unit's own cell. */
-  range: number;
+  /** Detection reach in cells ahead of the unit's own cell. Without it the unit never detects. */
+  range?: number;
   /** Tags an enemy must all carry to be detected. */
   requires?: string[];
 }
 
-/** A global meter (for example cytokines) that units raise and the rest of the sim reads. */
+/** A global meter (for example cytokines) that the player fills from stored charge and the rest of the sim reads. */
 export interface SignalDef {
   max: number;
-  /** Points lost per second, always. */
+  /** Meter points lost per second, always. */
   decayPerSecond: number;
-  /**
-   * Points the meter can reach per detected enemy. One enemy with 25 reaches a quarter of a
-   * 100-point meter. Defaults to `max` (any detection can fill it).
-   */
-  targetPerEnemy?: number;
-  /**
-   * Explicit ceiling by number of detected enemies (index 0 is unused). Overrides
-   * `targetPerEnemy`; counts past the end use `max`. Lets the meter rise slowly at first and
-   * reach the top only with a real wave.
-   */
-  targetByEnemies?: number[];
+  /** Points per second that flow from the stored charge into the meter while the player releases. Default 0. */
+  releasePerSecond?: number;
+  /** Points per second each source loses once it has gone a second without gaining any. Default 0. */
+  storeDecayPerSecond?: number;
+  /** When set, every open wound is a source of this signal that charges for as long as it is open. */
+  fromWounds?: ChargeDef;
   /** Extra marrow speed at full signal: 1 means twice as fast. */
   marrowBoost?: number;
   /** Extra redeploy speed at full signal for units tagged `recruitTag`: 1 means half the cooldown. */
   recruitBoost?: number;
   recruitTag?: string;
+  /** The meter also rises by `perPoint` for every point the player releases into `signal`. */
+  risesWith?: { signal: string; perPoint: number };
+  /** Collateral damage: from this level (0 to 1) up, every own unit loses a share of its max HP. */
+  harm?: HarmDef;
+  /** Reaching this level (0 to 1) loses the level. */
+  defeatAt?: number;
+}
+
+export interface HarmDef {
+  /** Level (0 to 1) from which the damage applies. */
+  from: number;
+  /** Percent of each unit's max hit points lost per second while the signal is at or above `from`. */
+  hpPercentPerSecond: number;
+}
+
+/**
+ * Something a unit leaves on its cell when it dies (for example a NET). It slows and hurts the
+ * enemies crossing that cell for a while.
+ */
+export interface TrapDef {
+  id: string;
+  /** Seconds the trap lasts. */
+  duration: number;
+  /** Speed multiplier (0 to 1) applied to enemies crossing the cell. */
+  slow: number;
+  /** Damage dealt to each enemy in the cell on every hit. */
+  damage: number;
+  /** Hits per second. */
+  rate: number;
+  /** Tags an enemy must all carry to be slowed and hurt. */
+  requires?: string[];
+  /** Points added to a signal when the trap is laid, only in levels where that signal is active. */
+  raises?: { signal: string; amount: number };
 }
 
 export interface UnitDef {
@@ -62,6 +104,8 @@ export interface UnitDef {
   blocks?: boolean;
   /** Speed multiplier (0 to 1) applied to enemies while they cross this unit's cell. */
   slow?: number;
+  /** What the unit leaves on its cell when it dies, whether killed or expired. */
+  onDeath?: { trap: TrapDef };
   lineage?: string;
   tags?: string[];
 }
@@ -71,6 +115,11 @@ export interface EnemyDef {
   hp: number;
   speed: number;
   attack: { damage: number; rate: number };
+  /**
+   * Spreads through the tissue: on reaching a blocking unit that carries any of `around` tags it
+   * moves to a neighbouring lane instead of attacking, when one is free at that column.
+   */
+  spreads?: { around: string[] };
   tags?: string[];
 }
 
@@ -91,6 +140,8 @@ export interface LevelDef {
   /** Baseline energy production: `amount` every `interval` seconds. */
   marrow: { amount: number; interval: number };
   deck: string[];
+  /** Learning objectives as i18n keys, each phrased as an exam question. The sim ignores them. */
+  objectives?: string[];
   waves: WaveDef[];
   /** Defaults to `clear`: every wave spawned and every enemy dead. */
   win?: WinCondition;
@@ -125,6 +176,10 @@ export interface UnitState {
   attackReadyAt: number;
   /** True while the unit's `emits` detection sees a matching enemy. */
   alarmed: boolean;
+  /** Stored charge of its `emits` signal, in thousandths of a point; capped at its capacity. */
+  charge: number;
+  /** Tick at which the unit last gained charge (stored charge decays once it goes idle). */
+  chargedAt: number;
 }
 
 export interface EnemyState {
@@ -140,6 +195,21 @@ export interface EnemyState {
   attackReadyAt: number;
 }
 
+/** A trap laid on a cell (for example a NET). */
+export interface TrapState {
+  uid: number;
+  defId: string;
+  row: number;
+  col: number;
+  /** Tick it was laid; it hits on ticks `laidAt + k * interval`. */
+  laidAt: number;
+  /** Tick from which it is gone. */
+  until: number;
+}
+
+/** Why a level was lost: an enemy crossed the tissue, or a signal reached its `defeatAt`. */
+export type DefeatCause = { type: 'breach' } | { type: 'signal'; signal: string };
+
 export type SimStatus = 'playing' | 'won' | 'lost';
 
 export interface SimState {
@@ -148,6 +218,10 @@ export interface SimState {
   energy: number;
   units: UnitState[];
   enemies: EnemyState[];
+  /** Traps laid on cells, in the order they were laid. */
+  traps: TrapState[];
+  /** Why the level was lost; null while playing or after a win. */
+  defeat: DefeatCause | null;
   /** Tick from which each unit id can be deployed again. */
   deployReadyAt: Record<string, number>;
   /** Index of the next entry of the spawn schedule. */
@@ -157,6 +231,12 @@ export interface SimState {
   nextUid: number;
   /** Signal levels in thousandths of a point, so they stay exact integers. */
   signals: Record<string, number>;
+  /** Stored charge of each open wound, by lane, in thousandths of a point of the signal wounds feed. */
+  woundCharge: Record<number, number>;
+  /** Whether the player is holding the release: stored charge flows into the meters every tick. */
+  releasing: boolean;
+  /** Total ever released into each signal, in thousandths of a point (later mechanics may read it). */
+  released: Record<string, number>;
   /** Marrow progress toward its next batch, in thousandths of a tick. */
   marrowCharge: number;
   rngState: number;
@@ -172,16 +252,24 @@ export type PlaceFailure =
 
 export type PlaceResult = { ok: true } | { ok: false; reason: PlaceFailure };
 
+/** Something that stores signal charge: a unit by id, or the open wound of a lane. */
+export type SignalSource = { kind: 'unit'; uid: number } | { kind: 'wound'; lane: number };
+
 export type SimEvent =
   | { type: 'energy_gained'; amount: number }
   | { type: 'wound_opened'; lane: number }
+  /** Stored charge that flowed into a signal this tick while the player held the release, in points. */
+  | { type: 'signal_released'; signal: string; amount: number }
   | { type: 'enemy_spawned'; uid: number; defId: string; lane: number }
   | { type: 'unit_attacked'; uid: number; target: number; damage: number }
   | { type: 'enemy_attacked'; uid: number; target: number; damage: number }
   | { type: 'enemy_died'; uid: number }
-  | { type: 'unit_died'; uid: number; cause: 'killed' | 'expired' }
+  | { type: 'unit_died'; uid: number; cause: 'killed' | 'expired'; defId: string; row: number; col: number }
+  | { type: 'trap_laid'; uid: number; defId: string; row: number; col: number }
+  | { type: 'trap_hit'; uid: number; target: number; damage: number }
+  | { type: 'enemy_switched_lane'; uid: number; from: number; to: number }
   | { type: 'won' }
-  | { type: 'lost' };
+  | { type: 'lost'; cause: DefeatCause };
 
 export interface Sim {
   /** Live state. Plain data: safe to clone, serialize and compare. Do not mutate from outside. */
@@ -189,6 +277,15 @@ export interface Sim {
   /** Advances exactly one fixed tick and returns what happened during it. */
   step(): SimEvent[];
   placeUnit(defId: string, row: number, col: number): PlaceResult;
+  /**
+   * Player command, applied on every following tick until changed: while on, stored charge flows
+   * into its signal at the signal's `releasePerSecond`, never more than is stored nor past `max`.
+   */
+  setReleasing(on: boolean): void;
+  /** Stored charge of a source as a share of its capacity (0 to 1), or null when it is not an active source. */
+  charge(source: SignalSource): number | null;
+  /** Charge stored in all sources of a signal, in signal points. Unknown or inactive signals read 0. */
+  stored(name: string): number;
   /** Level of a signal from 0 (none) to 1 (its maximum). Unknown signals read 0. */
   signal(name: string): number;
   /** Marrow progress toward its next energy batch, from 0 to 1. */

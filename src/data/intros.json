@@ -23,5 +23,14 @@
       "neutrofilo"
     ],
     "banner": "banner.clear"
+  },
+  "1-4": {
+    "title": "intro.1-4.title",
+    "body": "intro.1-4.body",
+    "feature": [
+      "neutrofilo",
+      "streptococcus_pyogenes"
+    ],
+    "banner": "banner.clear"
   }
 }

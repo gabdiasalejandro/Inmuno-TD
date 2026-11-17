@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <!-- brazo bajo izquierdo, con una rama -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 76 168 Q 44 176 32 198"/>
+    <path stroke="#3A2A2A" stroke-width="34" d="M 50 180 Q 36 170 30 150"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 76 168 Q 44 176 32 198"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 50 180 Q 36 170 30 150"/>
+    <!-- brazo alto izquierdo, con una rama -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 84 118 Q 52 112 40 84 L 32 58"/>
+    <path stroke="#3A2A2A" stroke-width="34" d="M 42 88 Q 58 74 72 68"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 84 118 Q 52 112 40 84 L 32 58"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 42 88 Q 58 74 72 68"/>
+    <!-- brazo superior, con una rama -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 108 92 Q 100 60 84 42"/>
+    <path stroke="#3A2A2A" stroke-width="34" d="M 98 64 Q 116 52 122 36"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 108 92 Q 100 60 84 42"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 98 64 Q 116 52 122 36"/>
+    <!-- brazo derecho alzado: la mano que señala, con dos dedos -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 160 98 Q 178 64 204 52"/>
+    <path stroke="#3A2A2A" stroke-width="34" d="M 200 54 Q 214 46 224 34 M 202 54 Q 220 60 228 74"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 160 98 Q 178 64 204 52"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 200 54 Q 214 46 224 34 M 202 54 Q 220 60 228 74"/>
+    <!-- brazo bajo derecho, con una rama -->
+    <path stroke="#3A2A2A" stroke-width="34" d="M 180 168 Q 210 172 224 194"/>
+    <path stroke="#3A2A2A" stroke-width="34" d="M 208 178 Q 224 166 228 148"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 180 168 Q 210 172 224 194"/>
+    <path stroke="#E1D9E8" stroke-width="18" d="M 208 178 Q 224 166 228 148"/>
+  </g>
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- cuerpo redondeado: la cabeza es la celula -->
+    <ellipse cx="128" cy="150" rx="62" ry="70" fill="#FBF7F2"/>
+    <!-- sombra (cel shading) abajo a la derecha -->
+    <path fill="#E1D9E8" d="M 189.1 137.9 A 62 70 0 0 1 74.3 185 Q 120 190 150 170 Q 178 158 189.1 137.9 Z"/>
+    <!-- contorno -->
+    <ellipse cx="128" cy="150" rx="62" ry="70" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <!-- nucleo con muesca, pequeno, en la parte baja izquierda -->
+    <path fill="#7B4FA3" stroke="#3A2A2A" stroke-width="5" d="M 84 190 Q 82 176 100 176 Q 120 176 124 190 Q 120 204 104 202 Q 100 194 94 196 Q 88 198 84 190 Z"/>
+    <path fill="#5E3A80" d="M 122 192 Q 118 202 104 200 Q 102 196 98 195 Q 112 196 118 188 Q 121 188 122 192 Z"/>
+    <circle cx="108" cy="190" r="3" fill="#5E3A80"/>
+    <ellipse cx="94" cy="183" rx="5" ry="3" fill="#A47CC8"/>
+  </g>
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- rubor -->
+    <ellipse cx="86" cy="132" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="170" cy="132" rx="10" ry="5.5" fill="#E8A29A"/>
+    <!-- ojo izquierdo: base compartida, abierto -->
+    <ellipse cx="106" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="103" cy="108" r="4.5" fill="#FBF7F2"/>
+    <circle cx="109.5" cy="117" r="2" fill="#FBF7F2"/>
+    <!-- ojo derecho: base compartida, abierto -->
+    <ellipse cx="150" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="147" cy="108" r="4.5" fill="#FBF7F2"/>
+    <circle cx="153.5" cy="117" r="2" fill="#FBF7F2"/>
+    <!-- cejas en arco suave, alzadas: amable y atenta -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 94 90 Q 106 82 118 88 M 138 88 Q 150 82 162 90"/>
+    <!-- boca recta y amable, con una sonrisa leve -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 118 140 Q 128 146 138 140"/>
+  </g>
+</svg>

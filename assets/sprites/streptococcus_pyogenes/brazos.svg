@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- patitas cortas y rectas: el estreptococo no tiene flagelos, asi que no son onduladas -->
+    <path d="M 70 170 L 64 196 L 56 214"/>
+    <path d="M 104 172 L 106 198 L 100 216"/>
+    <path d="M 140 172 L 138 198 L 132 216"/>
+    <path d="M 166 172 L 168 198 L 162 216"/>
+    <path d="M 204 176 L 208 198 L 202 216"/>
+  </g>
+</svg>

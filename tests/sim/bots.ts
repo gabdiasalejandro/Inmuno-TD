@@ -50,3 +50,12 @@ export function play(levelId: string, bot: Bot, maxSeconds = 240) {
   const reached = Math.min(level.grid.cols * 1000, ...sim.state.enemies.map((enemy) => enemy.pos));
   return { status: sim.state.status, seconds: sim.state.tick / 20, energy: sim.state.energy, reached };
 }
+
+/** Holds the release button for the whole level: every bit of stored charge flows into the meter. */
+export const holdRelease: Bot = (sim) => sim.setReleasing(true);
+
+/** A sloppy player: holds the release for `held` seconds out of every `period`. */
+export const pulseRelease =
+  (held: number, period: number): Bot =>
+  (sim) =>
+    sim.setReleasing(sim.state.tick % secondsToTicks(period) < secondsToTicks(held));

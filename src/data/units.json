@@ -4,6 +4,11 @@
     "cost": 50,
     "cooldown": 8,
     "hp": 300,
+    "emits": {
+      "signal": "citocinas",
+      "capacity": 10,
+      "perDamage": 0.3
+    },
     "tags": [
       "barrera"
     ]
@@ -37,7 +42,8 @@
     },
     "emits": {
       "signal": "citocinas",
-      "perSecond": 12,
+      "capacity": 30,
+      "perSecond": 7,
       "range": 2,
       "requires": [
         "PAMP"
@@ -68,6 +74,19 @@
       "innata",
       "fagocito",
       "reclutable"
-    ]
+    ],
+    "onDeath": {
+      "trap": {
+        "id": "net",
+        "duration": 3,
+        "slow": 0.3,
+        "damage": 5,
+        "rate": 1,
+        "raises": {
+          "signal": "inflamacion",
+          "amount": 3
+        }
+      }
+    }
   }
 ]

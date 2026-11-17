@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { bindCursor } from './cursor';
 import { levels, worlds } from '../data';
 import { t } from '../i18n';
 import {
@@ -104,6 +105,7 @@ export class AlmanacScene extends Phaser.Scene {
     this.cameras.main.ignore(this.listLayer);
     this.listCam = this.cameras.add(LIST_VIEW.x, LIST_VIEW.y, LIST_VIEW.w, LIST_VIEW.h);
 
+    bindCursor(this, (p) => this.target(p.x, p.y) !== null);
     this.input.on('pointerdown', this.onPointerDown, this);
     this.input.on('pointermove', this.onPointerMove, this);
     this.input.on('pointerup', this.onPointerUp, this);

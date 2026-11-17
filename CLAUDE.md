@@ -248,7 +248,7 @@ Los números de ambos formatos son de ejemplo. El balance se decide con tests y 
 2. **Escena Phaser con figuras provisionales** y el nivel 1-1 jugable en navegador y en móvil. _Hecho el 2026-11-14 en escritorio (`src/game/`, `src/ui/`, `src/data/levels/1-1.json`); pulido con sprites, médula visible y menú de mundos y niveles (`src/game/MenuScene.ts`); el 1-1 dura 60 s. Falta probarlo en un móvil real._
 3. **Niveles 1-2 y 1-3:** PAMP/PRR, fagocitosis y citocinas. _Hechos el 2026-11-14, con tarjeta de concepto y cartel de inicio en todos los niveles; pendiente de que el usuario los juegue y diga si divierten. Seguimiento en `odd/tasks/world-1-levels-2-3.md`._ Aquí se valida si la mecánica divierte. Si no divierte, parar y replantear con el usuario.
 4. **Flujo de arte:** sprites por piezas, animaciones, guía de estilo cerrada con los primeros personajes.
-5. **Niveles 1-4 a 1-7:** inflamación, virus y NK, complemento, nivel trampa.
+5. **Niveles 1-4 a 1-7:** inflamación, virus y NK, complemento, nivel trampa. _1-4 hecho el 2026-11-17 (barra de inflamación, NET, Streptococcus pyogenes; sprite en propuesta); pendiente de que el usuario lo juegue._
 6. **Jefe _S. aureus_** y caso clínico.
 7. **Almanaque, preguntas y repaso espaciado.** _Almanaque bocetado el 2026-11-14 (`src/game/AlmanacScene.ts`, textos en `src/i18n/es.almanac.json`); faltan preguntas y repaso._
 8. **Pulido:** sonido, tutoriales sin texto, rendimiento en móvil, PWA.
@@ -265,7 +265,7 @@ En cada paso: anotar la inmunología para la revisión médica (2.1), consultar 
 
 ## 11. Decisiones abiertas
 
-- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 200 de vida y el 1-2 conserva las oleadas duras 5/5; el usuario lo jugó y lo ganó con macrófagos retrasados, moco delante y algún muro, y el test reproduce esa estrategia (2026-11-14). El medidor de citocinas ahora escala con las bacterias detectadas (1→25, 2→50, 3→63, 4→75, 5→88, 6+→100) y el 1-3 usa médula 30/5 para compensar (2026-11-14). El 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
+- Balance de citocinas y neutrófilos: el usuario los sintió demasiado fuertes en el 1-3 (2026-11-14); el neutrófilo pasó a costar 50 y el 1-3 abre los 5 carriles (2026-11-14). El macrófago bajó a 200 de vida y el 1-2 conserva las oleadas duras 5/5; el usuario lo jugó y lo ganó con macrófagos retrasados, moco delante y algún muro, y el test reproduce esa estrategia (2026-11-14). Desde el 2026-11-17 las citocinas las libera el jugador con un clic en el macrófago que detecta PAMP o en la herida abierta (`src/sim/systems/sources.ts`); ya no escalan solas con las bacterias. Números provisionales: macrófago 6 s de carga y 40 puntos, herida 12 s y 15 puntos; el 1-3 usa médula 30/5. El 1-3 sigue sin exigir barreras en los tests y necesita una decisión de diseño. La inflamación como coste y un enemigo nuevo que responda al neutrófilo se siguen revisando al diseñar el 1-4.
 - Nombre del juego.
 - Orientación en móvil (horizontal como PvZ o vertical).
 - Números de la economía: ritmo basal de la médula, cuánto acelera cada citocina y cuánto cuesta cada unidad (el modelo ya está decidido en la sección 4).

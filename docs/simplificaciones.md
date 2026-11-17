@@ -52,6 +52,21 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **En la realidad:** son moléculas distintas con papeles distintos: factores como G-CSF, GM-CSF e IL-6 aumentan la producción en la médula, y las quimiocinas guían a los neutrófilos hasta el tejido.
 - **Por qué se simplifica:** el nivel 1-3 enseña una sola idea, "el macrófago da la alarma".
 - **Dónde lo aclara el almanaque:** fichas del macrófago y del neutrófilo (pendiente).
+- **Fuentes que suman a la misma barra:** desde el nivel 1-3 la llenan el macrófago que detecta bacterias, el epitelio colocado cuando recibe daño y las heridas abiertas (señales de alarma del tejido dañado). En la realidad son mediadores distintos (citocinas del macrófago; alarminas como IL-33 o ATP y citocinas del epitelio dañado) que el juego agrupa en un solo medidor.
+
+### citocinas-las-libera-el-jugador
+
+- **En el juego:** el macrófago que detecta bacterias, el epitelio dañado y las heridas acumulan una carga de citocinas; solo pasa a la barra mientras el jugador mantiene pulsado el botón "Liberar citocinas", y nunca más de lo acumulado. La carga guardada y la barra bajan despacio si nada las genera.
+- **En la realidad:** la liberación es continua y automática: empieza en cuanto los PRR detectan al microbio (o en cuanto el tejido se daña), sin que nadie la "decida", y la cantidad crece con el estímulo. Las células no guardan una reserva que se vacíe a voluntad.
+- **Por qué se simplifica:** convertir la alarma en un gesto del jugador hace que note el concepto "el macrófago da la alarma" en vez de que ocurra sin que lo vea.
+- **Dónde lo aclara el almanaque:** ficha del macrófago (pendiente).
+
+### heridas-alarma-debil
+
+- **En el juego:** una herida abierta acumula muy poca carga de citocinas (como mucho 6 puntos, a 0,5 por segundo), mucho menos que un macrófago (40 puntos, 7 por segundo). Así el jugador tiene que colocar células para dar una alarma útil.
+- **En la realidad:** el tejido dañado es una fuente importante de señales de alarma (alarminas, DAMP y citocinas del epitelio); no hay motivo para pensar que su aporte sea tan pequeño frente al del macrófago.
+- **Por qué se simplifica:** decisión de jugabilidad del usuario (2026-11-17): "que las de las heridas liberen poco para que el jugador tenga que plantar más". Resta realismo a cambio de que la alarma dependa de las células que despliega el jugador.
+- **Dónde lo aclara el almanaque:** ficha del epitelio (pendiente).
 
 ### macrofago-una-bacteria-por-bocado
 
@@ -66,3 +81,43 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **En la realidad:** vive del orden de horas a pocos días.
 - **Por qué se simplifica:** la partida dura minutos; lo que se conserva es que vive mucho menos que el macrófago.
 - **Dónde lo aclara el almanaque:** ficha del neutrófilo (pendiente).
+
+### inflamacion-medidor-global
+
+- **En el juego:** un solo medidor de inflamación para todo el tejido. Desde el 40 % todas tus células pierden un 2 % de su vida máxima por segundo, en todos los carriles; al 100 % se pierde el nivel. Sube con las citocinas liberadas (0,5 puntos por punto) y con cada NET (3 puntos), y baja 1 punto por segundo.
+- **En la realidad:** la inflamación es local: cada zona del tejido se inflama según lo que pasa en ella, y el daño colateral depende de muchas moléculas y células, no de un umbral fijo.
+- **Por qué se simplifica:** un medidor global se lee de un vistazo y enseña lo esencial: la respuesta inflamatoria ayuda, pero en exceso daña el propio tejido.
+- **Fuente:** entradas "Inflamación" y "Tormenta de citocinas" en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** pendiente (no hay ficha de inflamación todavía).
+
+### inflamacion-dano-por-tick
+
+- **En el juego:** el daño de la inflamación es una pérdida de vida constante, repartida en cada paso de la simulación.
+- **En la realidad:** el daño tisular por inflamación se acumula a lo largo de horas o días por enzimas, especies reactivas de oxígeno y otras moléculas.
+- **Por qué se simplifica:** una pérdida lenta y continua se ve en las barras de vida y da tiempo al jugador a reaccionar.
+- **Fuente:** entrada "Inflamación" en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** pendiente.
+
+### net-duracion-y-lugar
+
+- **En el juego:** todo neutrófilo que muere (por edad o en combate) deja una NET en su casilla durante 3 segundos; frena mucho a las bacterias (al 30 % de su velocidad) y les hace 5 de daño por segundo.
+- **En la realidad:** no todos los neutrófilos forman NET; la red se extiende por el tejido de alrededor y puede durar mucho más que unos segundos.
+- **Por qué se simplifica:** una red breve y en una casilla se entiende al instante y no hace al neutrófilo demasiado fuerte.
+- **Fuente:** entradas "NET" en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha del neutrófilo ("En el juego" / "En realidad").
+
+### streptococcus-pyogenes-cambio-de-carril
+
+- **En el juego:** Streptococcus pyogenes, al chocar con un epitelio, se pasa a un carril vecino libre en lugar de atacarlo. Si los dos vecinos están bloqueados en esa columna, ataca como cualquier bacteria.
+- **En la realidad:** la hialuronidasa degrada el ácido hialurónico de la matriz y la bacteria se extiende por el tejido; no esquiva barreras saltando de un sitio a otro.
+- **Por qué se simplifica:** el cambio de carril es la forma de "extenderse por el tejido" que permite una rejilla por carriles.
+- **Fuente:** entrada "Streptococcus pyogenes" en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha de Streptococcus pyogenes.
+
+### streptococcus-pyogenes-color
+
+- **En el juego:** Streptococcus pyogenes se dibuja rojo.
+- **En la realidad:** es grampositiva y con la tinción de Gram se vería violeta, como la bacteria grampositiva del juego.
+- **Por qué se simplifica:** hay que distinguirla de un vistazo de la bacteria grampositiva genérica.
+- **Fuente:** entrada "Streptococcus pyogenes" en `fuentes.md`.
+- **Dónde lo aclara el almanaque:** ficha de Streptococcus pyogenes.

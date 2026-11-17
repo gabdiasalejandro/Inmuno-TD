@@ -3,10 +3,11 @@
 export const CANVAS_WIDTH = 1280;
 export const CANVAS_HEIGHT = 720;
 
-/** Vertical space reserved at the top for the HUD strip. */
-const BOARD_TOP = 160;
-const BOARD_MARGIN_X = 64;
-const BOARD_MARGIN_BOTTOM = 20;
+/** The board fills the area right of the left HUD column and below the top bar. */
+const BOARD_LEFT = 216;
+const BOARD_RIGHT = 1215;
+const BOARD_TOP = 96;
+const BOARD_BOTTOM = 696;
 
 /** Enemy `pos` values are thousandths of a cell. */
 const POS_PER_CELL = 1000;
@@ -27,10 +28,10 @@ export interface Cell {
 
 export function createBoardLayout(rows: number, cols: number): BoardLayout {
   return {
-    x: BOARD_MARGIN_X,
+    x: BOARD_LEFT,
     y: BOARD_TOP,
-    cellW: Math.floor((CANVAS_WIDTH - 2 * BOARD_MARGIN_X) / cols),
-    cellH: Math.floor((CANVAS_HEIGHT - BOARD_TOP - BOARD_MARGIN_BOTTOM) / rows),
+    cellW: Math.floor((BOARD_RIGHT - BOARD_LEFT) / cols),
+    cellH: Math.floor((BOARD_BOTTOM - BOARD_TOP) / rows),
     rows,
     cols,
   };
@@ -64,4 +65,16 @@ export function boardRight(layout: BoardLayout): number {
 /** Whether no unit stands on `cell`. Mirrors the sim's occupancy rule, for placement previews only. */
 export function isCellFree(units: ReadonlyArray<Cell>, cell: Cell): boolean {
   return !units.some((unit) => unit.row === cell.row && unit.col === cell.col);
+}
+
+/**
+ * The lane whose breach (the strip of `width` pixels just right of the board, where wounds open)
+ * is under a point, or null when the point is elsewhere.
+ */
+export function pixelToBreachLane(layout: BoardLayout, x: number, y: number, width: number): number | null {
+  const right = boardRight(layout);
+  if (!(x >= right && x <= right + width)) return null;
+  const row = Math.floor((y - layout.y) / layout.cellH);
+  if (!Number.isFinite(row) || row < 0 || row >= layout.rows) return null;
+  return row;
 }
