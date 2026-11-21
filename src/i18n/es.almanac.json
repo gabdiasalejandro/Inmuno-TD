@@ -8,49 +8,53 @@
   "almanac.category.innate_cell": "Célula inmune innata",
   "almanac.category.organ": "Órgano",
   "almanac.category.pathogen": "Patógeno",
-
   "almanac.epitelio.fact": "El epitelio es la capa de células que cubre la piel y reviste el intestino y las vías respiratorias. Sus células están muy unidas y forman una barrera física que impide el paso de los microbios. Es parte de la inmunidad innata, la defensa que actúa desde el primer momento.",
   "almanac.epitelio.note_game": "Colocas células epiteliales donde quieras, pagando energía de la médula ósea.",
   "almanac.epitelio.note_real": "El epitelio no viene de la médula ósea ni se despliega: se regenera a partir de células del propio tejido.",
   "almanac.epitelio.quote": "Llevo toda la vida de portero y aún no me han invitado a la fiesta de dentro. Aun así, por aquí no pasa nadie.",
-
   "almanac.moco.fact": "El moco es una secreción pegajosa que cubre superficies húmedas como la nariz y las vías respiratorias. Atrapa a los microbios y evita que lleguen al epitelio. Después se arrastra hacia fuera, por ejemplo con el movimiento de los cilios, y se expulsa.",
   "almanac.moco.note_game": "El moco que colocas desaparece pasados unos segundos.",
   "almanac.moco.note_real": "El moco se produce y se renueva de forma continua, y el movimiento ciliar lo arrastra junto con lo que atrapó.",
   "almanac.moco.quote": "Aaah... perdona, ¿decías? Tú sigue a lo tuyo: lo que se me pegue se queda conmigo a charlar un rato.",
-
   "almanac.bacteria_gram_pos.fact": "Las bacterias grampositivas se tiñen de violeta con la tinción de Gram porque tienen una pared gruesa de peptidoglucano. Son organismos unicelulares sin núcleo. Llevan en la superficie patrones moleculares propios de los microbios, llamados PAMP, que las células innatas reconocen.",
   "almanac.bacteria_gram_pos.quote": "Tranquilo, solo vengo a probar un poquito. Bueno, y mis primas también. Y las primas de mis primas.",
-
   "almanac.medula_osea.fact": "La médula ósea es el tejido blando del interior de ciertos huesos. En ella se forman las células de la sangre, incluidos los leucocitos, a partir de células madre. Es un órgano linfoide primario: allí maduran los linfocitos B.",
   "almanac.medula_osea.note_game": "Da energía a un ritmo fijo y se dibuja como un hueso largo.",
   "almanac.medula_osea.note_real": "La producción se ajusta a la demanda. En adultos, la médula roja activa está sobre todo en vértebras, pelvis y esternón; el canal de los huesos largos contiene sobre todo grasa (médula amarilla).",
   "almanac.medula_osea.quote": "Turno de veinticuatro horas, siete días a la semana, y sin quejas. Pero si alguien quiere aplaudir, yo no me opongo.",
-
   "almanac.macrofago.name": "Macrófago",
   "almanac.macrofago.fact": "El macrófago es un fagocito grande que vive en los tejidos. Reconoce y engulle microbios y restos de células, un proceso llamado fagocitosis. También da la alarma al resto del sistema inmune liberando citocinas.",
   "almanac.macrofago.quote": "Veterano y con buen apetito: si se mueve y no es de los nuestros, me lo como. Luego aviso a los demás con una señal de humo (de citocinas, claro).",
-
   "almanac.neutrofilo.name": "Neutrófilo",
   "almanac.neutrofilo.fact": "El neutrófilo es el leucocito más abundante de la sangre. Es de los primeros en llegar a un tejido infectado, donde fagocita bacterias. Se reconoce por su núcleo con varios lóbulos y tiene una vida corta, así que la médula ósea lo produce sin parar. Puede además expulsar su ADN junto con proteínas de sus gránulos y formar una red, la NET (trampa extracelular de neutrófilo), que atrapa microbios; al hacerlo suele morir, y la red también puede dañar el tejido propio.",
   "almanac.neutrofilo.quote": "¡Yo voy primero! ¡Yo! ¿Hacia dónde? Da igual, ya estoy corriendo. Mi turno dura poco, pero qué turno.",
   "almanac.neutrofilo.note_game": "Al morir, todo neutrófilo deja una NET en su casilla durante unos 3 segundos.",
   "almanac.neutrofilo.note_real": "No todos los neutrófilos forman NET, y las NET pueden durar más tiempo. La red no aparece exactamente donde murió la célula: se extiende por el tejido de alrededor.",
-
   "almanac.streptococcus_pyogenes.fact": "Streptococcus pyogenes es una bacteria grampositiva con forma de coco que crece en cadenas. Causa faringitis, impétigo y, a veces, infecciones graves de la piel y de tejidos profundos. Produce enzimas como la hialuronidasa, que degrada el ácido hialurónico del tejido y le ayuda a extenderse.",
   "almanac.streptococcus_pyogenes.note_game": "Cuando choca con un epitelio cambia de carril en lugar de atacarlo, pero solo una vez; después ataca los muros como cualquier bacteria. Llega en grupos de 3 o 4 muy juntos.",
   "almanac.streptococcus_pyogenes.note_real": "La hialuronidasa no salta muros: deshace la matriz entre las células y la bacteria avanza por el tejido en lugar de quedarse en un punto. Además, como grampositiva, con la tinción de Gram se vería violeta; el rojo del juego solo sirve para distinguirla.",
   "almanac.streptococcus_pyogenes.quote": "¿Un muro? Qué detalle. Yo doy un rodeo, que hay tejido de sobra. Y vengo con toda la familia bien pegadita, por si acaso.",
-
   "almanac.virus.name": "Virus",
   "almanac.virus.fact": "Un virus es una partícula mucho más pequeña que una bacteria: material genético envuelto en proteínas y, a veces, en una membrana con espículas. No se multiplica solo: entra en una célula, la usa para fabricar copias de sí mismo y estas salen a infectar a otras.",
   "almanac.virus.note_game": "Infecta la primera célula que toca y a los pocos segundos esta estalla y suelta 2 o 3 virus. El interferón protege a las vecinas un rato.",
   "almanac.virus.note_real": "Los virus no caminan, y la salida de copias tarda de horas a días. El estado antiviral frena la multiplicación dentro de la célula; no impide que el virus entre.",
   "almanac.virus.quote": "¿Pagar alquiler? Para qué, si tu célula tiene cocina, imprenta y sitio para todos mis hermanitos.",
-
   "almanac.nk.name": "Célula NK",
   "almanac.nk.fact": "La célula NK (asesina natural) es un linfocito de la inmunidad innata. Patrulla los tejidos y mata a las células propias infectadas o tumorales sin necesitar un aprendizaje previo. Las reconoce porque muestran en su superficie señales de estrés que activan receptores como NKG2D, y las elimina liberando perforina y granzimas, que provocan su muerte.",
   "almanac.nk.note_game": "La célula NK solo ataca a tus células infectadas que tiene alrededor y nunca a los virus sueltos ni a las bacterias.",
   "almanac.nk.note_real": "La NK también vigila si a la célula le falta MHC de clase I, la «identificación» que muestran casi todas las células sanas; eso llegará en el mundo 2. Además, su decisión depende del balance entre señales que la activan y que la frenan.",
-  "almanac.nk.quote": "Tranquila, cariño, solo es una revisión de rutina. Ay... esas ojeras de estrés no me gustan nada. Lo siento, de verdad."
+  "almanac.nk.quote": "Tranquila, cariño, solo es una revisión de rutina. Ay... esas ojeras de estrés no me gustan nada. Lo siento, de verdad.",
+  "almanac.category.system": "Sistema plasmático",
+  "almanac.complemento.fact": "El complemento es un conjunto de unas 30 proteínas que circulan inactivas en la sangre. Se activan en cascada: cada una activa a la siguiente. Sus funciones principales son marcar microbios para que los fagocitos los coman (opsonización), atraer células inflamatorias y formar el complejo de ataque a membrana, un poro que perfora la membrana de algunos microbios.",
+  "almanac.complemento.note_game": "Se juega una vez por nivel, como ataque en área. Sus pasos ocurren en orden: C3b marca, C3a inflama, C5a recluta un neutrófilo y C5b perfora a las gramnegativas del área.",
+  "almanac.complemento.note_real": "El complemento no se juega como una carta: se activa solo, sobre la superficie de los microbios o con anticuerpos, y actúa donde ocurre. El juego concentra la cascada en un solo uso y en un área.",
+  "almanac.complemento.quote": "Yo no hago nada solo. Soy una fila de proteínas que se pasan la pelota, y la última siempre se queda con la fama.",
+  "almanac.bacteria_gram_neg.fact": "Las bacterias gramnegativas se tiñen de rosa con la tinción de Gram. Tienen una membrana externa y, debajo, una capa delgada de peptidoglucano. El complejo de ataque a membrana puede perforar esa membrana externa.",
+  "almanac.bacteria_gram_neg.note_game": "El complemento perfora hasta tres de ellas en el área de su cascada. Los fagocitos las ven por sus PAMP, como a las grampositivas.",
+  "almanac.bacteria_gram_neg.note_real": "La membrana externa protege de algunos antibióticos y de algunos factores del suero, pero no siempre de la perforación del complejo de ataque: depende de la cadena que tenga cada bacteria. En el juego, todas las gramnegativas son igual de vulnerables.",
+  "almanac.bacteria_gram_neg.quote": "Tengo dos membranas y mala reputación. Las dos cosas son ciertas, pero solo una me hace vulnerable.",
+  "almanac.bacteria_capsulada.fact": "Algunas bacterias gramnegativas se rodean de una cápsula de polisacáridos. La cápsula impide que el complemento se deposite sobre la superficie, así que los fagocitos tienen poco a lo que agarrarse. Klebsiella pneumoniae es un ejemplo conocido.",
+  "almanac.bacteria_capsulada.note_game": "Los fagocitos no la ven hasta que el complemento la marca. Marcada, la comen más deprisa. El complejo de ataque también la perfora, por ser gramnegativa.",
+  "almanac.bacteria_capsulada.note_real": "La cápsula dificulta la opsonización pero no la impide del todo, y los anticuerpos también ayudan a superarla. En el juego, la cápsula oculta por completo a los fagocitos hasta que se marca.",
+  "almanac.bacteria_capsulada.quote": "Llevo mi casa encima. Pesa, pero nadie me agarra con las manos mojadas."
 }

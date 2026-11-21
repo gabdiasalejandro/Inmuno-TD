@@ -153,3 +153,48 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **Por qué se simplifica:** el mundo 1 solo enseña el reconocimiento del estrés; el MHC de clase I llega con el mundo 2.
 - **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
 - **Dónde lo aclara el almanaque:** ficha de la célula NK.
+
+### complemento-carta-de-un-uso
+
+- **En el juego:** el complemento es una carta de un solo uso por nivel que actúa sobre un área de 3 por 3 casillas y no cuesta energía.
+- **En la realidad:** el complemento no se activa a voluntad; se dispara solo sobre la superficie de microbios o con anticuerpos, y actúa donde ocurre, de forma continua.
+- **Por qué se simplifica:** el jugador necesita una decisión clara y entender la cascada en un momento concreto.
+- **Fuente:** `fuentes.md` (sección Nivel 1-6).
+- **Dónde lo aclara el almanaque:** ficha del complemento (`note_real`).
+
+### opsonizacion-como-pamp
+
+- **En el juego:** el estado `opsonizado` hace que el enemigo cuente como si tuviera PAMP, así que los macrófagos y neutrófilos lo detectan y atacan.
+- **En la realidad:** la opsonización la reconocen receptores propios de los fagocitos (CR1, receptores Fc), no los receptores PRR que reconocen PAMP.
+- **Por qué se simplifica:** un único requisito de detección (`PAMP`) hace que el juego sea legible; separar dos receptores añadiría una regla más que el nivel 1-6 no necesita.
+- **Fuente:** `fuentes.md` (sección Nivel 1-6).
+- **Dónde lo aclara el almanaque:** ficha del complemento (`note_real`, pendiente de ampliar) y de la bacteria encapsulada.
+
+### opsonizacion-multiplica-la-fagocitosis
+
+- **En el juego:** un enemigo opsonizado recibe 1,5 veces el daño de los fagocitos durante 8 segundos.
+- **En la realidad:** la opsonización aumenta la eficacia de la fagocitosis, pero el factor exacto depende del tipo de célula y del microbio; no es un multiplicador fijo.
+- **Por qué se simplifica:** un número visible permite al jugador ver el efecto.
+- **Dónde lo aclara el almanaque:** ficha del complemento (pendiente de ampliar).
+
+### mac-solo-gramnegativas-y-tres
+
+- **En el juego:** el complejo de ataque perfora hasta tres enemigos gramnegativos del área, los más cercanos a la base primero.
+- **En la realidad:** el MAC actúa sobre las gramnegativas con mucha frecuencia, pero el número de poros y las bacterias afectadas dependen de la cantidad de complemento depositado.
+- **Por qué se simplifica:** el límite de tres hace la carta legible y deja que la gramnegativa encapsulada sea el reto del nivel.
+- **Dónde lo aclara el almanaque:** fichas de la bacteria gramnegativa y del complemento.
+
+### capsula-escudo-total
+
+- **En el juego:** la bacteria encapsulada no tiene PAMP, así que los fagocitos no la atacan en absoluto hasta que el complemento la marca.
+- **En la realidad:** la cápsula dificulta la opsonización pero no la impide del todo; los anticuerpos y otros factores también la superan.
+- **Por qué se simplifica:** una regla binaria (visible o invisible) enseña la idea del nivel con claridad.
+- **Fuente:** `fuentes.md` (sección Nivel 1-6). **Estado:** dudoso.
+- **Dónde lo aclara el almanaque:** ficha de la bacteria encapsulada (`note_real`).
+
+### neutrofilo-regalo-c5a
+
+- **En el juego:** el paso C5a coloca un neutrófilo gratis en la casilla jugada, o en la más cercana de su carril.
+- **En la realidad:** C5a atrae neutrófilos hacia el sitio de la infección y los activa; no los crea de la nada, aunque la médula produce y libera neutrófilos.
+- **Por qué se simplifica:** el jugador ve el efecto del complemento de forma directa en el tablero.
+- **Dónde lo aclara el almanaque:** ficha del complemento (`note_real`).

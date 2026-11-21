@@ -126,3 +126,17 @@ Todas **por revisar** salvo las marcadas.
 - Los fagocitos (macrófagos, neutrófilos) pueden captar viriones libres. Uso: el `virus` lleva PAMP y lo atacan los fagocitos. **Estado:** dudoso (sobre todo el papel del neutrófilo; revisar que el PAMP como "emblema" de un virus no induzca a error, ya que muchos PAMP virales se detectan dentro de la célula).
 - Los macrófagos que detectan virus liberan citocinas. Uso: el macrófago acumula citocinas al ver el `virus` (lleva PAMP).
 - Los virus pueden infectar distintos tipos celulares, también macrófagos y neutrófilos. Uso: el virus infecta cualquier unidad con la etiqueta `celula` (epitelio, macrófago, neutrófilo, NK). **Estado:** dudoso (depende del virus; infectar a la propia NK es especialmente discutible).
+
+### Nivel 1-6 (complemento, cápsula, gramnegativas)
+
+Todas **por revisar** salvo las marcadas.
+
+- El complemento es un sistema de unas 30 proteínas plasmáticas que se activan en cascada. Uso: carta `complemento` y almanaque. **Estado:** por revisar (cifra aproximada; confirmar).
+- C3b marca (opsoniza) al microbio para que los fagocitos lo fagociten con más eficacia. Uso: paso 1 de la cascada, estado `opsonizado`. **Estado:** por revisar.
+- C3a y C5a son anafilotoxinas que aumentan la inflamación y atraen neutrófilos. Uso: paso 2 (C3a sube la inflamación) y paso 3 (C5a aporta un neutrófilo). **Estado:** por revisar (en el juego, C5a es un regalo, no una atracción gradual).
+- C5b, con C6 a C9, forma el complejo de ataque a membrana (MAC), un poro que perfora la membrana. Uso: paso 4, sobre hasta tres bacterias gramnegativas del área. **Estado:** por revisar.
+- El MAC perfora sobre todo bacterias gramnegativas; las grampositivas, con su pared gruesa de peptidoglucano, resisten en gran medida. Uso: `attack.requires: ["gramnegativa"]`, y la pregunta "¿Por qué el complejo de ataque a membrana no mata a las bacterias grampositivas?". **Estado:** por revisar.
+- Las bacterias gramnegativas tienen membrana externa y se tiñen de rosa con la tinción de Gram. Uso: etiqueta `gramnegativa` y almanaque. **Estado:** por revisar.
+- Algunas bacterias gramnegativas tienen cápsula de polisacáridos que dificulta la deposición del complemento y la fagocitosis. Uso: enemigo `bacteria_capsulada` (sin etiqueta `PAMP` hasta que se opsoniza). **Estado:** dudoso (la cápsula dificulta, no impide del todo, la opsonización; los anticuerpos también la superan).
+- Klebsiella pneumoniae es una bacteria gramnegativa con cápsula. Uso: texto del almanaque de la bacteria encapsulada. **Estado:** por revisar.
+- La opsonización no es un PAMP: la reconocen receptores propios de los fagocitos (CR1, receptores Fc). Uso: el estado `opsonizado` concede la etiqueta `PAMP` a efectos de detección. Es una simplificación; ver `simplificaciones.md`. **Estado:** por revisar.

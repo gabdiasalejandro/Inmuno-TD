@@ -2,7 +2,7 @@ import { isUnlocked } from '../game/progress';
 
 /** What the almanac knows about each character. Phaser-free so it can be tested headless. */
 
-export type AlmanacCategory = 'barrier' | 'innate_cell' | 'organ' | 'pathogen';
+export type AlmanacCategory = 'barrier' | 'innate_cell' | 'organ' | 'pathogen' | 'system';
 
 export interface AlmanacEntry {
   id: string;
@@ -27,6 +27,9 @@ export const ALMANAC_ENTRIES: readonly AlmanacEntry[] = [
   { id: 'streptococcus_pyogenes', kind: 'enemy', category: 'pathogen', note: true },
   { id: 'virus', kind: 'enemy', category: 'pathogen', note: true },
   { id: 'nk', kind: 'unit', category: 'innate_cell', note: true },
+  { id: 'complemento', kind: 'unit', category: 'system', note: true },
+  { id: 'bacteria_gram_neg', kind: 'enemy', category: 'pathogen', note: true },
+  { id: 'bacteria_capsulada', kind: 'enemy', category: 'pathogen', note: true },
 ];
 
 /** Translation keys to try for the real name, best first: the game's own, then the almanac's fallback. */
