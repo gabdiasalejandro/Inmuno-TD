@@ -94,7 +94,7 @@ describe('complement cascade', () => {
     sim.playPower('complemento', 2, 4);
     const steps = run(sim, 1);
     const step = allEvents(steps).find((e) => e.type === 'power_step' && e.kind === 'inflammation');
-    expect(step).toMatchObject({ amount: 4 });
+    expect(step).toMatchObject({ amount: content.powers![0]!.inflammation!.amount });
     expect(sim.signal('inflamacion')).toBeGreaterThan(0);
   });
 

@@ -55,3 +55,6 @@ Branch: feat/world-1-level-6. Delivery: commits on this branch; push and PR are 
 - S17. The power looks like a power, not a card: a round medallion above the deck, its four components around it clockwise in cascade order, a ring that fills as it recharges.
 - L15 (decision, mine): the medallion sits under the marrow panel, above the cards (`src/ui/layout.ts`, `POWER_MEDALLION`). Its components are ordered clockwise from the top, as the cascade runs.
 - L16 (not verified): a headless screenshot of level 1-6 was attempted, but the headless browser hung on every level, including the unchanged 1-5, so the new layout has no visual check. The tests of the tutorial path pass.
+- L17 (2026-11-21, user, verbatim): "quita las cuatro piezas, la cascada explícita ya está en los pop ups de las letras. Y haz que el complemento aumente más la inflamación para que no se abuse de complemento + citocinas todo el rato"
+- L18 (decision, mine): the power's badge moves to the top bar, before the timer; the four chips are gone (the board's pop-ups name each step). In levels with a power the cytokine meter narrows from 420 to 330 px so the bar still fits.
+- L19 (decision, mine): inflammation per use of the complement goes from 4 to 12 points (`src/data/powers.json`). The balance tests still win with the power and lose without it.

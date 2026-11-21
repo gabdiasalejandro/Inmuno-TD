@@ -46,35 +46,24 @@ const CARD_GAP = 8;
 export const CARD_H = 96;
 const CARDS_FIT = 5;
 
-/** Top of the deck's cards when the level has powers: the powers sit above them now. */
-const CARD_TOP_WITH_POWERS = 336;
-/** The power medallion sits right under the marrow panel, above the deck. */
-export const POWER_TOP = 148;
-const POWER_AREA_H = 176;
-
 /** Card height by deck size: five cards fit at full height, a bigger deck shrinks them to fit the column. */
-export function cardHeight(count: number, powerCount = 0): number {
-  const top = powerCount > 0 ? CARD_TOP_WITH_POWERS : CARD_TOP;
-  const fit = Math.floor((CARD_BOTTOM - top - (count - 1) * CARD_GAP) / count);
+export function cardHeight(count: number): number {
+  const fit = Math.floor((CARD_BOTTOM - CARD_TOP - (count - 1) * CARD_GAP) / count);
   return count <= CARDS_FIT ? Math.min(CARD_H, fit) : fit;
 }
 
 /** Card `index` of a deck of `count` cards (a deck of two by default). */
-export function cardRect(index: number, count = 2, powerCount = 0): Rect {
-  const h = cardHeight(count, powerCount);
-  const top = powerCount > 0 ? CARD_TOP_WITH_POWERS : CARD_TOP;
-  return { x: CARD_X, y: top + index * (h + CARD_GAP), w: CARD_W, h };
+export function cardRect(index: number, count = 2): Rect {
+  const h = cardHeight(count);
+  return { x: CARD_X, y: CARD_TOP + index * (h + CARD_GAP), w: CARD_W, h };
 }
 
-/**
- * Geometry of the power medallion: a round badge, not a card. Its four components sit around it
- * in cascade order, clockwise from the top; `chipDistance` is how far each chip sits from the centre.
- */
-export const POWER_MEDALLION = { x: CARD_X + CARD_W / 2, y: 246, r: 40, chipDistance: 60, chipW: 44, chipH: 26 } as const;
+/** Width of the power badge at the start of the top bar: a square the height of the bar. */
+const POWER_W = 68;
 
-/** Area that answers a click on the power (the medallion and its chips). A level has one power slot. */
+/** The power's badge in the top bar, before the timer. A level has one power slot. */
 export function powerRect(): Rect {
-  return { x: CARD_X, y: POWER_TOP, w: CARD_W, h: POWER_AREA_H };
+  return { x: BAR_X, y: BAR_Y, w: POWER_W, h: BAR_H };
 }
 
 /** Unscaled silhouette size of the biggest card character (the macrophage is the widest). */
@@ -139,6 +128,8 @@ const BAR_X = 216;
 const BAR_GAP = 14;
 const TIMER_W = 250;
 const METER_W = 420;
+/** Meter width in levels that also show the power badge, so the top bar still fits. */
+const METER_W_WITH_POWER = 330;
 const INFLAMMATION_W = 190;
 const BUTTON_W = 68;
 /** Width of the hold-to-release button, which sits inside the meter panel. */
@@ -150,7 +141,7 @@ export const PAUSE_BUTTON: Rect = { x: 1118, y: BAR_Y, w: BUTTON_W, h: BAR_H };
 
 export interface HudLayout {
   cards: Rect[];
-  /** The powers' section under the deck, one rectangle per power. */
+  /** The power's badge in the top bar; empty in levels without a power. */
   powers: Rect[];
   /** Level progress (clear levels) or countdown (timed levels). */
   timer: Rect;
@@ -170,12 +161,13 @@ export interface HudLayout {
  * button when `hasMeter`, the reserved inflammation slot, and the pause button.
  */
 export function hudLayout(cardCount: number, hasMeter: boolean, powerCount = 0): HudLayout {
-  const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount, powerCount));
+  const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount));
   const powers = powerCount > 0 ? [powerRect()] : [];
-  const timer: Rect = { x: BAR_X, y: BAR_Y, w: TIMER_W, h: BAR_H };
+  const powerSlot = powerCount > 0 ? POWER_W + BAR_GAP : 0;
+  const timer: Rect = { x: BAR_X + powerSlot, y: BAR_Y, w: TIMER_W, h: BAR_H };
   const inflammation: Rect = { x: PAUSE_BUTTON.x - BAR_GAP - INFLAMMATION_W, y: BAR_Y, w: INFLAMMATION_W, h: BAR_H };
   if (!hasMeter) return { cards, powers, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
-  const meter: Rect = { x: timer.x + timer.w + BAR_GAP, y: BAR_Y, w: METER_W, h: BAR_H };
+  const meter: Rect = { x: timer.x + timer.w + BAR_GAP, y: BAR_Y, w: powerCount > 0 ? METER_W_WITH_POWER : METER_W, h: BAR_H };
   const release: Rect = { x: meter.x + meter.w - RELEASE_INSET - RELEASE_W, y: meter.y + 8, w: RELEASE_W, h: meter.h - 16 };
   const barX = meter.x + 16;
   const meterBar: Rect = { x: barX, y: meter.y + 38, w: release.x - 14 - barX, h: 16 };
@@ -234,9 +226,9 @@ export function pointInRect(rect: Rect, x: number, y: number): boolean {
 }
 
 /** Index of the card under a point, or null. */
-export function cardAt(x: number, y: number, count: number, powerCount = 0): number | null {
+export function cardAt(x: number, y: number, count: number): number | null {
   for (let i = 0; i < count; i++) {
-    if (pointInRect(cardRect(i, count, powerCount), x, y)) return i;
+    if (pointInRect(cardRect(i, count), x, y)) return i;
   }
   return null;
 }

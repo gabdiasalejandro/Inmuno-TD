@@ -23,7 +23,6 @@ import { HUD_FULLSCREEN } from '../ui/fullscreenLayout';
 import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, powerAt, powerRect, resultButtonAt, type Rect } from '../ui/layout';
 import { bindCursor } from './cursor';
 import { CYTOKINE, banner, floatText, flyParticle, ring, specks } from './effects';
-import type { CascadeView } from '../ui/Hud';
 import { BOARD_SCALE, createFigure, frontOffset, type Figure } from './figures';
 import { createStepper, type Stepper } from './fixedStep';
 import { nextLevelId, resultActions } from './flow';
@@ -70,8 +69,6 @@ const SHIELD = 0x9fd3e6;
 // Complement: the opsonin purple of the style guide and the membrane-attack PAMP colour.
 const OPSONIN = 0x7b4fa3;
 const MEMBRANE_ATTACK = 0x8e2c6b;
-/** How long the cascade's chips stay lit after its last step. */
-const CASCADE_SHOW_MS = 3500;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
 const FOOT_INSET = 8;
@@ -117,8 +114,6 @@ export class GameScene extends Phaser.Scene {
   private selected: string | null = null;
   private hover: Cell | null = null;
   private cardShake: { defId: string; until: number } | null = null;
-  /** The complement cascade on screen: its fired steps, shown until `until` (ms). */
-  private cascade: { until: number; view: CascadeView } | null = null;
   private cellFlash: (Cell & { until: number }) | null = null;
   private unitViews = new Map<number, Figure>();
   private enemyViews = new Map<number, Figure>();
@@ -181,7 +176,6 @@ export class GameScene extends Phaser.Scene {
     this.selected = null;
     this.hover = null;
     this.cardShake = null;
-    this.cascade = null;
     this.cellFlash = null;
     this.unitViews = new Map();
     this.enemyViews = new Map();
@@ -460,7 +454,7 @@ export class GameScene extends Phaser.Scene {
       this.startHold(p.id);
       return;
     }
-    const cardIndex = cardAt(x, y, this.hud.cardCount, this.hud.powerCount);
+    const cardIndex = cardAt(x, y, this.hud.cardCount);
     if (cardIndex !== null) {
       const id = this.hud.cardId(cardIndex) ?? null;
       if (id !== null && !this.tutorialAllows({ type: 'select', unit: id })) {
@@ -694,7 +688,7 @@ export class GameScene extends Phaser.Scene {
     if (this.hud.overHint(x, y)) return true;
     if (pointInRect(this.hud.pauseRect, x, y)) return true;
     if (this.overTutorial(x, y)) return true;
-    const cardIndex = cardAt(x, y, this.hud.cardCount, this.hud.powerCount);
+    const cardIndex = cardAt(x, y, this.hud.cardCount);
     if (cardIndex !== null) return this.tutorialAllows({ type: 'select', unit: this.hud.cardId(cardIndex) ?? '' });
     if (this.overRelease(x, y)) return this.tutorialAllows({ type: 'hold', seconds: 0 });
     const cell = this.selected === null ? null : pixelToCell(this.layout, x, y);
@@ -739,7 +733,7 @@ export class GameScene extends Phaser.Scene {
     this.giveFeedback(result.reason, defId, cell);
   }
 
-  /** Plays a one-use power on the cell; its cascade is shown step by step as its events arrive. */
+  /** Plays a power on the cell; its cascade is shown step by step as its events arrive. */
   private tryPower(defId: string, cell: Cell): void {
     const result = this.sim.playPower(defId, cell.row, cell.col);
     if (result.ok) {
@@ -906,7 +900,6 @@ export class GameScene extends Phaser.Scene {
       inflammation: this.gauge ? this.sim.signal(this.gauge.name) : null,
       shake: this.cardShake,
       powerReadyAt: state.powerReadyAt,
-      cascade: this.cascade && now < this.cascade.until ? this.cascade.view : null,
     });
   }
 
@@ -916,9 +909,6 @@ export class GameScene extends Phaser.Scene {
    */
   private showPowerStep(event: Extract<SimEvent, { type: 'power_step' }>): void {
     const { layout } = this;
-    const now = this.time.now;
-    const running = this.cascade && now < this.cascade.until && this.cascade.view.power === event.power ? this.cascade.view.kinds : [];
-    this.cascade = { until: now + CASCADE_SHOW_MS, view: { power: event.power, kinds: [...running, event.kind], current: event.kind } };
     const labelColor = event.kind === 'attack' ? '#8E2C6B' : '#7B4FA3';
     const line = t(`power.step.${event.kind}.short`);
     floatText(this, layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2, line, labelColor, 28, 32);
