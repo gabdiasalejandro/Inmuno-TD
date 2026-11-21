@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { content, levels } from '../../src/data';
 import { createSim, secondsToTicks, type Sim } from '../../src/sim';
 import { engagedCol } from '../../src/sim/world';
-import { frontCol, holdLanes, holdRelease, isFree, together, unitsIn, type Bot } from './bots';
+import { frontCol, holdLanes, isFree, together, unitsIn, type Bot } from './bots';
 
 const macrophages = holdLanes('macrofago', 3);
 const RESERVE = 100;
@@ -27,8 +27,18 @@ const neutrophils: Bot = (sim) => {
   }
 };
 
-/** Plays the complement power whenever it is ready and capsulated bacteria reach the middle of the board. */
+/**
+ * A careful player releases cytokines only while inflammation is low: releasing feeds it, so the
+ * player trades speed against the damage it does to their own tissue.
+ */
+const carefulRelease: Bot = (sim) => sim.setReleasing(sim.signal('inflamacion') < 0.3);
+
+/**
+ * Plays the complement power when it is ready, capsulated bacteria reach the middle of the board,
+ * and inflammation can take another use (each use adds 42 points).
+ */
 const complement: Bot = (sim) => {
+  if (sim.signal('inflamacion') > 0.6) return;
   const target = sim.state.enemies.find((e) => e.defId === 'bacteria_capsulada' && engagedCol(e.pos) <= 6);
   if (target) sim.playPower('complemento', target.lane, engagedCol(target.pos));
 };
@@ -45,18 +55,18 @@ function play(bot: Bot, seconds = 240) {
 }
 
 describe('level 1-6 balance', () => {
-  it('is won by macrophages, walls, neutrophils and the complement power against the capsulated waves', () => {
-    const result = play(together(macrophages, walls, neutrophils, holdRelease, complement));
+  it('is won by macrophages, walls, neutrophils and the complement power, paying for it in inflammation', () => {
+    const result = play(together(macrophages, walls, neutrophils, carefulRelease, complement));
     expect(result.status).toBe('won');
   });
 
   it('is lost without the complement power: capsulated bacteria go unseen by phagocytes', () => {
-    const result = play(together(macrophages, walls, neutrophils, holdRelease));
+    const result = play(together(macrophages, walls, neutrophils, carefulRelease));
     expect(result).toMatchObject({ status: 'lost', defeat: { type: 'breach' } });
   });
 
   it('is lost with no defence beyond macrophages', () => {
-    const result = play(together(macrophages, holdRelease));
+    const result = play(together(macrophages, carefulRelease));
     expect(result.status).toBe('lost');
   });
 

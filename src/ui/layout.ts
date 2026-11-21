@@ -58,14 +58,6 @@ export function cardRect(index: number, count = 2): Rect {
   return { x: CARD_X, y: CARD_TOP + index * (h + CARD_GAP), w: CARD_W, h };
 }
 
-/** Width of the power badge at the start of the top bar: a square the height of the bar. */
-const POWER_W = 68;
-
-/** The power's badge in the top bar, before the timer. A level has one power slot. */
-export function powerRect(): Rect {
-  return { x: BAR_X, y: BAR_Y, w: POWER_W, h: BAR_H };
-}
-
 /** Unscaled silhouette size of the biggest card character (the macrophage is the widest). */
 export const FIGURE_WIDEST = 230;
 export const FIGURE_TALLEST = 200;
@@ -129,12 +121,18 @@ const BAR_GAP = 14;
 const TIMER_W = 250;
 const METER_W = 420;
 /** Meter width in levels that also show the power badge, so the top bar still fits. */
-const METER_W_WITH_POWER = 330;
+const METER_W_WITH_POWER = 540;
+/** Timer and inflammation panels narrow in levels with a power, to make room for it. */
+const TIMER_W_WITH_POWER = 160;
+const INFLAMMATION_W_WITH_POWER = 160;
+/** Width of the power button, the same as the hold-to-release button beside it. */
 const INFLAMMATION_W = 190;
 const BUTTON_W = 68;
 /** Width of the hold-to-release button, which sits inside the meter panel. */
 const RELEASE_W = 148;
 const RELEASE_INSET = 12;
+/** Power button width (the release button's width). */
+const POWER_BUTTON_W = 148;
 
 /** Pause button: top right of the bar, left of the fullscreen toggle. */
 export const PAUSE_BUTTON: Rect = { x: 1118, y: BAR_Y, w: BUTTON_W, h: BAR_H };
@@ -162,13 +160,21 @@ export interface HudLayout {
  */
 export function hudLayout(cardCount: number, hasMeter: boolean, powerCount = 0): HudLayout {
   const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount));
-  const powers = powerCount > 0 ? [powerRect()] : [];
-  const powerSlot = powerCount > 0 ? POWER_W + BAR_GAP : 0;
-  const timer: Rect = { x: BAR_X + powerSlot, y: BAR_Y, w: TIMER_W, h: BAR_H };
-  const inflammation: Rect = { x: PAUSE_BUTTON.x - BAR_GAP - INFLAMMATION_W, y: BAR_Y, w: INFLAMMATION_W, h: BAR_H };
-  if (!hasMeter) return { cards, powers, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
-  const meter: Rect = { x: timer.x + timer.w + BAR_GAP, y: BAR_Y, w: powerCount > 0 ? METER_W_WITH_POWER : METER_W, h: BAR_H };
-  const release: Rect = { x: meter.x + meter.w - RELEASE_INSET - RELEASE_W, y: meter.y + 8, w: RELEASE_W, h: meter.h - 16 };
+  const withPower = powerCount > 0;
+  const timer: Rect = { x: BAR_X, y: BAR_Y, w: withPower ? TIMER_W_WITH_POWER : TIMER_W, h: BAR_H };
+  const inflammationW = withPower ? INFLAMMATION_W_WITH_POWER : INFLAMMATION_W;
+  const inflammation: Rect = { x: PAUSE_BUTTON.x - BAR_GAP - inflammationW, y: BAR_Y, w: inflammationW, h: BAR_H };
+  if (!hasMeter) {
+    // A power without the meter gets the space the meter would have had.
+    const powers = withPower ? [{ x: timer.x + timer.w + BAR_GAP, y: BAR_Y + 8, w: POWER_BUTTON_W, h: BAR_H - 16 }] : [];
+    return { cards, powers, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
+  }
+  const meter: Rect = { x: timer.x + timer.w + BAR_GAP, y: BAR_Y, w: withPower ? METER_W_WITH_POWER : METER_W, h: BAR_H };
+  // The power button sits at the meter's right end; the release button is just left of it.
+  const powerButton: Rect = { x: meter.x + meter.w - RELEASE_INSET - POWER_BUTTON_W, y: meter.y + 8, w: POWER_BUTTON_W, h: meter.h - 16 };
+  const powers = withPower ? [powerButton] : [];
+  const releaseRight = withPower ? powerButton.x - 8 : meter.x + meter.w - RELEASE_INSET;
+  const release: Rect = { x: releaseRight - RELEASE_W, y: meter.y + 8, w: RELEASE_W, h: meter.h - 16 };
   const barX = meter.x + 16;
   const meterBar: Rect = { x: barX, y: meter.y + 38, w: release.x - 14 - barX, h: 16 };
   return { cards, powers, timer, meter, meterBar, release, inflammation, pause: PAUSE_BUTTON };
@@ -233,10 +239,6 @@ export function cardAt(x: number, y: number, count: number): number | null {
   return null;
 }
 
-/** Index of the power under a point, or null. */
-export function powerAt(x: number, y: number, count: number): number | null {
-  return count > 0 && pointInRect(powerRect(), x, y) ? 0 : null;
-}
 
 /** Result overlay panel, centred on the canvas. */
 export const RESULT_PANEL: Rect = { x: 290, y: 150, w: 700, h: 430 };

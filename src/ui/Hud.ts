@@ -107,11 +107,12 @@ export interface HudModel {
 
 const POWER_FILL = 0x7b4fa3;
 const POWER_TRACK = 0xe1d9e8;
-const POWER_READY = 0x5e8a5a;
+const POWER_CURRENT = 0xf7c56e;
 
 interface PowerView {
   def: PowerDef;
-  /** Centre of the badge: the seconds left to recharge, or "Listo". */
+  /** The button's name, and its state: the seconds left to recharge, or "Listo". */
+  name: Phaser.GameObjects.Text;
   caption: Phaser.GameObjects.Text;
 }
 
@@ -206,7 +207,8 @@ export class Hud {
 
     this.powerViews = powers.map((def) => ({
       def,
-      caption: text(scene, 13, true).setOrigin(0.5, 0.5),
+      name: text(scene, 15, true).setOrigin(0.5, 0.5),
+      caption: text(scene, 14, true).setOrigin(0.5, 0.5),
     }));
 
     this.energyValue = text(scene, 36, true).setOrigin(0.5, 0.5).setPosition(ENERGY_VALUE.x, ENERGY_VALUE.y);
@@ -254,7 +256,12 @@ export class Hud {
     return this.powerViews.length;
   }
 
-  /** Id of the power at this index of the powers' section. */
+  /** The power's button in the top bar, or null in levels without a power. */
+  get powerRect(): Rect | null {
+    return this.layout.powers[0] ?? null;
+  }
+
+  /** Id of the power at this index (the levels have one). */
   powerId(index: number): string | undefined {
     return this.powerViews[index]?.def.id;
   }
@@ -373,40 +380,34 @@ export class Hud {
   }
 
   /**
-   * The power's badge in the top bar: a round medallion whose ring fills while it recharges and
-   * turns green when it is ready. The four components of the cascade are explained by the pop-ups
-   * on the board, not here.
+   * The power's button, beside the cytokine release button: a pill that fills from the left as it
+   * recharges and turns purple and ready. Selecting it arms the power for the next click on the board.
    */
   private drawPower(g: Phaser.GameObjects.Graphics, view: PowerView, m: HudModel): void {
-    const r = this.layout.powers[0] as Rect;
+    const r = this.layout.powers[0];
+    if (!r) return;
     const { def } = view;
     const selected = m.selected === def.id;
     const cooling = Math.max(0, (m.powerReadyAt?.[def.id] ?? 0) - m.tick);
     const total = secondsToTicks(def.cooldown);
     const ready = cooling === 0;
     const cx = r.x + r.w / 2;
-    const cy = r.y + r.h / 2;
-    const R = 25;
-    const ring = R - 4;
 
-    panel(g, r, 16, selected ? 0xfff6d8 : PANEL);
-    g.fillStyle(POWER_FILL, 1).fillCircle(cx, cy, R);
-    g.lineStyle(4, OUTLINE, 1).strokeCircle(cx, cy, R);
-    g.fillStyle(PANEL, 1).fillCircle(cx, cy, R - 9);
-
-    // Recharge ring: track, then the filled part (full and green when ready).
-    g.lineStyle(5, POWER_TRACK, 1).strokeCircle(cx, cy, ring);
-    if (total > 0 && cooling < total) {
-      const fraction = 1 - cooling / total;
-      g.lineStyle(5, ready ? POWER_READY : POWER_FILL, 1).beginPath();
-      g.arc(cx, cy, ring, -Math.PI / 2, -Math.PI / 2 + fraction * Math.PI * 2, false).strokePath();
+    g.fillStyle(PANEL_SHADE, 1).fillRoundedRect(r.x, r.y + 4, r.w, r.h, 22);
+    g.fillStyle(ready ? POWER_FILL : 0xfbf3ef, 1).fillRoundedRect(r.x, r.y, r.w, r.h, 22);
+    if (!ready && total > 0) {
+      // Recharge: the filled share grows from the left.
+      const share = 1 - cooling / total;
+      g.fillStyle(POWER_TRACK, 1).fillRoundedRect(r.x, r.y, Math.max(22, r.w * share), r.h, 22);
     }
-    if (ready) g.lineStyle(5, POWER_READY, 1).strokeCircle(cx, cy, ring);
+    g.lineStyle(selected ? 6 : 4, selected ? POWER_CURRENT : OUTLINE, 1).strokeRoundedRect(r.x, r.y, r.w, r.h, 22);
 
+    const ink = ready ? '#FBF7F2' : '#3A2A2A';
+    view.name.setPosition(cx, r.y + r.h / 2 - 10).setText(t(`power.${def.id}.name`)).setColor(ink);
     view.caption
-      .setPosition(cx, cy)
+      .setPosition(cx, r.y + r.h / 2 + 11)
       .setText(ready ? t('power.ready') : `${Math.ceil(cooling / TICKS_PER_SECOND)} s`)
-      .setColor(INK);
+      .setColor(ink);
   }
 
   private drawCard(g: Phaser.GameObjects.Graphics, card: CardView, index: number, m: HudModel, energy: number): void {

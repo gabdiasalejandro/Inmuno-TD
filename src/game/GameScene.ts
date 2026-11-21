@@ -20,7 +20,7 @@ import { IntroCard } from '../ui/IntroCard';
 import { TutorialGuide } from '../ui/TutorialGuide';
 import { createFullscreenButton, type FullscreenButton } from '../ui/FullscreenButton';
 import { HUD_FULLSCREEN } from '../ui/fullscreenLayout';
-import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, powerAt, powerRect, resultButtonAt, type Rect } from '../ui/layout';
+import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, resultButtonAt, type Rect } from '../ui/layout';
 import { bindCursor } from './cursor';
 import { CYTOKINE, banner, floatText, flyParticle, ring, specks } from './effects';
 import { BOARD_SCALE, createFigure, frontOffset, type Figure } from './figures';
@@ -464,9 +464,8 @@ export class GameScene extends Phaser.Scene {
       this.selected = this.selected === id ? null : id;
       return;
     }
-    const powerIndex = powerAt(x, y, this.hud.powerCount);
-    if (powerIndex !== null) {
-      const id = this.hud.powerId(powerIndex) ?? null;
+    if (this.hud.powerRect && pointInRect(this.hud.powerRect, x, y)) {
+      const id = this.hud.powerId(0) ?? null;
       this.selected = this.selected === id ? null : id;
       return;
     }
@@ -581,7 +580,7 @@ export class GameScene extends Phaser.Scene {
       case 'cell':
         return this.cellRect(target.row, target.col);
       case 'power':
-        return this.isPower(target.power) ? powerRect() : null;
+        return this.isPower(target.power) ? this.hud.powerRect : null;
       case 'unit': {
         const unit = this.sim.state.units.find((u) => u.defId === target.unit);
         return unit ? this.cellRect(unit.row, unit.col) : null;
@@ -690,6 +689,7 @@ export class GameScene extends Phaser.Scene {
     if (this.overTutorial(x, y)) return true;
     const cardIndex = cardAt(x, y, this.hud.cardCount);
     if (cardIndex !== null) return this.tutorialAllows({ type: 'select', unit: this.hud.cardId(cardIndex) ?? '' });
+    if (this.hud.powerRect && pointInRect(this.hud.powerRect, x, y)) return this.tutorialAllows({ type: 'select', unit: this.hud.powerId(0) ?? '' });
     if (this.overRelease(x, y)) return this.tutorialAllows({ type: 'hold', seconds: 0 });
     const cell = this.selected === null ? null : pixelToCell(this.layout, x, y);
     if (cell === null || this.selected === null) return false;

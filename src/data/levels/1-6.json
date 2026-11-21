@@ -6,7 +6,7 @@
   },
   "startEnergy": 200,
   "marrow": {
-    "amount": 34,
+    "amount": 20,
     "interval": 5
   },
   "deck": [
@@ -89,6 +89,34 @@
       "lane": 2,
       "count": 5,
       "gap": 1.8
+    },
+    {
+      "at": 104,
+      "enemy": "bacteria_gram_neg",
+      "lane": 1,
+      "count": 4,
+      "gap": 1.5
+    },
+    {
+      "at": 116,
+      "enemy": "bacteria_capsulada",
+      "lane": 3,
+      "count": 3,
+      "gap": 1
+    },
+    {
+      "at": 128,
+      "enemy": "bacteria_gram_pos",
+      "lane": 0,
+      "count": 5,
+      "gap": 1.5
+    },
+    {
+      "at": 140,
+      "enemy": "bacteria_capsulada",
+      "lane": 4,
+      "count": 3,
+      "gap": 1
     }
   ],
   "powers": [

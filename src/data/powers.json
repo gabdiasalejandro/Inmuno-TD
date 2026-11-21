@@ -9,7 +9,7 @@
     },
     "inflammation": {
       "signal": "inflamacion",
-      "amount": 12,
+      "amount": 42,
       "at": 0.8
     },
     "recruit": {
