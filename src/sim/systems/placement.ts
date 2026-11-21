@@ -10,7 +10,6 @@ export function createPlacement(world: World): (defId: string, row: number, col:
   return (defId, row, col) => {
     if (state.status !== 'playing') return { ok: false, reason: 'game_over' };
     if (!level.deck.includes(defId)) return { ok: false, reason: 'not_in_deck' };
-    if (world.unitDef(defId).kind === 'power') return { ok: false, reason: 'not_a_unit' };
     const inGrid = Number.isInteger(row) && Number.isInteger(col) && row >= 0 && row < rows && col >= 0 && col < cols;
     if (!inGrid) return { ok: false, reason: 'out_of_bounds' };
     if (world.unitAt(row, col)) return { ok: false, reason: 'cell_occupied' };

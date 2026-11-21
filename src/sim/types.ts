@@ -129,10 +129,14 @@ export interface TrapDef {
 }
 
 /**
- * A one-use card that acts on an area around the cell it is played on instead of deploying a
- * unit. Its cascade runs in the order the steps are declared; each `at` is seconds after the play.
+ * A reusable power the player plays on a cell, outside the deck: it acts on an area around that
+ * cell, then recharges for `cooldown` seconds. Its cascade runs in the order the steps are
+ * declared; each `at` is seconds after the play.
  */
 export interface PowerDef {
+  id: string;
+  /** Seconds before the power can be played again. */
+  cooldown: number;
   /** Cells reached on each side of the played cell (1 = the 3x3 square). */
   radius: number;
   /** Enemies in the area get the status (for example opsonized). */
@@ -147,9 +151,6 @@ export interface PowerDef {
 
 export interface UnitDef {
   id: string;
-  /** `power` marks a one-use card (see `power`): it is never deployed as a unit. Default `unit`. */
-  kind?: 'unit' | 'power';
-  power?: PowerDef;
   cost: number;
   /** Seconds before the same unit can be deployed again. */
   cooldown: number;
@@ -207,6 +208,8 @@ export interface LevelDef {
   /** Baseline energy production: `amount` every `interval` seconds. */
   marrow: { amount: number; interval: number };
   deck: string[];
+  /** Powers the player can play on this level, outside the deck. Omitted: none. */
+  powers?: string[];
   /** Learning objectives as i18n keys, each phrased as an exam question. The sim ignores them. */
   objectives?: string[];
   waves: WaveDef[];
@@ -232,6 +235,7 @@ export interface Content {
   signals?: Record<string, SignalDef>;
   /** Unit statuses by name. */
   statuses?: Record<string, StatusDef>;
+  powers?: PowerDef[];
 }
 
 export interface UnitState {
@@ -314,8 +318,8 @@ export interface SimState {
   released: Record<string, number>;
   /** Marrow progress toward its next batch, in thousandths of a tick. */
   marrowCharge: number;
-  /** Powers already played this level (each is one-use). */
-  powersUsed: string[];
+  /** Tick from which each power can be played again. */
+  powerReadyAt: Record<string, number>;
   rngState: number;
 }
 
@@ -325,12 +329,11 @@ export type PlaceFailure =
   | 'out_of_bounds'
   | 'cell_occupied'
   | 'on_cooldown'
-  | 'insufficient_energy'
-  | 'not_a_unit';
+  | 'insufficient_energy';
 
 export type PlaceResult = { ok: true } | { ok: false; reason: PlaceFailure };
 
-export type PowerFailure = 'game_over' | 'not_in_deck' | 'not_a_power' | 'out_of_bounds' | 'already_used';
+export type PowerFailure = 'game_over' | 'not_in_powers' | 'out_of_bounds' | 'on_cooldown';
 
 export type PowerResult = { ok: true } | { ok: false; reason: PowerFailure };
 

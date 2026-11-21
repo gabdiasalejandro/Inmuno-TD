@@ -109,15 +109,13 @@ export function createPowers(world: World): { system: System; play(defId: string
 
     play(defId, row, col) {
       if (state.status !== 'playing') return { ok: false, reason: 'game_over' };
-      if (!level.deck.includes(defId)) return { ok: false, reason: 'not_in_deck' };
-      const def = world.unitDef(defId);
-      if (def.kind !== 'power' || !def.power) return { ok: false, reason: 'not_a_power' };
+      if (!(level.powers ?? []).includes(defId)) return { ok: false, reason: 'not_in_powers' };
       const inGrid = Number.isInteger(row) && Number.isInteger(col) && row >= 0 && row < rows && col >= 0 && col < cols;
       if (!inGrid) return { ok: false, reason: 'out_of_bounds' };
-      if (state.powersUsed.includes(defId)) return { ok: false, reason: 'already_used' };
+      if (state.tick < (state.powerReadyAt[defId] ?? 0)) return { ok: false, reason: 'on_cooldown' };
 
-      state.powersUsed.push(defId);
-      const power = def.power;
+      const power = world.powerDef(defId);
+      state.powerReadyAt[defId] = state.tick + secondsToTicks(power.cooldown);
       const steps: Array<[PowerStepKind, number | undefined]> = [
         ['opsonize', power.opsonize?.at],
         ['inflammation', power.inflammation?.at],

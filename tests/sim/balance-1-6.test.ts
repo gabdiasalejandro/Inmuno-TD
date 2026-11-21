@@ -27,9 +27,8 @@ const neutrophils: Bot = (sim) => {
   }
 };
 
-/** Plays the one complement card on the first group of capsulated enemies that reaches the middle of the board. */
+/** Plays the complement power whenever it is ready and capsulated bacteria reach the middle of the board. */
 const complement: Bot = (sim) => {
-  if (sim.state.powersUsed.includes('complemento')) return;
   const target = sim.state.enemies.find((e) => e.defId === 'bacteria_capsulada' && engagedCol(e.pos) <= 6);
   if (target) sim.playPower('complemento', target.lane, engagedCol(target.pos));
 };
@@ -46,12 +45,12 @@ function play(bot: Bot, seconds = 240) {
 }
 
 describe('level 1-6 balance', () => {
-  it('is won by macrophages, walls, neutrophils and the complement card on the capsulated wave', () => {
+  it('is won by macrophages, walls, neutrophils and the complement power against the capsulated waves', () => {
     const result = play(together(macrophages, walls, neutrophils, holdRelease, complement));
     expect(result.status).toBe('won');
   });
 
-  it('is lost without the complement card: capsulated bacteria go unseen by phagocytes', () => {
+  it('is lost without the complement power: capsulated bacteria go unseen by phagocytes', () => {
     const result = play(together(macrophages, walls, neutrophils, holdRelease));
     expect(result).toMatchObject({ status: 'lost', defeat: { type: 'breach' } });
   });
@@ -61,11 +60,9 @@ describe('level 1-6 balance', () => {
     expect(result.status).toBe('lost');
   });
 
-  it('keeps the complement card to one use', () => {
+  it('offers the complement as a power, not as a deck card', () => {
     const level = levels['1-6']!;
-    expect(level.deck).toContain('complemento');
-    const sim = createSim(level, content, 1);
-    sim.playPower('complemento', 2, 4);
-    expect(sim.playPower('complemento', 2, 4)).toEqual({ ok: false, reason: 'already_used' });
+    expect(level.powers).toEqual(['complemento']);
+    expect(level.deck).not.toContain('complemento');
   });
 });

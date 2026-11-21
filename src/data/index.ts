@@ -1,14 +1,16 @@
-import type { Content, EnemyDef, LevelDef, StatusDef, UnitDef } from '../sim';
+import type { Content, EnemyDef, LevelDef, PowerDef, StatusDef, UnitDef } from '../sim';
 import enemies from './enemies.json';
 import introList from './intros.json';
 import signals from './signals.json';
 import statuses from './statuses.json';
+import powers from './powers.json';
 import units from './units.json';
 import worldList from './worlds.json';
 
 /** Game content as data. Numbers live in the JSON files so they can be reviewed without touching code. */
 export const content: Content = {
   units: units as UnitDef[],
+  powers: powers as PowerDef[],
   enemies: enemies as EnemyDef[],
   signals,
   statuses: statuses as Record<string, StatusDef>,

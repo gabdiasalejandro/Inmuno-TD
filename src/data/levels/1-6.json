@@ -13,8 +13,7 @@
     "epitelio",
     "moco",
     "macrofago",
-    "neutrofilo",
-    "complemento"
+    "neutrofilo"
   ],
   "objectives": [
     "obj.1-6.c3b",
@@ -71,6 +70,13 @@
       "gap": 2
     },
     {
+      "at": 80,
+      "enemy": "bacteria_capsulada",
+      "lane": 0,
+      "count": 3,
+      "gap": 1
+    },
+    {
       "at": 82,
       "enemy": "bacteria_gram_neg",
       "lane": 4,
@@ -84,5 +90,8 @@
       "count": 5,
       "gap": 1.8
     }
+  ],
+  "powers": [
+    "complemento"
   ]
 }

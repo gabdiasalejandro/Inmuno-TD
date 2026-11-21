@@ -8,6 +8,7 @@ import type {
   SignalDef,
   SimEvent,
   SimState,
+  PowerDef,
   StatusDef,
   TrapDef,
   UnitDef,
@@ -48,6 +49,8 @@ export interface World {
   trapSlow(enemy: EnemyState, col: number): number;
   /** Trap definition by id (traps are declared on the units that lay them). */
   trapDef(id: string): TrapDef;
+  /** Power definition by id. */
+  powerDef(id: string): PowerDef;
   /** Whether an enemy carries every tag in `requires`, its own tags and those its statuses grant. */
   enemyHas(enemy: EnemyState, requires?: string[]): boolean;
   /** Multiplier on the damage units deal to this enemy, from its active statuses (1 without any). */
@@ -115,11 +118,15 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     releasing: false,
     released: Object.fromEntries(signalDefs.map(([name]) => [name, 0])),
     marrowCharge: 0,
-    powersUsed: [],
+    powerReadyAt: {},
     rngState: createRng(seed).state,
   };
 
   const trapDefs = new Map(content.units.flatMap((unit) => (unit.onDeath ? [[unit.onDeath.trap.id, unit.onDeath.trap] as const] : [])));
+  const powerDefs = new Map((content.powers ?? []).map((power) => [power.id, power] as const));
+  for (const id of level.powers ?? []) {
+    if (!powerDefs.has(id)) throw new Error(`Level ${level.id}: unknown power "${id}"`);
+  }
   const statusDefs = content.statuses ?? {};
   for (const [name, def] of Object.entries(statusDefs)) {
     if (def.burst && !enemyDefs.has(def.burst.enemy)) throw new Error(`Status "${name}": unknown enemy "${def.burst.enemy}"`);
@@ -179,6 +186,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     signalFraction,
     boostFrom: (pick) => signalDefs.reduce((sum, [name, def]) => sum + (pick(def) ?? 0) * signalFraction(name), 0),
     trapDef: (id) => trapDefs.get(id)!,
+    powerDef: (id) => powerDefs.get(id)!,
     enemyHas,
     enemyDamageMultiplier,
     trapSlow(enemy, col) {

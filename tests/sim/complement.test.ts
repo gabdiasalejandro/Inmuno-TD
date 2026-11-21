@@ -4,13 +4,14 @@ import { createSim, secondsToTicks, type LevelDef, type Sim, type SimEvent } fro
 import { engagedCol } from '../../src/sim/world';
 import { level } from './fixtures';
 
-const POWER_DECK = ['epitelio', 'macrofago', 'neutrofilo', 'complemento'];
+const POWER_DECK = ['epitelio', 'macrofago', 'neutrofilo'];
 
 function setup(overrides: Partial<LevelDef> = {}): Sim {
   return createSim(
     level({
       grid: { rows: 5, cols: 9 },
       deck: POWER_DECK,
+      powers: ['complemento'],
       startEnergy: 1000,
       marrow: { amount: 0, interval: 5 },
       signals: ['citocinas', 'inflamacion'],
@@ -33,21 +34,18 @@ function run(sim: Sim, seconds: number): Array<{ tick: number; events: SimEvent[
 
 const allEvents = (steps: Array<{ events: SimEvent[] }>): SimEvent[] => steps.flatMap((step) => step.events);
 
-describe('complement is a one-use power, not a unit', () => {
-  it('is refused as a unit', () => {
-    const sim = setup();
-    expect(sim.placeUnit('complemento', 2, 4)).toEqual({ ok: false, reason: 'not_a_unit' });
+describe('complement is a reusable power outside the deck', () => {
+  it('is refused on a level whose powers do not hold it', () => {
+    const sim = setup({ powers: [] });
+    expect(sim.playPower('complemento', 2, 4)).toEqual({ ok: false, reason: 'not_in_powers' });
   });
 
-  it('is refused on a level whose deck does not hold it', () => {
-    const sim = setup({ deck: ['epitelio', 'macrofago'] });
-    expect(sim.playPower('complemento', 2, 4)).toEqual({ ok: false, reason: 'not_in_deck' });
-  });
-
-  it('can be played once per level', () => {
+  it('refuses a second play during its cooldown and allows it once the cooldown has passed', () => {
     const sim = setup();
     expect(sim.playPower('complemento', 2, 4)).toEqual({ ok: true });
-    expect(sim.playPower('complemento', 1, 4)).toEqual({ ok: false, reason: 'already_used' });
+    expect(sim.playPower('complemento', 1, 4)).toEqual({ ok: false, reason: 'on_cooldown' });
+    run(sim, 30);
+    expect(sim.playPower('complemento', 1, 4)).toEqual({ ok: true });
   });
 
   it('is refused on cells off the grid', () => {
@@ -55,9 +53,9 @@ describe('complement is a one-use power, not a unit', () => {
     expect(sim.playPower('complemento', 9, 4)).toEqual({ ok: false, reason: 'out_of_bounds' });
   });
 
-  it('is refused for a unit that is not a power', () => {
+  it('cannot be deployed as a unit', () => {
     const sim = setup();
-    expect(sim.playPower('epitelio', 2, 4)).toEqual({ ok: false, reason: 'not_a_power' });
+    expect(sim.placeUnit('complemento', 2, 4)).toEqual({ ok: false, reason: 'not_in_deck' });
   });
 });
 

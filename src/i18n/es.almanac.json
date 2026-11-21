@@ -46,7 +46,7 @@
   "almanac.nk.quote": "Tranquila, cariño, solo es una revisión de rutina. Ay... esas ojeras de estrés no me gustan nada. Lo siento, de verdad.",
   "almanac.category.system": "Sistema plasmático",
   "almanac.complemento.fact": "El complemento es un conjunto de unas 30 proteínas que circulan inactivas en la sangre. Se activan en cascada: cada una activa a la siguiente. Sus funciones principales son marcar microbios para que los fagocitos los coman (opsonización), atraer células inflamatorias y formar el complejo de ataque a membrana, un poro que perfora la membrana de algunos microbios.",
-  "almanac.complemento.note_game": "Se juega una vez por nivel, como ataque en área. Sus pasos ocurren en orden: C3b marca, C3a inflama, C5a recluta un neutrófilo y C5b perfora a las gramnegativas del área.",
+  "almanac.complemento.note_game": "Es un poder de área que se recarga: no se gasta energía, pero cada uso sube la inflamación. Sus pasos ocurren en orden: C3b marca, C3a inflama, C5a recluta un neutrófilo y C5b perfora a las gramnegativas del área.",
   "almanac.complemento.note_real": "El complemento no se juega como una carta: se activa solo, sobre la superficie de los microbios o con anticuerpos, y actúa donde ocurre. El juego concentra la cascada en un solo uso y en un área.",
   "almanac.complemento.quote": "Yo no hago nada solo. Soy una fila de proteínas que se pasan la pelota, y la última siempre se queda con la fama.",
   "almanac.bacteria_gram_neg.fact": "Las bacterias gramnegativas se tiñen de rosa con la tinción de Gram. Tienen una membrana externa y, debajo, una capa delgada de peptidoglucano. El complejo de ataque a membrana puede perforar esa membrana externa.",

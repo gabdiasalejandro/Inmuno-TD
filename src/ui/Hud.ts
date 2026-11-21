@@ -5,7 +5,7 @@ import type { ResultAction } from '../game/flow';
 import { t } from '../i18n';
 import { levelProgress } from '../game/levelView';
 import { PAUSE_ACTIONS, type PauseAction } from '../game/pause';
-import { secondsToTicks, type UnitDef } from '../sim';
+import { TICKS_PER_SECOND, secondsToTicks, type PowerDef, type PowerStepKind, type UnitDef } from '../sim';
 import { fitScale, formatClock, formatGain, formatMultiplier, isSpedUp } from './format';
 import {
   CANVAS,
@@ -101,8 +101,31 @@ export interface HudModel {
   /** Inflammation level 0..1, or null in levels without it. */
   inflammation: number | null;
   shake: { defId: string; until: number } | null;
-  /** One-use powers already played this level (their cards stay spent). */
-  spent?: ReadonlySet<string>;
+  /** Tick from which each power can be played again. */
+  powerReadyAt?: Record<string, number>;
+  /** The cascade currently running (or just run) for one power; null when none is showing. */
+  cascade?: CascadeView | null;
+}
+
+/** Steps of a power's cascade that have fired, in order; `current` is the latest one. */
+export interface CascadeView {
+  power: string;
+  kinds: PowerStepKind[];
+  current: PowerStepKind;
+}
+
+/** Order of the complement's components on the power's chips. */
+const CASCADE_ORDER: readonly PowerStepKind[] = ['opsonize', 'inflammation', 'recruit', 'attack'];
+const POWER_FILL = 0x7b4fa3;
+const POWER_CURRENT = 0xf7c56e;
+const POWER_TRACK = 0xe1d9e8;
+
+interface PowerView {
+  def: PowerDef;
+  name: Phaser.GameObjects.Text;
+  cooldown: Phaser.GameObjects.Text;
+  caption: Phaser.GameObjects.Text;
+  chips: Phaser.GameObjects.Text[];
 }
 
 interface CardView {
@@ -131,6 +154,7 @@ function panel(g: Phaser.GameObjects.Graphics, r: Rect, radius: number, fill = P
 export class Hud {
   private readonly g: Phaser.GameObjects.Graphics;
   private readonly cards: CardView[];
+  private readonly powerViews: PowerView[];
   private readonly marrow: Figure;
   /** The marrow is presenting a tutorial: it animates as if talking. */
   private marrowTalking = false;
@@ -161,9 +185,10 @@ export class Hud {
   constructor(
     private readonly scene: Phaser.Scene,
     defs: UnitDef[],
-    options: { meter: boolean; clear: boolean; gauge?: { tiers: number[]; defeatAt: number } | null },
+    options: { meter: boolean; clear: boolean; gauge?: { tiers: number[]; defeatAt: number } | null; powers?: PowerDef[] },
   ) {
-    this.layout = hudLayout(defs.length, options.meter);
+    const powers = options.powers ?? [];
+    this.layout = hudLayout(defs.length, options.meter, powers.length);
     const { timer, meter } = this.layout;
     const statics = scene.add.graphics().setDepth(5);
     panel(statics, LEFT_COLUMN, 22, COLUMN);
@@ -190,6 +215,14 @@ export class Hud {
       figure: createFigure(scene, def.id, 0, 0, cardSlots((this.layout.cards[i] as Rect).w, (this.layout.cards[i] as Rect).h).figureScale).setDepth(6.5).idle(),
       name: text(scene, 18, true).setOrigin(0.5, 0),
       cost: text(scene, cardSlots((this.layout.cards[i] as Rect).w, (this.layout.cards[i] as Rect).h).costFont, true).setOrigin(1, 0.5),
+    }));
+
+    this.powerViews = powers.map((def) => ({
+      def,
+      name: text(scene, 20, true),
+      cooldown: text(scene, 14, true).setOrigin(1, 0),
+      caption: text(scene, 14, false),
+      chips: CASCADE_ORDER.map(() => text(scene, 13, true).setOrigin(0.5, 0.5)),
     }));
 
     this.energyValue = text(scene, 36, true).setOrigin(0.5, 0.5).setPosition(ENERGY_VALUE.x, ENERGY_VALUE.y);
@@ -231,6 +264,15 @@ export class Hud {
 
   get cardCount(): number {
     return this.cards.length;
+  }
+
+  get powerCount(): number {
+    return this.powerViews.length;
+  }
+
+  /** Id of the power at this index of the powers' section. */
+  powerId(index: number): string | undefined {
+    return this.powerViews[index]?.def.id;
   }
 
   /** Where cytokine particles should land: the middle of the meter, or null without one. */
@@ -298,6 +340,7 @@ export class Hud {
     this.drawMarrow(g, m);
     this.drawEnergy(g, shown, m.now);
     this.cards.forEach((card, i) => this.drawCard(g, card, i, m, shown));
+    this.powerViews.forEach((view, i) => this.drawPower(g, view, i, m));
     this.drawTimer(g, m);
     this.drawMeter(g, m);
     this.drawRelease(g, m);
@@ -345,6 +388,57 @@ export class Hud {
     this.energyValue.setScale(fitScale(this.energyValue.width, ENERGY_COUNTER.w - 6) * bump);
   }
 
+  /**
+   * A power: its own panel under the deck, with the complement's four components as chips in
+   * cascade order. A chip lights when its step has fired; the caption says what that step does.
+   */
+  private drawPower(g: Phaser.GameObjects.Graphics, view: PowerView, index: number, m: HudModel): void {
+    const r = this.layout.powers[index] as Rect;
+    const { def } = view;
+    const selected = m.selected === def.id;
+    const cooling = Math.max(0, (m.powerReadyAt?.[def.id] ?? 0) - m.tick);
+    const total = secondsToTicks(def.cooldown);
+    const ready = cooling === 0;
+    const cascade = m.cascade?.power === def.id ? m.cascade : null;
+    const pad = 12;
+    const innerW = r.w - pad * 2;
+
+    panel(g, r, 16, selected ? 0xfff6d8 : PANEL);
+    view.name.setPosition(r.x + pad, r.y + 9).setText(t(`power.${def.id}.name`)).setAlpha(ready ? 1 : 0.7);
+    view.cooldown
+      .setPosition(r.x + r.w - pad, r.y + 11)
+      .setText(ready ? t('power.ready') : `${Math.ceil(cooling / TICKS_PER_SECOND)} s`)
+      .setColor(ready ? '#5E8A5A' : INK);
+
+    const chipW = (innerW - 6 * (CASCADE_ORDER.length - 1)) / CASCADE_ORDER.length;
+    const chipY = r.y + 40;
+    CASCADE_ORDER.forEach((kind, i) => {
+      const x = r.x + pad + i * (chipW + 6);
+      const fired = cascade?.kinds.includes(kind) ?? false;
+      const current = cascade?.current === kind;
+      g.fillStyle(fired ? POWER_FILL : 0xfbf7f2, 1).fillRoundedRect(x, chipY, chipW, 28, 10);
+      g.lineStyle(current ? 5 : 3, current ? POWER_CURRENT : OUTLINE, 1).strokeRoundedRect(x, chipY, chipW, 28, 10);
+      view.chips[i]!
+        .setPosition(x + chipW / 2, chipY + 14)
+        .setText(t(`power.step.${kind}.label`))
+        .setColor(fired ? '#FBF7F2' : INK);
+    });
+
+    view.caption
+      .setPosition(r.x + pad, r.y + 76)
+      .setWordWrapWidth(innerW)
+      .setText(cascade ? t(`power.step.${cascade.current}.role`) : t('power.hint'))
+      .setColor(cascade ? '#7B4FA3' : '#7A6666');
+
+    const barY = r.y + r.h - 18;
+    g.fillStyle(POWER_TRACK, 1).fillRoundedRect(r.x + pad, barY, innerW, 10, 5);
+    if (total > 0 && cooling < total) {
+      const filled = innerW * (1 - cooling / total);
+      g.fillStyle(POWER_FILL, 1).fillRoundedRect(r.x + pad, barY, Math.max(10, filled), 10, 5);
+    }
+    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(r.x + pad, barY, innerW, 10, 5);
+  }
+
   private drawCard(g: Phaser.GameObjects.Graphics, card: CardView, index: number, m: HudModel, energy: number): void {
     const { def } = card;
     const r = this.layout.cards[index] as Rect;
@@ -353,8 +447,7 @@ export class Hud {
     const cooldownTotal = secondsToTicks(def.cooldown);
     const cooling = Math.max(0, readyAt - m.tick);
     const affordable = energy >= def.cost;
-    const spent = m.spent?.has(def.id) ?? false;
-    const usable = affordable && cooling === 0 && !spent;
+    const usable = affordable && cooling === 0;
     const shaking = m.shake?.defId === def.id && m.now < m.shake.until;
     const boosted = m.boosted.has(def.id);
     const dx = shaking ? Math.sin((m.now / SHAKE_MS) * Math.PI * 8) * 7 : 0;

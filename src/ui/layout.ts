@@ -46,16 +46,30 @@ const CARD_GAP = 8;
 export const CARD_H = 96;
 const CARDS_FIT = 5;
 
+/** Lowest y the deck's cards may reach when powers sit under them. */
+const CARD_BOTTOM_WITH_POWERS = 552;
+/** The powers' own section: below the deck, never mixed with its cards. */
+const POWER_TOP = 566;
+const POWER_BOTTOM = 704;
+const POWER_H = 138;
+
 /** Card height by deck size: five cards fit at full height, a bigger deck shrinks them to fit the column. */
-export function cardHeight(count: number): number {
-  if (count <= CARDS_FIT) return CARD_H;
-  return Math.floor((CARD_BOTTOM - CARD_TOP - (count - 1) * CARD_GAP) / count);
+export function cardHeight(count: number, powerCount = 0): number {
+  const bottom = powerCount > 0 ? CARD_BOTTOM_WITH_POWERS : CARD_BOTTOM;
+  const fit = Math.floor((bottom - CARD_TOP - (count - 1) * CARD_GAP) / count);
+  return count <= CARDS_FIT ? Math.min(CARD_H, fit) : fit;
 }
 
 /** Card `index` of a deck of `count` cards (a deck of two by default). */
-export function cardRect(index: number, count = 2): Rect {
-  const h = cardHeight(count);
+export function cardRect(index: number, count = 2, powerCount = 0): Rect {
+  const h = cardHeight(count, powerCount);
   return { x: CARD_X, y: CARD_TOP + index * (h + CARD_GAP), w: CARD_W, h };
+}
+
+/** Power `index` of `count` powers, stacked in their own section under the deck. */
+export function powerRect(index: number, count: number): Rect {
+  const h = Math.min(POWER_H, Math.floor((POWER_BOTTOM - POWER_TOP - (count - 1) * CARD_GAP) / count));
+  return { x: CARD_X, y: POWER_TOP + index * (h + CARD_GAP), w: CARD_W, h };
 }
 
 /** Unscaled silhouette size of the biggest card character (the macrophage is the widest). */
@@ -131,6 +145,8 @@ export const PAUSE_BUTTON: Rect = { x: 1118, y: BAR_Y, w: BUTTON_W, h: BAR_H };
 
 export interface HudLayout {
   cards: Rect[];
+  /** The powers' section under the deck, one rectangle per power. */
+  powers: Rect[];
   /** Level progress (clear levels) or countdown (timed levels). */
   timer: Rect;
   /** Cytokine meter panel, beside the timer; null in levels without the signal. */
@@ -148,16 +164,17 @@ export interface HudLayout {
  * The left column's cards and the top bar: timer, then the cytokine meter with its release
  * button when `hasMeter`, the reserved inflammation slot, and the pause button.
  */
-export function hudLayout(cardCount: number, hasMeter: boolean): HudLayout {
-  const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount));
+export function hudLayout(cardCount: number, hasMeter: boolean, powerCount = 0): HudLayout {
+  const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount, powerCount));
+  const powers = Array.from({ length: powerCount }, (_, i) => powerRect(i, powerCount));
   const timer: Rect = { x: BAR_X, y: BAR_Y, w: TIMER_W, h: BAR_H };
   const inflammation: Rect = { x: PAUSE_BUTTON.x - BAR_GAP - INFLAMMATION_W, y: BAR_Y, w: INFLAMMATION_W, h: BAR_H };
-  if (!hasMeter) return { cards, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
+  if (!hasMeter) return { cards, powers, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
   const meter: Rect = { x: timer.x + timer.w + BAR_GAP, y: BAR_Y, w: METER_W, h: BAR_H };
   const release: Rect = { x: meter.x + meter.w - RELEASE_INSET - RELEASE_W, y: meter.y + 8, w: RELEASE_W, h: meter.h - 16 };
   const barX = meter.x + 16;
   const meterBar: Rect = { x: barX, y: meter.y + 38, w: release.x - 14 - barX, h: 16 };
-  return { cards, timer, meter, meterBar, release, inflammation, pause: PAUSE_BUTTON };
+  return { cards, powers, timer, meter, meterBar, release, inflammation, pause: PAUSE_BUTTON };
 }
 
 /** Width reserved on the meter's label row for the word "Citocinas". */
@@ -212,9 +229,17 @@ export function pointInRect(rect: Rect, x: number, y: number): boolean {
 }
 
 /** Index of the card under a point, or null. */
-export function cardAt(x: number, y: number, count: number): number | null {
+export function cardAt(x: number, y: number, count: number, powerCount = 0): number | null {
   for (let i = 0; i < count; i++) {
-    if (pointInRect(cardRect(i, count), x, y)) return i;
+    if (pointInRect(cardRect(i, count, powerCount), x, y)) return i;
+  }
+  return null;
+}
+
+/** Index of the power under a point, or null. */
+export function powerAt(x: number, y: number, count: number): number | null {
+  for (let i = 0; i < count; i++) {
+    if (pointInRect(powerRect(i, count), x, y)) return i;
   }
   return null;
 }
