@@ -5,7 +5,7 @@ import { engagedCol } from '../../src/sim/world';
 import { frontCol, holdLanes, isFree, together, unitsIn, type Bot } from './bots';
 
 const macrophages = holdLanes('macrofago', 3);
-const RESERVE = 100;
+const RESERVE = 50;
 
 /** An epithelium in front of every guarded lane while a macrophage replacement stays affordable. */
 const walls: Bot = (sim) => {

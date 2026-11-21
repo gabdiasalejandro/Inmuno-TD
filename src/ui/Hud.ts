@@ -151,7 +151,6 @@ export class Hud {
   private readonly timeLabel: Phaser.GameObjects.Text;
   private readonly timeValue: Phaser.GameObjects.Text;
   private readonly layout: HudLayout;
-  private readonly meterLabel: Phaser.GameObjects.Text | null = null;
   private readonly releaseLabel: Phaser.GameObjects.Text | null = null;
   private meterBumpAt = -Infinity;
   /** Inflammation gauge: its label and the levels (0..1) where its tiers start; null without it. */
@@ -235,7 +234,6 @@ export class Hud {
         .setDepth(7.1);
     }
     if (meter) {
-      this.meterLabel = text(scene, 16, true).setText(t('hud.cytokines')).setPosition(meter.x + 16, meter.y + 7);
       this.chipTexts = { marrow: text(scene, 13, true).setOrigin(1, 0.5), recruit: text(scene, 13, true).setOrigin(1, 0.5) };
     }
 
@@ -402,12 +400,22 @@ export class Hud {
     }
     g.lineStyle(selected ? 6 : 4, selected ? POWER_CURRENT : OUTLINE, 1).strokeRoundedRect(r.x, r.y, r.w, r.h, 22);
 
-    const ink = ready ? '#FBF7F2' : '#3A2A2A';
-    view.name.setPosition(cx, r.y + r.h / 2 - 10).setText(t(`power.${def.id}.name`)).setColor(ink);
-    view.caption
-      .setPosition(cx, r.y + r.h / 2 + 11)
-      .setText(ready ? t('power.ready') : `${Math.ceil(cooling / TICKS_PER_SECOND)} s`)
-      .setColor(ink);
+    // Icon: a rosette of four dots, the complement's four steps around one centre.
+    const ink = ready ? 0xfbf7f2 : POWER_FILL;
+    const rx = cx;
+    const ry = r.y + r.h / 2 - 2;
+    for (const [dx, dy] of [[0, -7], [7, 0], [0, 7], [-7, 0]] as const) g.fillStyle(ink, 1).fillCircle(rx + dx, ry + dy, 4);
+    g.fillStyle(ink, 1).fillCircle(rx, ry, 3);
+    view.name.setVisible(false);
+    // Recharging: seconds left under the icon; ready: a tick, drawn rather than written.
+    view.caption.setPosition(cx, r.y + r.h - 9).setColor('#3A2A2A');
+    if (ready) {
+      view.caption.setText('');
+      const ty = r.y + r.h - 12;
+      g.lineStyle(3.5, 0xfbf7f2, 1).beginPath().moveTo(cx - 7, ty).lineTo(cx - 2, ty + 5).lineTo(cx + 7, ty - 5).strokePath();
+    } else {
+      view.caption.setText(`${Math.ceil(cooling / TICKS_PER_SECOND)} s`);
+    }
   }
 
   private drawCard(g: Phaser.GameObjects.Graphics, card: CardView, index: number, m: HudModel, energy: number): void {
@@ -549,7 +557,12 @@ export class Hud {
       g.lineStyle(4, CYTOKINE, bump).strokeRoundedRect(rect.x - 3 * bump, rect.y - 3 * bump, rect.w + 6 * bump, rect.h + 6 * bump, 18);
     }
     g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
-    this.meterLabel?.setColor(level > 0.05 ? '#1B7F76' : INK);
+    // Cytokine icon: three signal dots joined in a triangle, teal while the meter holds any signal.
+    const icon = level > 0.05 ? 0x1b7f76 : 0x9c8a87;
+    const ix = rect.x + 30;
+    const iy = rect.y + 18;
+    g.lineStyle(2.5, icon, 1).lineBetween(ix - 8, iy + 6, ix, iy - 7).lineBetween(ix, iy - 7, ix + 8, iy + 6).lineBetween(ix - 8, iy + 6, ix + 8, iy + 6);
+    g.fillStyle(icon, 1).fillCircle(ix - 8, iy + 6, 4).fillCircle(ix, iy - 7, 4).fillCircle(ix + 8, iy + 6, 4);
     if (m.effects) this.drawChips(g, m.effects, rect, bar);
   }
 

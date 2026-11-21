@@ -6,7 +6,7 @@
   },
   "startEnergy": 200,
   "marrow": {
-    "amount": 20,
+    "amount": 25,
     "interval": 5
   },
   "deck": [
@@ -31,21 +31,21 @@
       "at": 5,
       "enemy": "bacteria_gram_pos",
       "lane": 2,
-      "count": 3,
+      "count": 4,
       "gap": 3
     },
     {
       "at": 15,
       "enemy": "bacteria_gram_neg",
       "lane": 1,
-      "count": 3,
+      "count": 4,
       "gap": 3
     },
     {
       "at": 28,
       "enemy": "bacteria_capsulada",
       "lane": 2,
-      "count": 3,
+      "count": 4,
       "gap": 1
     },
     {
@@ -73,7 +73,7 @@
       "at": 80,
       "enemy": "bacteria_capsulada",
       "lane": 0,
-      "count": 3,
+      "count": 4,
       "gap": 1
     },
     {
@@ -101,7 +101,7 @@
       "at": 116,
       "enemy": "bacteria_capsulada",
       "lane": 3,
-      "count": 3,
+      "count": 4,
       "gap": 1
     },
     {
@@ -115,7 +115,7 @@
       "at": 140,
       "enemy": "bacteria_capsulada",
       "lane": 4,
-      "count": 3,
+      "count": 4,
       "gap": 1
     }
   ],
