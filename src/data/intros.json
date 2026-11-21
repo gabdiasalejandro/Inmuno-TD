@@ -46,8 +46,8 @@
     "title": "intro.1-6.title",
     "body": "intro.1-6.body",
     "feature": [
-      "complemento",
-      "bacteria_capsulada"
+      "bacteria_capsulada",
+      "bacteria_gram_neg"
     ],
     "banner": "banner.complement"
   }

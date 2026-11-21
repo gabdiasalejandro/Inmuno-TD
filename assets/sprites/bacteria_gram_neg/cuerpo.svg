@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- bacilo fino de pared doble: la membrana externa es el contorno y la interna, la linea de dentro -->
+    <path fill="#E0557A" d="M 92 116 H 168 A 28 28 0 0 1 168 172 H 92 A 28 28 0 0 1 92 116 Z"/>
+    <!-- sombra (cel shading) inferior -->
+    <path fill="#B53C5E" d="M 196 150 A 28 28 0 0 1 168 172 H 92 A 28 28 0 0 1 66 152 Q 130 166 196 150 Z"/>
+    <!-- membrana interna: linea clara por detras de los ojos -->
+    <path fill="none" stroke="#9A2E4D" stroke-width="4" d="M 132 126 H 166 A 18 18 0 0 1 166 162 H 132"/>
+    <!-- brillo -->
+    <path fill="#F28AA5" d="M 104 124 Q 128 120 146 123 Q 142 128 108 129 Q 100 128 104 124 Z"/>
+    <!-- contorno de la membrana externa -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 92 116 H 168 A 28 28 0 0 1 168 172 H 92 A 28 28 0 0 1 92 116 Z"/>
+    <!-- emblema PAMP en la mitad trasera, como en las demas bacterias -->
+    <polygon points="176,128 190,144 176,160 162,144" fill="#8E2C6B" stroke="#F6E9EF" stroke-width="12"/>
+    <polygon points="176,128 190,144 176,160 162,144" fill="#8E2C6B" stroke="#3A2A2A" stroke-width="5"/>
+    <polygon points="176,139 182,144 176,149 170,144" fill="#F6E9EF"/>
+  </g>
+</svg>

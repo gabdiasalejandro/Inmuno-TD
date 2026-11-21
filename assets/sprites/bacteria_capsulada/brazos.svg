@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- patitas cortas bajo la capsula: no se agita, avanza despacio -->
+    <path d="M 96 190 L 90 212"/>
+    <path d="M 128 194 L 126 216"/>
+    <path d="M 160 194 L 162 216"/>
+    <path d="M 190 188 L 196 210"/>
+  </g>
+</svg>

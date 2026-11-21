@@ -41,6 +41,10 @@ const CHARACTERS: Record<string, CharacterSpec> = {
   bacteria_gram_pos: { motion: 'crawler', eyes: [[80, 136], [114, 136]], lid: 0x7452e0, front: 56 },
   // Proposal pending review: a chain of cocci, face on the leading coccus.
   streptococcus_pyogenes: { motion: 'crawler', eyes: [[72, 134], [106, 134]], lid: 0xe04a5a, front: 52 },
+  // Gram-negative rod with a double membrane: calm, scheming face, flagella behind.
+  bacteria_gram_neg: { motion: 'crawler', eyes: [[102, 144], [130, 144]], lid: 0xe0557a, front: 66 },
+  // Capsule: a pale bulge that hides the rod; slow, bobbing gait, smug face.
+  bacteria_capsulada: { motion: 'jelly', eyes: [[96, 148], [124, 148]], lid: 0xf3d3e6, front: 44 },
   medula_osea: { motion: 'worker', eyes: [[106, 84], [150, 84]], lid: 0xefe2c8 },
   macrofago: {
     motion: 'heavy',

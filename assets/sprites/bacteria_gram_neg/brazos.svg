@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- flagelos traseros, ondulados: se agitan detras de la bacteria -->
+    <path d="M 150 170 Q 140 186 152 198 Q 162 210 148 222"/>
+    <path d="M 176 172 Q 166 188 178 200 Q 188 212 174 222"/>
+    <path d="M 200 166 Q 194 180 206 192 Q 214 202 204 214"/>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- capsula de polisacaridos: un bulto palido que envuelve a la bacteria -->
+    <path fill="#F3D3E6" d="M 84 96 H 176 A 50 50 0 0 1 176 196 H 84 A 50 50 0 0 1 84 96 Z"/>
+    <!-- sombra de la capsula, abajo -->
+    <path fill="#D9A9C6" d="M 214 150 A 50 50 0 0 1 176 196 H 84 A 50 50 0 0 1 40 166 Q 130 186 214 150 Z"/>
+    <!-- la bacteria gramnegativa, asomando por detras de la capsula -->
+    <rect x="152" y="126" width="62" height="44" rx="22" fill="#E0557A" stroke="#3A2A2A" stroke-width="5"/>
+    <!-- brillo de la capsula -->
+    <path fill="#FBF7F2" d="M 104 112 Q 130 106 150 110 Q 146 116 108 118 Q 100 117 104 112 Z"/>
+    <!-- contorno de la capsula -->
+    <path fill="none" stroke="#3A2A2A" stroke-width="8" d="M 84 96 H 176 A 50 50 0 0 1 176 196 H 84 A 50 50 0 0 1 84 96 Z"/>
+  </g>
+</svg>
