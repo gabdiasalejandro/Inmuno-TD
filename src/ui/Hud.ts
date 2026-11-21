@@ -101,6 +101,8 @@ export interface HudModel {
   /** Inflammation level 0..1, or null in levels without it. */
   inflammation: number | null;
   shake: { defId: string; until: number } | null;
+  /** One-use powers already played this level (their cards stay spent). */
+  spent?: ReadonlySet<string>;
 }
 
 interface CardView {
@@ -351,7 +353,8 @@ export class Hud {
     const cooldownTotal = secondsToTicks(def.cooldown);
     const cooling = Math.max(0, readyAt - m.tick);
     const affordable = energy >= def.cost;
-    const usable = affordable && cooling === 0;
+    const spent = m.spent?.has(def.id) ?? false;
+    const usable = affordable && cooling === 0 && !spent;
     const shaking = m.shake?.defId === def.id && m.now < m.shake.until;
     const boosted = m.boosted.has(def.id);
     const dx = shaking ? Math.sin((m.now / SHAKE_MS) * Math.PI * 8) * 7 : 0;

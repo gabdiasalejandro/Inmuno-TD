@@ -9,6 +9,7 @@ import {
   type EnemyDef,
   type LevelDef,
   type PlaceFailure,
+  type PowerFailure,
   type Sim,
   type SignalSource,
   type SimEvent,
@@ -21,7 +22,7 @@ import { createFullscreenButton, type FullscreenButton } from '../ui/FullscreenB
 import { HUD_FULLSCREEN } from '../ui/fullscreenLayout';
 import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, resultButtonAt, type Rect } from '../ui/layout';
 import { bindCursor } from './cursor';
-import { CYTOKINE, banner, flyParticle, ring, specks } from './effects';
+import { CYTOKINE, banner, floatText, flyParticle, ring, specks } from './effects';
 import { BOARD_SCALE, createFigure, frontOffset, type Figure } from './figures';
 import { createStepper, type Stepper } from './fixedStep';
 import { nextLevelId, resultActions } from './flow';
@@ -65,6 +66,9 @@ const SPREAD_SPECK = 0xd2aca7;
 const VIRUS = 0x36b862;
 /** Interferon's antiviral state: a soft, pale blue shield around a protected cell. */
 const SHIELD = 0x9fd3e6;
+// Complement: the opsonin purple of the style guide and the membrane-attack PAMP colour.
+const OPSONIN = 0x7b4fa3;
+const MEMBRANE_ATTACK = 0x8e2c6b;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
 const FOOT_INSET = 8;
@@ -317,6 +321,10 @@ export class GameScene extends Phaser.Scene {
           const attacker = this.sim.state.units.find((u) => u.uid === event.uid);
           const swallows = attacker && this.unitDefs.get(attacker.defId)?.attack?.type === 'fagocitosis' && died.has(event.target);
           const prey = this.enemyViews.get(event.target);
+          if (attacker && this.unitDefs.get(attacker.defId)?.attack?.type === 'fagocitosis') {
+            // Every bite shows digestion; a swallowed prey keeps the vacuole busy for longer.
+            this.unitViews.get(event.uid)?.digest(swallows ? 1400 : 700);
+          }
           if (swallows && attacker) {
             // Phagocytosis: the phagocyte lunges and the bacterium is pulled into it and shrinks away.
             this.unitViews.get(event.uid)?.engulf();
@@ -393,6 +401,9 @@ export class GameScene extends Phaser.Scene {
           }
           break;
         }
+        case 'power_step':
+          this.showPowerStep(event);
+          break;
         case 'won':
           progressStore().markCompleted(this.levelId);
           break;
@@ -693,6 +704,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private tryPlace(defId: string, cell: Cell): void {
+    if (this.unitDefs.get(defId)?.kind === 'power') {
+      this.tryPower(defId, cell);
+      return;
+    }
     const result = this.sim.placeUnit(defId, cell.row, cell.col);
     if (result.ok) {
       this.selected = null;
@@ -702,7 +717,19 @@ export class GameScene extends Phaser.Scene {
     this.giveFeedback(result.reason, defId, cell);
   }
 
-  private giveFeedback(reason: PlaceFailure, defId: string, cell: Cell): void {
+  /** Plays a one-use power on the cell; its cascade is shown step by step as its events arrive. */
+  private tryPower(defId: string, cell: Cell): void {
+    const result = this.sim.playPower(defId, cell.row, cell.col);
+    if (result.ok) {
+      this.selected = null;
+      const { layout } = this;
+      banner(this, t('banner.complement'), layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2);
+      return;
+    }
+    this.giveFeedback(result.reason, defId, cell);
+  }
+
+  private giveFeedback(reason: PlaceFailure | PowerFailure, defId: string, cell: Cell): void {
     const now = this.time.now;
     if (reason === 'insufficient_energy' || reason === 'on_cooldown') {
       this.cardShake = { defId, until: now + FLASH_MS };
@@ -717,6 +744,7 @@ export class GameScene extends Phaser.Scene {
     const { state } = this.sim;
     const def = this.unitDefs.get(defId);
     if (!def) return false;
+    if (def.kind === 'power') return !state.powersUsed.includes(defId);
     return isCellFree(state.units, cell) && state.energy >= def.cost && state.tick >= (state.deployReadyAt[defId] ?? 0);
   }
 
@@ -812,6 +840,11 @@ export class GameScene extends Phaser.Scene {
       view.setDepth(2.05 + row * 0.1);
       const def = this.enemyDefs.get(enemy.defId);
       if (def && enemy.hp < def.hp) this.drawBar(bars, x - 30, foot - 70, 60, 6, enemy.hp / def.hp, BAR_LOW);
+      // Opsonized: a pulsing purple ring tells the player phagocytes can now see this enemy.
+      if ((enemy.statuses?.opsonizado ?? 0) > state.tick) {
+        const pulse = 0.5 + 0.5 * Math.sin(now / 110 + enemy.uid);
+        bars.lineStyle(5, OPSONIN, 0.55 + 0.35 * pulse).strokeCircle(x, foot - 44, 32 + 4 * pulse);
+      }
     }
     for (const [uid, view] of this.enemyViews) {
       if (liveEnemies.has(uid)) continue;
@@ -846,7 +879,28 @@ export class GameScene extends Phaser.Scene {
           : { stored: this.storedCharge(), max: content.signals?.[this.signalNames[0] as string]?.max ?? 100, held: this.hold !== null },
       inflammation: this.gauge ? this.sim.signal(this.gauge.name) : null,
       shake: this.cardShake,
+      spent: new Set(this.sim.state.powersUsed),
     });
+  }
+
+  /**
+   * One step of the complement cascade: its name floats over the board, marked enemies get a ring
+   * (opsonins and the membrane attack), and the recruit appears by itself as a unit.
+   */
+  private showPowerStep(event: Extract<SimEvent, { type: 'power_step' }>): void {
+    const { layout } = this;
+    const labelColor = event.kind === 'attack' ? '#8E2C6B' : '#7B4FA3';
+    floatText(this, layout.x + (layout.cols * layout.cellW) / 2, layout.y - 26, t(`power.step.${event.kind}`), labelColor, 34, 32);
+    for (const uid of event.enemies) {
+      const view = this.enemyViews.get(uid);
+      if (!view) continue;
+      if (event.kind === 'attack') {
+        ring(this, view.root.x, view.root.y - 40, MEMBRANE_ATTACK, 16, 96, 480);
+        specks(this, view.root.x, view.root.y - 40, MEMBRANE_ATTACK, 8);
+      } else if (event.kind === 'opsonize') {
+        ring(this, view.root.x, view.root.y - 44, OPSONIN, 22, 72, 560);
+      }
+    }
   }
 
   /** A pseudopod stretches from the phagocyte's mouth to the prey and retracts with it. */

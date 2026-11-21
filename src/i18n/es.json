@@ -98,5 +98,8 @@
   "power.step.opsonize": "C3b · marca",
   "power.step.inflammation": "C3a · inflamación",
   "power.step.recruit": "C5a · reclutamiento",
-  "power.step.attack": "C5b · perfora"
+  "power.step.attack": "C5b · perfora",
+  "feedback.not_a_unit": "Eso no se despliega como célula",
+  "feedback.not_a_power": "Esa carta no actúa sobre una casilla",
+  "feedback.already_used": "Ya usaste esta carta en el nivel"
 }

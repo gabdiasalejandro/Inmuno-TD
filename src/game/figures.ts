@@ -410,6 +410,43 @@ export class Figure {
   }
 
   /**
+   * Digestion after a bite: bubbles rise inside the cell and the body tints violet for `duration`
+   * milliseconds, so the player sees the phagocyte busy with what it just ate. Self-cleaning.
+   */
+  digest(duration = 1000): this {
+    if (this.dying) return this;
+    const g = this.scene.add.graphics();
+    this.root.add(g);
+    const tint = 0xd9c4f0;
+    this.scene.tweens.addCounter({
+      from: 0,
+      to: 1,
+      duration,
+      ease: 'Sine.easeInOut',
+      onUpdate: (tween) => {
+        if (!g.active) return;
+        const k = tween.getValue() ?? 0;
+        g.clear();
+        for (let i = 0; i < 4; i++) {
+          const phase = (k * 1.6 + i * 0.25) % 1;
+          const x = (i - 1.5) * 10 + Math.sin(phase * Math.PI * 2 + i) * 3;
+          const y = -14 - phase * 30;
+          const r = 3.5 + 2 * (1 - phase);
+          g.fillStyle(0xfbf7f2, 0.85 * (1 - phase)).fillCircle(x, y, r);
+          g.lineStyle(2, OUTLINE, 0.8 * (1 - phase)).strokeCircle(x, y, r);
+        }
+        const pulse = Math.sin(k * Math.PI * 3);
+        for (const image of this.images) image.setTint(lerpColor(0xffffff, tint, Math.max(0, pulse)));
+      },
+      onComplete: () => {
+        for (const image of this.images) image.clearTint();
+        g.destroy();
+      },
+    });
+    return this;
+  }
+
+  /**
    * Digestion after a bite: `fraction` 1 (just swallowed) to 0 (ready). A bacterium shows in the
    * belly and shrinks; the macrophage also wobbles slowly and contentedly. Call every frame.
    */
