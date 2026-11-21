@@ -46,30 +46,35 @@ const CARD_GAP = 8;
 export const CARD_H = 96;
 const CARDS_FIT = 5;
 
-/** Lowest y the deck's cards may reach when powers sit under them. */
-const CARD_BOTTOM_WITH_POWERS = 552;
-/** The powers' own section: below the deck, never mixed with its cards. */
-const POWER_TOP = 566;
-const POWER_BOTTOM = 704;
-const POWER_H = 138;
+/** Top of the deck's cards when the level has powers: the powers sit above them now. */
+const CARD_TOP_WITH_POWERS = 336;
+/** The power medallion sits right under the marrow panel, above the deck. */
+export const POWER_TOP = 148;
+const POWER_AREA_H = 176;
 
 /** Card height by deck size: five cards fit at full height, a bigger deck shrinks them to fit the column. */
 export function cardHeight(count: number, powerCount = 0): number {
-  const bottom = powerCount > 0 ? CARD_BOTTOM_WITH_POWERS : CARD_BOTTOM;
-  const fit = Math.floor((bottom - CARD_TOP - (count - 1) * CARD_GAP) / count);
+  const top = powerCount > 0 ? CARD_TOP_WITH_POWERS : CARD_TOP;
+  const fit = Math.floor((CARD_BOTTOM - top - (count - 1) * CARD_GAP) / count);
   return count <= CARDS_FIT ? Math.min(CARD_H, fit) : fit;
 }
 
 /** Card `index` of a deck of `count` cards (a deck of two by default). */
 export function cardRect(index: number, count = 2, powerCount = 0): Rect {
   const h = cardHeight(count, powerCount);
-  return { x: CARD_X, y: CARD_TOP + index * (h + CARD_GAP), w: CARD_W, h };
+  const top = powerCount > 0 ? CARD_TOP_WITH_POWERS : CARD_TOP;
+  return { x: CARD_X, y: top + index * (h + CARD_GAP), w: CARD_W, h };
 }
 
-/** Power `index` of `count` powers, stacked in their own section under the deck. */
-export function powerRect(index: number, count: number): Rect {
-  const h = Math.min(POWER_H, Math.floor((POWER_BOTTOM - POWER_TOP - (count - 1) * CARD_GAP) / count));
-  return { x: CARD_X, y: POWER_TOP + index * (h + CARD_GAP), w: CARD_W, h };
+/**
+ * Geometry of the power medallion: a round badge, not a card. Its four components sit around it
+ * in cascade order, clockwise from the top; `chipDistance` is how far each chip sits from the centre.
+ */
+export const POWER_MEDALLION = { x: CARD_X + CARD_W / 2, y: 246, r: 40, chipDistance: 60, chipW: 44, chipH: 26 } as const;
+
+/** Area that answers a click on the power (the medallion and its chips). A level has one power slot. */
+export function powerRect(): Rect {
+  return { x: CARD_X, y: POWER_TOP, w: CARD_W, h: POWER_AREA_H };
 }
 
 /** Unscaled silhouette size of the biggest card character (the macrophage is the widest). */
@@ -166,7 +171,7 @@ export interface HudLayout {
  */
 export function hudLayout(cardCount: number, hasMeter: boolean, powerCount = 0): HudLayout {
   const cards = Array.from({ length: cardCount }, (_, i) => cardRect(i, cardCount, powerCount));
-  const powers = Array.from({ length: powerCount }, (_, i) => powerRect(i, powerCount));
+  const powers = powerCount > 0 ? [powerRect()] : [];
   const timer: Rect = { x: BAR_X, y: BAR_Y, w: TIMER_W, h: BAR_H };
   const inflammation: Rect = { x: PAUSE_BUTTON.x - BAR_GAP - INFLAMMATION_W, y: BAR_Y, w: INFLAMMATION_W, h: BAR_H };
   if (!hasMeter) return { cards, powers, timer, meter: null, meterBar: null, release: null, inflammation, pause: PAUSE_BUTTON };
@@ -238,10 +243,7 @@ export function cardAt(x: number, y: number, count: number, powerCount = 0): num
 
 /** Index of the power under a point, or null. */
 export function powerAt(x: number, y: number, count: number): number | null {
-  for (let i = 0; i < count; i++) {
-    if (pointInRect(powerRect(i, count), x, y)) return i;
-  }
-  return null;
+  return count > 0 && pointInRect(powerRect(), x, y) ? 0 : null;
 }
 
 /** Result overlay panel, centred on the canvas. */

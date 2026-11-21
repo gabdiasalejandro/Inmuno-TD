@@ -9,6 +9,8 @@ import { TICKS_PER_SECOND, secondsToTicks, type PowerDef, type PowerStepKind, ty
 import { fitScale, formatClock, formatGain, formatMultiplier, isSpedUp } from './format';
 import {
   CANVAS,
+  POWER_MEDALLION,
+  POWER_TOP,
   ENERGY_COUNTER,
   ENERGY_ICON,
   ENERGY_VALUE,
@@ -119,11 +121,12 @@ const CASCADE_ORDER: readonly PowerStepKind[] = ['opsonize', 'inflammation', 're
 const POWER_FILL = 0x7b4fa3;
 const POWER_CURRENT = 0xf7c56e;
 const POWER_TRACK = 0xe1d9e8;
+const POWER_READY = 0x5e8a5a;
 
 interface PowerView {
   def: PowerDef;
   name: Phaser.GameObjects.Text;
-  cooldown: Phaser.GameObjects.Text;
+  /** Centre of the medallion: the seconds left to recharge, or the step that is running. */
   caption: Phaser.GameObjects.Text;
   chips: Phaser.GameObjects.Text[];
 }
@@ -219,10 +222,9 @@ export class Hud {
 
     this.powerViews = powers.map((def) => ({
       def,
-      name: text(scene, 20, true),
-      cooldown: text(scene, 14, true).setOrigin(1, 0),
-      caption: text(scene, 14, false),
-      chips: CASCADE_ORDER.map(() => text(scene, 13, true).setOrigin(0.5, 0.5)),
+      name: text(scene, 18, true).setOrigin(0.5, 0),
+      caption: text(scene, 16, true).setOrigin(0.5, 0.5),
+      chips: CASCADE_ORDER.map(() => text(scene, 14, true).setOrigin(0.5, 0.5)),
     }));
 
     this.energyValue = text(scene, 36, true).setOrigin(0.5, 0.5).setPosition(ENERGY_VALUE.x, ENERGY_VALUE.y);
@@ -340,7 +342,7 @@ export class Hud {
     this.drawMarrow(g, m);
     this.drawEnergy(g, shown, m.now);
     this.cards.forEach((card, i) => this.drawCard(g, card, i, m, shown));
-    this.powerViews.forEach((view, i) => this.drawPower(g, view, i, m));
+    this.powerViews.forEach((view) => this.drawPower(g, view, m));
     this.drawTimer(g, m);
     this.drawMeter(g, m);
     this.drawRelease(g, m);
@@ -389,54 +391,58 @@ export class Hud {
   }
 
   /**
-   * A power: its own panel under the deck, with the complement's four components as chips in
-   * cascade order. A chip lights when its step has fired; the caption says what that step does.
+   * The power is a medallion above the deck, not a card: a ring that fills while it recharges,
+   * and the complement's four components around it, clockwise in cascade order. A component lights
+   * when its step fires; the centre shows what is running, or the seconds left.
    */
-  private drawPower(g: Phaser.GameObjects.Graphics, view: PowerView, index: number, m: HudModel): void {
-    const r = this.layout.powers[index] as Rect;
+  private drawPower(g: Phaser.GameObjects.Graphics, view: PowerView, m: HudModel): void {
+    const M = POWER_MEDALLION;
     const { def } = view;
     const selected = m.selected === def.id;
     const cooling = Math.max(0, (m.powerReadyAt?.[def.id] ?? 0) - m.tick);
     const total = secondsToTicks(def.cooldown);
     const ready = cooling === 0;
     const cascade = m.cascade?.power === def.id ? m.cascade : null;
-    const pad = 12;
-    const innerW = r.w - pad * 2;
+    const ring = M.r - 7;
 
-    panel(g, r, 16, selected ? 0xfff6d8 : PANEL);
-    view.name.setPosition(r.x + pad, r.y + 9).setText(t(`power.${def.id}.name`)).setAlpha(ready ? 1 : 0.7);
-    view.cooldown
-      .setPosition(r.x + r.w - pad, r.y + 11)
-      .setText(ready ? t('power.ready') : `${Math.ceil(cooling / TICKS_PER_SECOND)} s`)
-      .setColor(ready ? '#5E8A5A' : INK);
+    view.name.setPosition(M.x, POWER_TOP + 2).setText(t(`power.${def.id}.name`)).setColor(selected ? '#7B4FA3' : INK);
 
-    const chipW = (innerW - 6 * (CASCADE_ORDER.length - 1)) / CASCADE_ORDER.length;
-    const chipY = r.y + 40;
-    CASCADE_ORDER.forEach((kind, i) => {
-      const x = r.x + pad + i * (chipW + 6);
-      const fired = cascade?.kinds.includes(kind) ?? false;
-      const current = cascade?.current === kind;
-      g.fillStyle(fired ? POWER_FILL : 0xfbf7f2, 1).fillRoundedRect(x, chipY, chipW, 28, 10);
-      g.lineStyle(current ? 5 : 3, current ? POWER_CURRENT : OUTLINE, 1).strokeRoundedRect(x, chipY, chipW, 28, 10);
-      view.chips[i]!
-        .setPosition(x + chipW / 2, chipY + 14)
-        .setText(t(`power.step.${kind}.label`))
-        .setColor(fired ? '#FBF7F2' : INK);
-    });
+    g.fillStyle(PANEL_SHADE, 1).fillCircle(M.x, M.y + 5, M.r);
+    g.fillStyle(selected ? 0xfff6d8 : POWER_FILL, 1).fillCircle(M.x, M.y, M.r);
+    g.lineStyle(5, OUTLINE, 1).strokeCircle(M.x, M.y, M.r);
+    g.fillStyle(PANEL, 1).fillCircle(M.x, M.y, M.r - 13);
+
+    // Recharge ring: empty track, then the filled part (full and green when ready).
+    g.lineStyle(7, POWER_TRACK, 1).strokeCircle(M.x, M.y, ring);
+    if (total > 0 && cooling < total) {
+      const fraction = 1 - cooling / total;
+      g.lineStyle(7, ready ? POWER_READY : POWER_FILL, 1).beginPath();
+      g.arc(M.x, M.y, ring, -Math.PI / 2, -Math.PI / 2 + fraction * Math.PI * 2, false).strokePath();
+    }
+    if (ready) g.lineStyle(7, POWER_READY, 1).strokeCircle(M.x, M.y, ring);
 
     view.caption
-      .setPosition(r.x + pad, r.y + 76)
-      .setWordWrapWidth(innerW)
-      .setText(cascade ? t(`power.step.${cascade.current}.role`) : t('power.hint'))
-      .setColor(cascade ? '#7B4FA3' : '#7A6666');
+      .setPosition(M.x, M.y)
+      .setText(cascade ? t(`power.step.${cascade.current}.label`) : ready ? t('power.ready') : `${Math.ceil(cooling / TICKS_PER_SECOND)} s`)
+      .setColor(cascade ? '#7B4FA3' : INK);
 
-    const barY = r.y + r.h - 18;
-    g.fillStyle(POWER_TRACK, 1).fillRoundedRect(r.x + pad, barY, innerW, 10, 5);
-    if (total > 0 && cooling < total) {
-      const filled = innerW * (1 - cooling / total);
-      g.fillStyle(POWER_FILL, 1).fillRoundedRect(r.x + pad, barY, Math.max(10, filled), 10, 5);
-    }
-    g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(r.x + pad, barY, innerW, 10, 5);
+    // The four components, clockwise from the top: opsonize, inflammation, recruit, attack.
+    const spots: Array<[number, number]> = [
+      [M.x, M.y - M.chipDistance],
+      [M.x + M.chipDistance, M.y],
+      [M.x, M.y + M.chipDistance],
+      [M.x - M.chipDistance, M.y],
+    ];
+    CASCADE_ORDER.forEach((kind, i) => {
+      const [cx, cy] = spots[i]!;
+      const fired = cascade?.kinds.includes(kind) ?? false;
+      const current = cascade?.current === kind;
+      const left = cx - M.chipW / 2;
+      const top = cy - M.chipH / 2;
+      g.fillStyle(fired ? POWER_FILL : 0xfbf7f2, 1).fillRoundedRect(left, top, M.chipW, M.chipH, 10);
+      g.lineStyle(current ? 5 : 3, current ? POWER_CURRENT : OUTLINE, 1).strokeRoundedRect(left, top, M.chipW, M.chipH, 10);
+      view.chips[i]!.setPosition(cx, cy).setText(t(`power.step.${kind}.label`)).setColor(fired ? '#FBF7F2' : INK);
+    });
   }
 
   private drawCard(g: Phaser.GameObjects.Graphics, card: CardView, index: number, m: HudModel, energy: number): void {

@@ -70,11 +70,15 @@ export type TutorialTarget =
   /** The frontmost enemy of this definition on the board. */
   | { type: 'enemy'; enemy: string }
   /** The first own unit (in deploy order) that carries this status, for example an infected cell. */
-  | { type: 'status'; status: string };
+  | { type: 'status'; status: string }
+  /** The power's medallion in the powers' section. */
+  | { type: 'power'; power: string };
 
 /** What the player must do for a step to end. */
 export type TutorialAdvance =
   | { type: 'place'; unit: string; row?: number; col?: number }
+  /** Play a power on a cell (any cell when row and col are omitted). */
+  | { type: 'power'; power: string; row?: number; col?: number }
   /** Hold the release button for at least `seconds` (default: any press). */
   | { type: 'hold'; seconds?: number }
   | { type: 'tap' };

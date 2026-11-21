@@ -1,0 +1,61 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-6.power",
+      "target": {
+        "type": "power",
+        "power": "complemento"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-6.play",
+      "waitFor": {
+        "type": "enemy",
+        "enemy": "bacteria_capsulada"
+      },
+      "target": {
+        "type": "power",
+        "power": "complemento"
+      },
+      "advance": {
+        "type": "power",
+        "power": "complemento"
+      },
+      "waitTime": "fast",
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-6.cascade",
+      "waitFor": {
+        "type": "event",
+        "event": "power_step"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-6.cost",
+      "target": {
+        "type": "gauge"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    },
+    {
+      "text": "tutorial.1-6.recharge",
+      "target": {
+        "type": "power",
+        "power": "complemento"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    }
+  ]
+}

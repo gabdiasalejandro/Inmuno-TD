@@ -26,6 +26,7 @@ export interface TutorialObservation {
 export type TutorialAction =
   | { type: 'select'; unit: string }
   | { type: 'place'; unit: string; row: number; col: number }
+  | { type: 'power'; power: string; row: number; col: number }
   /** The release button is (still) held, for `seconds` so far. */
   | { type: 'hold'; seconds: number }
   | { type: 'tap' };
@@ -78,6 +79,13 @@ function matches(step: TutorialStep, action: TutorialAction): boolean {
         (advance.row === undefined || advance.row === action.row) &&
         (advance.col === undefined || advance.col === action.col)
       );
+    case 'power':
+      return (
+        advance.type === 'power' &&
+        advance.power === action.power &&
+        (advance.row === undefined || advance.row === action.row) &&
+        (advance.col === undefined || advance.col === action.col)
+      );
     case 'hold':
       return advance.type === 'hold' && action.seconds >= (advance.seconds ?? 0);
     case 'tap':
@@ -127,7 +135,9 @@ export function createTutorial(steps: readonly TutorialStep[]): Tutorial {
     allows(action) {
       const step = current();
       if (!step || !active || step.input === 'free') return true;
-      if (action.type === 'select') return step.advance.type === 'place' && step.advance.unit === action.unit;
+      if (action.type === 'select') {
+        return (step.advance.type === 'place' && step.advance.unit === action.unit) || (step.advance.type === 'power' && step.advance.power === action.unit);
+      }
       return sameKind(step, action);
     },
     perform(action) {
@@ -159,6 +169,11 @@ export function targetsFor(step: TutorialStep): TutorialTarget[] {
   switch (advance.type) {
     case 'place': {
       const targets: TutorialTarget[] = [{ type: 'card', unit: advance.unit }];
+      if (advance.row !== undefined && advance.col !== undefined) targets.push({ type: 'cell', row: advance.row, col: advance.col });
+      return targets;
+    }
+    case 'power': {
+      const targets: TutorialTarget[] = [{ type: 'power', power: advance.power }];
       if (advance.row !== undefined && advance.col !== undefined) targets.push({ type: 'cell', row: advance.row, col: advance.col });
       return targets;
     }

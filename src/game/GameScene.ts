@@ -20,7 +20,7 @@ import { IntroCard } from '../ui/IntroCard';
 import { TutorialGuide } from '../ui/TutorialGuide';
 import { createFullscreenButton, type FullscreenButton } from '../ui/FullscreenButton';
 import { HUD_FULLSCREEN } from '../ui/fullscreenLayout';
-import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, powerAt, resultButtonAt, type Rect } from '../ui/layout';
+import { MARROW_PANEL, cardAt, cardRect, hudLayout, introHit, pauseMenuButtonAt, pointInRect, powerAt, powerRect, resultButtonAt, type Rect } from '../ui/layout';
 import { bindCursor } from './cursor';
 import { CYTOKINE, banner, floatText, flyParticle, ring, specks } from './effects';
 import type { CascadeView } from '../ui/Hud';
@@ -479,7 +479,10 @@ export class GameScene extends Phaser.Scene {
     const cell = pixelToCell(this.layout, x, y);
     this.hover = cell;
     if (cell && this.selected) {
-      if (!this.tutorialAllows({ type: 'place', unit: this.selected, row: cell.row, col: cell.col })) {
+      const action: TutorialAction = this.isPower(this.selected)
+        ? { type: 'power', power: this.selected, row: cell.row, col: cell.col }
+        : { type: 'place', unit: this.selected, row: cell.row, col: cell.col };
+      if (!this.tutorialAllows(action)) {
         this.blockedByTutorial();
         return;
       }
@@ -583,6 +586,8 @@ export class GameScene extends Phaser.Scene {
       }
       case 'cell':
         return this.cellRect(target.row, target.col);
+      case 'power':
+        return this.isPower(target.power) ? powerRect() : null;
       case 'unit': {
         const unit = this.sim.state.units.find((u) => u.defId === target.unit);
         return unit ? this.cellRect(unit.row, unit.col) : null;
@@ -693,7 +698,11 @@ export class GameScene extends Phaser.Scene {
     if (cardIndex !== null) return this.tutorialAllows({ type: 'select', unit: this.hud.cardId(cardIndex) ?? '' });
     if (this.overRelease(x, y)) return this.tutorialAllows({ type: 'hold', seconds: 0 });
     const cell = this.selected === null ? null : pixelToCell(this.layout, x, y);
-    return cell !== null && this.selected !== null && this.tutorialAllows({ type: 'place', unit: this.selected, row: cell.row, col: cell.col });
+    if (cell === null || this.selected === null) return false;
+    const action: TutorialAction = this.isPower(this.selected)
+      ? { type: 'power', power: this.selected, row: cell.row, col: cell.col }
+      : { type: 'place', unit: this.selected, row: cell.row, col: cell.col };
+    return this.tutorialAllows(action);
   }
 
   /** Mirrors `tutorialPointerDown`: the "Siguiente" button of a tap-to-continue step. */
@@ -735,8 +744,7 @@ export class GameScene extends Phaser.Scene {
     const result = this.sim.playPower(defId, cell.row, cell.col);
     if (result.ok) {
       this.selected = null;
-      const { layout } = this;
-      banner(this, t('banner.complement'), layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2);
+      this.tutorial?.perform({ type: 'power', power: defId, row: cell.row, col: cell.col });
       return;
     }
     this.giveFeedback(result.reason, defId, cell);
@@ -912,8 +920,8 @@ export class GameScene extends Phaser.Scene {
     const running = this.cascade && now < this.cascade.until && this.cascade.view.power === event.power ? this.cascade.view.kinds : [];
     this.cascade = { until: now + CASCADE_SHOW_MS, view: { power: event.power, kinds: [...running, event.kind], current: event.kind } };
     const labelColor = event.kind === 'attack' ? '#8E2C6B' : '#7B4FA3';
-    const line = `${t(`power.step.${event.kind}.label`)} · ${t(`power.step.${event.kind}.role`)}`;
-    floatText(this, layout.x + (layout.cols * layout.cellW) / 2, layout.y - 26, line, labelColor, 30, 32);
+    const line = t(`power.step.${event.kind}.short`);
+    floatText(this, layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2, line, labelColor, 28, 32);
     for (const uid of event.enemies) {
       const view = this.enemyViews.get(uid);
       if (!view) continue;

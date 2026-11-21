@@ -3,8 +3,9 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { content, levels, tutorials, type TutorialStep } from '../../src/data';
 import { createTutorial, FAST_SCALE } from '../../src/game/tutorial';
+import { engagedCol } from '../../src/sim/world';
 import { t } from '../../src/i18n';
-import { createSim, secondsToTicks, type Sim } from '../../src/sim';
+import { createSim, secondsToTicks, type Sim, type SimEvent } from '../../src/sim';
 
 const DIR = join(import.meta.dirname, '..', '..', 'src', 'data', 'tutorials');
 const files = readdirSync(DIR).filter((name) => name.endsWith('.json'));
@@ -48,8 +49,14 @@ function followTutorial(levelId: string, steps: TutorialStep[], maxSeconds: numb
   let frames = 0;
   let slowCarry = 0;
   const frameOfStep: number[] = [];
+  const seen = new Set<string>();
+  const record = (events: SimEvent[]) => events.forEach((event) => seen.add(event.type));
   while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < limit) {
-    tutorial.observe({ stored: level.signals?.reduce((sum, name) => sum + sim.stored(name), 0) ?? 0 });
+    tutorial.observe({
+      stored: level.signals?.reduce((sum, name) => sum + sim.stored(name), 0) ?? 0,
+      seen,
+      enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)),
+    });
     const step = tutorial.step;
     let holding = false;
     if (step && tutorial.active) {
@@ -61,17 +68,23 @@ function followTutorial(levelId: string, steps: TutorialStep[], maxSeconds: numb
         tutorial.perform({ type: 'hold', seconds: heldTicks / secondsToTicks(1) });
       } else if (advance.type === 'tap') {
         tutorial.perform({ type: 'tap' });
+      } else if (advance.type === 'power') {
+        // A player plays the power on the first capsulated bacterium, where it stands.
+        const target = sim.state.enemies.find((enemy) => enemy.defId === 'bacteria_capsulada');
+        const row = target?.lane ?? 2;
+        const col = target ? engagedCol(target.pos) : 4;
+        if (sim.playPower(advance.power, row, col).ok) tutorial.perform({ type: 'power', power: advance.power, row, col });
       }
     }
     sim.setReleasing(holding);
     heldTicks = holding ? heldTicks + 1 : 0;
     // A paused step freezes the clock, as in the game; a fast one runs several ticks per frame.
-    for (let i = 0; i < Math.floor(tutorial.timeScale) && sim.state.status === 'playing'; i++) sim.step();
+    for (let i = 0; i < Math.floor(tutorial.timeScale) && sim.state.status === 'playing'; i++) record(sim.step());
     if (tutorial.timeScale > 0 && tutorial.timeScale < 1) {
       slowCarry += tutorial.timeScale;
       if (slowCarry >= 1) {
         slowCarry -= 1;
-        sim.step();
+        record(sim.step());
       }
     }
     frames++;
@@ -110,6 +123,19 @@ describe('tutorial 1-3', () => {
   it('has between 3 and 5 steps', () => {
     expect(tutorials['1-3']!.steps.length).toBeGreaterThanOrEqual(3);
     expect(tutorials['1-3']!.steps.length).toBeLessThanOrEqual(5);
+  });
+});
+
+describe('tutorial 1-6', () => {
+  it('is completed by a player who plays the complement on the capsulated bacteria', () => {
+    const { done } = followTutorial('1-6', tutorials['1-6']!.steps, 120);
+    expect(done).toBe(tutorials['1-6']!.steps.length);
+  });
+
+  it('teaches the power with the marrow, not with a card', () => {
+    const steps = tutorials['1-6']!.steps;
+    expect(steps[0]!.target).toEqual({ type: 'power', power: 'complemento' });
+    expect(steps.some((step) => step.advance.type === 'power')).toBe(true);
   });
 });
 
