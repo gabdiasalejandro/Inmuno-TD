@@ -131,7 +131,7 @@ Todas **por revisar** salvo las marcadas.
 
 Todas **por revisar** salvo las marcadas.
 
-- El complemento es un sistema de unas 30 proteínas plasmáticas que se activan en cascada. Uso: carta `complemento` y almanaque. **Estado:** por revisar (cifra aproximada; confirmar).
+- El complemento es un sistema de unas 30 proteínas plasmáticas que se activan en cascada. Uso: poder `complemento` y almanaque. **Estado:** por revisar (cifra aproximada; confirmar).
 - C3b marca (opsoniza) al microbio para que los fagocitos lo fagociten con más eficacia. Uso: paso 1 de la cascada, estado `opsonizado`. **Estado:** por revisar.
 - C3a y C5a son anafilotoxinas que aumentan la inflamación y atraen neutrófilos. Uso: paso 2 (C3a sube la inflamación) y paso 3 (C5a aporta un neutrófilo). **Estado:** por revisar (en el juego, C5a es un regalo, no una atracción gradual).
 - C5b, con C6 a C9, forma el complejo de ataque a membrana (MAC), un poro que perfora la membrana. Uso: paso 4, sobre hasta tres bacterias gramnegativas del área. **Estado:** por revisar.
@@ -139,4 +139,5 @@ Todas **por revisar** salvo las marcadas.
 - Las bacterias gramnegativas tienen membrana externa y se tiñen de rosa con la tinción de Gram. Uso: etiqueta `gramnegativa` y almanaque. **Estado:** por revisar.
 - Algunas bacterias gramnegativas tienen cápsula de polisacáridos que dificulta la deposición del complemento y la fagocitosis. Uso: enemigo `bacteria_capsulada` (sin etiqueta `PAMP` hasta que se opsoniza). **Estado:** dudoso (la cápsula dificulta, no impide del todo, la opsonización; los anticuerpos también la superan).
 - Klebsiella pneumoniae es una bacteria gramnegativa con cápsula. Uso: texto del almanaque de la bacteria encapsulada. **Estado:** por revisar.
+- Las bacterias gramnegativas tienen flagelos en un extremo, a menudo alrededor de la célula. Uso: sprite de la bacteria gramnegativa (flagelos traseros). **Estado:** por revisar.
 - La opsonización no es un PAMP: la reconocen receptores propios de los fagocitos (CR1, receptores Fc). Uso: el estado `opsonizado` concede la etiqueta `PAMP` a efectos de detección. Es una simplificación; ver `simplificaciones.md`. **Estado:** por revisar.

@@ -154,11 +154,11 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **Fuente:** entradas del nivel 1-5 en `fuentes.md`.
 - **Dónde lo aclara el almanaque:** ficha de la célula NK.
 
-### complemento-carta-de-un-uso
+### complemento-poder-recargable
 
-- **En el juego:** el complemento es una carta de un solo uso por nivel que actúa sobre un área de 3 por 3 casillas y no cuesta energía.
+- **En el juego:** el complemento es un poder fuera del mazo que actúa sobre un área de 3 por 3 casillas, se recarga en 30 segundos, no cuesta energía y cada uso sube la inflamación.
 - **En la realidad:** el complemento no se activa a voluntad; se dispara solo sobre la superficie de microbios o con anticuerpos, y actúa donde ocurre, de forma continua.
-- **Por qué se simplifica:** el jugador necesita una decisión clara y entender la cascada en un momento concreto.
+- **Por qué se simplifica:** el jugador decide cuándo lanzar la cascada, y el coste (inflamación) hace que no pueda repetirla sin pensar. La recarga y el coste sustituyen a una activación continua.
 - **Fuente:** `fuentes.md` (sección Nivel 1-6).
 - **Dónde lo aclara el almanaque:** ficha del complemento (`note_real`).
 

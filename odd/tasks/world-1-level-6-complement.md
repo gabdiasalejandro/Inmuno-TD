@@ -25,6 +25,11 @@ Branch: feat/world-1-level-6. Delivery: commits on this branch; push and PR are 
 - [x] T5 (S8, S10) inline: `docs/fuentes.md` and `docs/simplificaciones.md` sections for level 1-6. Commit befe2fb.
 - [x] T6 inline: seam check run after each unit: `pnpm typecheck`, `pnpm test` (526 passing), `pnpm build`.
 
+- [x] T7 (S11, S12) inline: the complement becomes a reusable power outside the deck, cooldown 30 s, no energy cost, each use raises inflammation. Commit (see log).
+- [x] T8 (S13) inline: sprites for the gram-negative and capsulated bacteria, following `docs/guia-estilo.md`, checked by rendering to PNG.
+- [x] T9 (S14) inline: the power section under the deck, the four cascade components as chips that light in order, and a caption with each step's role.
+- [x] T10 inline: seam check (typecheck, tests, build) and a headless screenshot of level 1-6.
+
 ## Log
 
 - L1 (2026-11-21, user, verbatim): "Ya probé el nivel, me gusta en términos generales... ahora, los niveles qué siguen, qué decisiones hay que tomar antes de hacerlas?" then "complemento ataque en área, carta de un solo uso por nivel (habrá niveles donde no esté), la idea es que se entienda la cascada, que sea como un combo, fase 1 C3b marca bacterias y los leucocitos las procesan más rápido, C3a aumenta inflamación, C5a te regala un neutrófilo, y C5b mata trés bacterias aleatorias del mapa. Y añadimos un enemigo que sea muy difícil de fagocitar y el complemento ayude, o que los macrófagos solo detecten hasta que ya les está pegando y con el complemento lo detecten más rápido. Algo así. No es definitivo... hay que agregar animaciones más evidentes para los fagocitos de cuando están digiriendo".
@@ -37,3 +42,10 @@ Branch: feat/world-1-level-6. Delivery: commits on this branch; push and PR are 
 - L8 (2026-11-21, observation, mine): the capsulated and gram-negative enemies and the complement card have no sprites yet; they render with the default figure. Art is pending the user's review (CLAUDE.md 2.4).
 - L9 (2026-11-21, not done): no tutorial file for 1-6, and no browser check of the cascade or the digestion animation. Those need a manual play by the user.
 - L10 (2026-11-21, decision, mine): the infected-cell enemy that spawns viruses (S9) is out of this task; the user asked to leave it for a later adjustment.
+- L11 (2026-11-21, user, verbatim): "faltan sprites, me gustaría que la cascada fuera más explícita con los componentes que tiene para que se aprenda, y que no sea una carta más, que sea un poder en otra sección. y lo de que sea uno solo por partida ns, piénsalo. si quieres le añades costo o no, decide qué es mejor para la jugabilidad"
+- S11. The complement is a power in its own section, not a deck card. User: "que no sea una carta más, que sea un poder en otra sección".
+- S12. Reusable, with a cooldown. Decision (mine): 30 s cooldown, no energy cost, each use raises inflammation by 4. Why: energy is already the currency of units, and the neutrophil the C5a gives back would refund a cost anyway; a one-use power is a trick, while the real complement acts continuously, so recharge plus an inflammation price stand in for it.
+- S13. Sprites for the two new bacteria. User: "faltan sprites". The power itself has no character and gets a chip panel, not a sprite.
+- S14. The cascade explains itself. User: "que la cascada fuera más explícita con los componentes que tiene para que se aprenda". Four chips in order (C3b, C3a, C5a, C5b), each lights when its step fires, and a caption says the role of the current step.
+- L12 (decision, mine): the intro of 1-6 shows the two bacteria instead of the power, because a power has no figure.
+- L13 (observation): with the reusable power, the 1-6 has a second capsulated wave (80 s, lane 0). The balance bots still win with the power and lose without it.
