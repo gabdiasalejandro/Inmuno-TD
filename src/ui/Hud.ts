@@ -10,7 +10,6 @@ import { fitScale, formatClock, formatGain, formatMultiplier, isSpedUp } from '.
 import {
   CANVAS,
   POWER_MEDALLION,
-  POWER_TOP,
   ENERGY_COUNTER,
   ENERGY_ICON,
   ENERGY_VALUE,
@@ -125,7 +124,6 @@ const POWER_READY = 0x5e8a5a;
 
 interface PowerView {
   def: PowerDef;
-  name: Phaser.GameObjects.Text;
   /** Centre of the medallion: the seconds left to recharge, or the step that is running. */
   caption: Phaser.GameObjects.Text;
   chips: Phaser.GameObjects.Text[];
@@ -222,7 +220,6 @@ export class Hud {
 
     this.powerViews = powers.map((def) => ({
       def,
-      name: text(scene, 18, true).setOrigin(0.5, 0),
       caption: text(scene, 16, true).setOrigin(0.5, 0.5),
       chips: CASCADE_ORDER.map(() => text(scene, 14, true).setOrigin(0.5, 0.5)),
     }));
@@ -404,8 +401,6 @@ export class Hud {
     const ready = cooling === 0;
     const cascade = m.cascade?.power === def.id ? m.cascade : null;
     const ring = M.r - 7;
-
-    view.name.setPosition(M.x, POWER_TOP + 2).setText(t(`power.${def.id}.name`)).setColor(selected ? '#7B4FA3' : INK);
 
     g.fillStyle(PANEL_SHADE, 1).fillCircle(M.x, M.y + 5, M.r);
     g.fillStyle(selected ? 0xfff6d8 : POWER_FILL, 1).fillCircle(M.x, M.y, M.r);
