@@ -68,6 +68,7 @@ const CHIP_FILL: Record<AlmanacCategory, number> = {
   innate_cell: 0xe1d9e8,
   organ: 0xefe2c8,
   pathogen: 0xcbbff4,
+  system: 0xd6ecd8,
 };
 const TOAST_MS = 1800;
 /** Scroll inertia: px/ms speed below which it stops, and the time constant (ms) of its decay. */
