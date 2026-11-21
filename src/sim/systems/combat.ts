@@ -54,9 +54,10 @@ export function createUnitAttacks(world: World): System {
       }
       const target = world.findTarget(unit, attack.range, attack.requires);
       if (!target) continue;
-      target.hp -= attack.damage;
+      const damage = attack.damage * world.enemyDamageMultiplier(target);
+      target.hp -= damage;
       unit.attackReadyAt = state.tick + attackIntervalTicks(attack.rate);
-      events.push({ type: 'unit_attacked', uid: unit.uid, target: target.uid, damage: attack.damage });
+      events.push({ type: 'unit_attacked', uid: unit.uid, target: target.uid, damage });
     }
     state.enemies = state.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;

@@ -1,0 +1,88 @@
+{
+  "id": "1-6",
+  "grid": {
+    "rows": 5,
+    "cols": 9
+  },
+  "startEnergy": 200,
+  "marrow": {
+    "amount": 34,
+    "interval": 5
+  },
+  "deck": [
+    "epitelio",
+    "moco",
+    "macrofago",
+    "neutrofilo",
+    "complemento"
+  ],
+  "objectives": [
+    "obj.1-6.c3b",
+    "obj.1-6.mac"
+  ],
+  "signals": [
+    "citocinas",
+    "inflamacion"
+  ],
+  "win": {
+    "type": "clear"
+  },
+  "waves": [
+    {
+      "at": 5,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 3,
+      "gap": 3
+    },
+    {
+      "at": 15,
+      "enemy": "bacteria_gram_neg",
+      "lane": 1,
+      "count": 3,
+      "gap": 3
+    },
+    {
+      "at": 28,
+      "enemy": "bacteria_capsulada",
+      "lane": 2,
+      "count": 3,
+      "gap": 1
+    },
+    {
+      "at": 42,
+      "enemy": "bacteria_gram_pos",
+      "lane": 0,
+      "count": 4,
+      "gap": 2.5
+    },
+    {
+      "at": 54,
+      "enemy": "bacteria_gram_neg",
+      "lane": 3,
+      "count": 4,
+      "gap": 2
+    },
+    {
+      "at": 68,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 4,
+      "gap": 2
+    },
+    {
+      "at": 82,
+      "enemy": "bacteria_gram_neg",
+      "lane": 4,
+      "count": 4,
+      "gap": 2
+    },
+    {
+      "at": 96,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 5,
+      "gap": 1.8
+    }
+  ]
+}

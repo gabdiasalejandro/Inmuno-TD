@@ -113,5 +113,36 @@
       "linfocito",
       "celula"
     ]
+  },
+  {
+    "id": "complemento",
+    "kind": "power",
+    "cost": 0,
+    "cooldown": 0,
+    "hp": 0,
+    "power": {
+      "radius": 1,
+      "opsonize": {
+        "status": "opsonizado",
+        "at": 0
+      },
+      "inflammation": {
+        "signal": "inflamacion",
+        "amount": 4,
+        "at": 0.8
+      },
+      "recruit": {
+        "unit": "neutrofilo",
+        "at": 1.6
+      },
+      "attack": {
+        "requires": [
+          "gramnegativa"
+        ],
+        "max": 3,
+        "damage": 1000,
+        "at": 2.4
+      }
+    }
   }
 ]

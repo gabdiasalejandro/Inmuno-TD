@@ -16,5 +16,12 @@
     "prevents": [
       "infectada"
     ]
+  },
+  "opsonizado": {
+    "duration": 8,
+    "grants": [
+      "PAMP"
+    ],
+    "damageMultiplier": 1.5
   }
 }

@@ -1,5 +1,82 @@
 [
-  {"id": "bacteria_gram_pos", "hp": 40, "speed": 0.25, "attack": {"damage": 10, "rate": 1}, "tags": ["bacteria", "PAMP"]},
-  {"id": "streptococcus_pyogenes", "hp": 40, "speed": 0.25, "attack": {"damage": 10, "rate": 1}, "spreads": {"around": ["barrera"], "maxSwitches": 1}, "tags": ["bacteria", "PAMP"]},
-  {"id": "virus", "hp": 15, "speed": 0.4, "attack": {"damage": 2, "rate": 1}, "infects": {"status": "infectada", "requires": ["celula"], "resisted": "lost"}, "tags": ["virus", "PAMP"]}
+  {
+    "id": "bacteria_gram_pos",
+    "hp": 40,
+    "speed": 0.25,
+    "attack": {
+      "damage": 10,
+      "rate": 1
+    },
+    "tags": [
+      "bacteria",
+      "PAMP"
+    ]
+  },
+  {
+    "id": "streptococcus_pyogenes",
+    "hp": 40,
+    "speed": 0.25,
+    "attack": {
+      "damage": 10,
+      "rate": 1
+    },
+    "spreads": {
+      "around": [
+        "barrera"
+      ],
+      "maxSwitches": 1
+    },
+    "tags": [
+      "bacteria",
+      "PAMP"
+    ]
+  },
+  {
+    "id": "virus",
+    "hp": 15,
+    "speed": 0.4,
+    "attack": {
+      "damage": 2,
+      "rate": 1
+    },
+    "infects": {
+      "status": "infectada",
+      "requires": [
+        "celula"
+      ],
+      "resisted": "lost"
+    },
+    "tags": [
+      "virus",
+      "PAMP"
+    ]
+  },
+  {
+    "id": "bacteria_gram_neg",
+    "hp": 40,
+    "speed": 0.25,
+    "attack": {
+      "damage": 10,
+      "rate": 1
+    },
+    "tags": [
+      "bacteria",
+      "PAMP",
+      "gramnegativa"
+    ]
+  },
+  {
+    "id": "bacteria_capsulada",
+    "hp": 80,
+    "speed": 0.2,
+    "attack": {
+      "damage": 10,
+      "rate": 1
+    },
+    "tags": [
+      "bacteria",
+      "gramnegativa",
+      "capsula"
+    ]
+  }
 ]

@@ -48,8 +48,10 @@ export interface World {
   trapSlow(enemy: EnemyState, col: number): number;
   /** Trap definition by id (traps are declared on the units that lay them). */
   trapDef(id: string): TrapDef;
-  /** Whether an enemy carries every tag in `requires`. */
+  /** Whether an enemy carries every tag in `requires`, its own tags and those its statuses grant. */
   enemyHas(enemy: EnemyState, requires?: string[]): boolean;
+  /** Multiplier on the damage units deal to this enemy, from its active statuses (1 without any). */
+  enemyDamageMultiplier(enemy: EnemyState): number;
   /** Next number of the level's seeded random sequence, in [0, 1). Advances the stored state. */
   random(): number;
   /** Status definition by name, if the content declares it. */
@@ -113,6 +115,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     releasing: false,
     released: Object.fromEntries(signalDefs.map(([name]) => [name, 0])),
     marrowCharge: 0,
+    powersUsed: [],
     rngState: createRng(seed).state,
   };
 
@@ -133,10 +136,18 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     unit.statuses[name] = Math.max(unit.statuses[name] ?? 0, state.tick + secondsToTicks(def.duration));
   };
 
+  const activeEnemyStatuses = (enemy: EnemyState): StatusDef[] =>
+    Object.entries(enemy.statuses ?? {})
+      .filter(([, until]) => until > state.tick)
+      .flatMap(([name]) => (statusDefs[name] ? [statusDefs[name]] : []));
+
   const enemyHas = (enemy: EnemyState, requires: string[] = []): boolean => {
-    const tags = enemyDefs.get(enemy.defId)?.tags ?? [];
+    const tags = [...(enemyDefs.get(enemy.defId)?.tags ?? []), ...activeEnemyStatuses(enemy).flatMap((def) => def.grants ?? [])];
     return requires.every((tag) => tags.includes(tag));
   };
+
+  const enemyDamageMultiplier = (enemy: EnemyState): number =>
+    activeEnemyStatuses(enemy).reduce((factor, def) => factor * (def.damageMultiplier ?? 1), 1);
 
   // Ids were validated above or come from state the sim itself created.
   const enemyDef = (id: string): EnemyDef => enemyDefs.get(id)!;
@@ -160,8 +171,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
       for (const enemy of state.enemies) {
         if (enemy.lane !== unit.row || enemy.hp <= 0) continue;
         if (enemy.pos <= nearEdge || enemy.pos > farEdge) continue;
-        const tags = enemyDef(enemy.defId).tags ?? [];
-        if (!requires.every((tag) => tags.includes(tag))) continue;
+        if (!enemyHas(enemy, requires)) continue;
         if (!target || enemy.pos < target.pos) target = enemy;
       }
       return target;
@@ -170,6 +180,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     boostFrom: (pick) => signalDefs.reduce((sum, [name, def]) => sum + (pick(def) ?? 0) * signalFraction(name), 0),
     trapDef: (id) => trapDefs.get(id)!,
     enemyHas,
+    enemyDamageMultiplier,
     trapSlow(enemy, col) {
       let slow = 1;
       for (const trap of state.traps) {

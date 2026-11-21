@@ -41,5 +41,14 @@
       "nk"
     ],
     "banner": "banner.infection"
+  },
+  "1-6": {
+    "title": "intro.1-6.title",
+    "body": "intro.1-6.body",
+    "feature": [
+      "complemento",
+      "bacteria_capsulada"
+    ],
+    "banner": "banner.complement"
   }
 }

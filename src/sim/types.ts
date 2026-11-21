@@ -28,6 +28,13 @@ export interface AttackDef {
 export interface StatusDef {
   /** Seconds the status lasts once applied. */
   duration: number;
+  /**
+   * Enemy statuses only: tags the enemy counts as carrying while it has the status (for example
+   * an opsonized enemy counts as PAMP-marked for phagocytes).
+   */
+  grants?: string[];
+  /** Enemy statuses only: multiplier (above 1 for more) on the damage the enemy takes from units. */
+  damageMultiplier?: number;
   /** Statuses that cannot be applied to a unit while it carries this one. */
   prevents?: string[];
   /** When newly applied, the own units within `radius` cells (1 = the 8 neighbours) receive `status`. */
@@ -121,8 +128,28 @@ export interface TrapDef {
   raises?: { signal: string; amount: number };
 }
 
+/**
+ * A one-use card that acts on an area around the cell it is played on instead of deploying a
+ * unit. Its cascade runs in the order the steps are declared; each `at` is seconds after the play.
+ */
+export interface PowerDef {
+  /** Cells reached on each side of the played cell (1 = the 3x3 square). */
+  radius: number;
+  /** Enemies in the area get the status (for example opsonized). */
+  opsonize?: { status: string; at: number };
+  /** The inflammation meter rises by `amount` points, when the level has that signal. */
+  inflammation?: { signal: string; amount: number; at: number };
+  /** A unit of `unit` is placed on the played cell, or the nearest free cell in its lane. */
+  recruit?: { unit: string; at: number };
+  /** Enemies in the area carrying every `requires` tag take `damage` (the nearest `max` of them). */
+  attack?: { requires: string[]; max: number; damage: number; at: number };
+}
+
 export interface UnitDef {
   id: string;
+  /** `power` marks a one-use card (see `power`): it is never deployed as a unit. Default `unit`. */
+  kind?: 'unit' | 'power';
+  power?: PowerDef;
   cost: number;
   /** Seconds before the same unit can be deployed again. */
   cooldown: number;
@@ -239,6 +266,8 @@ export interface EnemyState {
   attackReadyAt: number;
   /** Lane switches made so far (enemies that spread around barriers). */
   switches: number;
+  /** Enemy statuses by name, with the tick from which each is gone. */
+  statuses?: Record<string, number>;
 }
 
 /** A trap laid on a cell (for example a NET). */
@@ -285,6 +314,8 @@ export interface SimState {
   released: Record<string, number>;
   /** Marrow progress toward its next batch, in thousandths of a tick. */
   marrowCharge: number;
+  /** Powers already played this level (each is one-use). */
+  powersUsed: string[];
   rngState: number;
 }
 
@@ -294,15 +325,25 @@ export type PlaceFailure =
   | 'out_of_bounds'
   | 'cell_occupied'
   | 'on_cooldown'
-  | 'insufficient_energy';
+  | 'insufficient_energy'
+  | 'not_a_unit';
 
 export type PlaceResult = { ok: true } | { ok: false; reason: PlaceFailure };
+
+export type PowerFailure = 'game_over' | 'not_in_deck' | 'not_a_power' | 'out_of_bounds' | 'already_used';
+
+export type PowerResult = { ok: true } | { ok: false; reason: PowerFailure };
 
 /** Something that stores signal charge: a unit by id, or the open wound of a lane. */
 export type SignalSource = { kind: 'unit'; uid: number } | { kind: 'wound'; lane: number };
 
+/** The steps a power's cascade can take, in the order they are declared on `PowerDef`. */
+export type PowerStepKind = 'opsonize' | 'inflammation' | 'recruit' | 'attack';
+
 export type SimEvent =
   | { type: 'energy_gained'; amount: number }
+  /** One step of a power's cascade ran. `enemies` are the uids it touched, `unit` the unit it placed. */
+  | { type: 'power_step'; power: string; kind: PowerStepKind; enemies: number[]; unit?: number; amount?: number }
   | { type: 'wound_opened'; lane: number }
   /** Stored charge that flowed into a signal this tick while the player held the release, in points. */
   | { type: 'signal_released'; signal: string; amount: number }
@@ -331,6 +372,8 @@ export interface Sim {
   /** Advances exactly one fixed tick and returns what happened during it. */
   step(): SimEvent[];
   placeUnit(defId: string, row: number, col: number): PlaceResult;
+  /** Plays a one-use power on a cell; its cascade then runs over the following ticks. */
+  playPower(defId: string, row: number, col: number): PowerResult;
   /**
    * Player command, applied on every following tick until changed: while on, stored charge flows
    * into its signal at the signal's `releasePerSecond`, never more than is stored nor past `max`.
