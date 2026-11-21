@@ -123,6 +123,14 @@ interface CardView {
   cost: Phaser.GameObjects.Text;
 }
 
+/** Cytokine icon: three signal dots joined in a triangle, centred on (x, y), `scale` times its size. */
+function drawCytokineIcon(g: Phaser.GameObjects.Graphics, x: number, y: number, scale: number, color: number): void {
+  const p = (dx: number, dy: number): [number, number] => [x + dx * scale, y + dy * scale];
+  const [a, b, c] = [p(-8, 6), p(0, -7), p(8, 6)];
+  g.lineStyle(2.5 * scale, color, 1).lineBetween(a[0], a[1], b[0], b[1]).lineBetween(b[0], b[1], c[0], c[1]).lineBetween(a[0], a[1], c[0], c[1]);
+  for (const [px, py] of [a, b, c]) g.fillStyle(color, 1).fillCircle(px, py, 4 * scale);
+}
+
 function text(scene: Phaser.Scene, size: number, bold = false, color = INK): Phaser.GameObjects.Text {
   return scene.add
     .text(0, 0, '', { fontFamily: UI_FONT, fontSize: `${size}px`, color, fontStyle: bold ? 'bold' : 'normal' })
@@ -151,7 +159,6 @@ export class Hud {
   private readonly timeLabel: Phaser.GameObjects.Text;
   private readonly timeValue: Phaser.GameObjects.Text;
   private readonly layout: HudLayout;
-  private readonly releaseLabel: Phaser.GameObjects.Text | null = null;
   private meterBumpAt = -Infinity;
   /** Inflammation gauge: its label and the levels (0..1) where its tiers start; null without it. */
   private readonly gauge: { label: Phaser.GameObjects.Text; tiers: number[]; defeatAt: number } | null = null;
@@ -223,16 +230,6 @@ export class Hud {
       .setVisible(!clear)
       .setOrigin(1, 0)
       .setPosition(timer.x + timer.w - 16, timer.y + 4);
-    const { release } = this.layout;
-    if (release) {
-      this.releaseLabel = text(scene, 15, true)
-        .setText(t('hud.release'))
-        .setAlign('center')
-        .setWordWrapWidth(release.w - 24)
-        .setLineSpacing(-3)
-        .setOrigin(0.5, 0.5)
-        .setDepth(7.1);
-    }
     if (meter) {
       this.chipTexts = { marrow: text(scene, 13, true).setOrigin(1, 0.5), recruit: text(scene, 13, true).setOrigin(1, 0.5) };
     }
@@ -557,12 +554,8 @@ export class Hud {
       g.lineStyle(4, CYTOKINE, bump).strokeRoundedRect(rect.x - 3 * bump, rect.y - 3 * bump, rect.w + 6 * bump, rect.h + 6 * bump, 18);
     }
     g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 8);
-    // Cytokine icon: three signal dots joined in a triangle, teal while the meter holds any signal.
-    const icon = level > 0.05 ? 0x1b7f76 : 0x9c8a87;
-    const ix = rect.x + 30;
-    const iy = rect.y + 18;
-    g.lineStyle(2.5, icon, 1).lineBetween(ix - 8, iy + 6, ix, iy - 7).lineBetween(ix, iy - 7, ix + 8, iy + 6).lineBetween(ix - 8, iy + 6, ix + 8, iy + 6);
-    g.fillStyle(icon, 1).fillCircle(ix - 8, iy + 6, 4).fillCircle(ix, iy - 7, 4).fillCircle(ix + 8, iy + 6, 4);
+    // Cytokine icon: teal while the meter holds any signal.
+    drawCytokineIcon(g, rect.x + 30, rect.y + 18, 1, level > 0.05 ? 0x1b7f76 : 0x9c8a87);
     if (m.effects) this.drawChips(g, m.effects, rect, bar);
   }
 
@@ -616,8 +609,7 @@ export class Hud {
    */
   private drawRelease(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const rect = this.layout.release;
-    const label = this.releaseLabel;
-    if (!rect || !label || !m.release) return;
+    if (!rect || !m.release) return;
     const { stored, max, held } = m.release;
     const ready = stored >= 0.5;
     const sink = held ? 4 : 0;
@@ -630,7 +622,8 @@ export class Hud {
       g.fillStyle(CYTOKINE, glow).fillRoundedRect(r.x + 4, r.y + 4, Math.max(18, (r.w - 8) * share), r.h - 8, 18);
     }
     g.lineStyle(held ? 5 : 4, held ? CYTOKINE_DARK : OUTLINE, 1).strokeRoundedRect(r.x, r.y, r.w, r.h, 22);
-    label.setPosition(r.x + r.w / 2, r.y + r.h / 2).setColor(ready ? INK : '#9C8A87');
+    // The cytokine icon at the button's centre, in ink when charge is stored and grey when it is not.
+    drawCytokineIcon(g, r.x + r.w / 2, r.y + r.h / 2, 1.5, ready ? 0x3a2a2a : 0x9c8a87);
   }
 
   /** Two chips under the label: what the meter does right now. Idle (grey) at x1, teal when it speeds things up. */

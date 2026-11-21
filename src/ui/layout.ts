@@ -129,10 +129,10 @@ const INFLAMMATION_W_WITH_POWER = 160;
 const INFLAMMATION_W = 190;
 const BUTTON_W = 68;
 /** Width of the hold-to-release button, which sits inside the meter panel. */
-const RELEASE_W = 148;
+const RELEASE_W = 128;
 const RELEASE_INSET = 12;
 /** Power button width (the release button's width). */
-const POWER_BUTTON_W = 148;
+const POWER_BUTTON_W = 128;
 
 /** Pause button: top right of the bar, left of the fullscreen toggle. */
 export const PAUSE_BUTTON: Rect = { x: 1118, y: BAR_Y, w: BUTTON_W, h: BAR_H };
