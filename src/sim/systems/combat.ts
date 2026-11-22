@@ -153,6 +153,8 @@ export function createEnemyActions(world: World): System {
       const blockedAhead = rows.some((row) => stops(world, enemy, world.unitAt(row, col - 1)));
       // Stop flush against the next blocking unit instead of overlapping it.
       enemy.pos = blockedAhead && advanced < cellEdge ? cellEdge : advanced;
+      // An anchored enemy (a boss) walks in and then holds its column.
+      if (def.anchor !== undefined) enemy.pos = Math.max(enemy.pos, (def.anchor + 1) * CELL);
     }
     if (consumed.size > 0) state.enemies = state.enemies.filter((enemy) => !consumed.has(enemy.uid));
     world.removeDeadUnits(events);

@@ -60,6 +60,9 @@ const CHARACTERS: Record<string, CharacterSpec> = {
   // Proposal pending review: calm, poised idle; drawn in assets/sprites/nk/.
   nk: { motion: 'worker', eyes: [[104, 128], [150, 128]], lid: 0xb791be },
   // Proposal pending review: a small enveloped virion with glycoprotein spikes, face on the left.
+  // Proposal pending review: an arrogant golden cluster of cocci; the colony is the world 1 boss.
+  staphylococcus_aureus: { motion: 'crawler', eyes: [[70, 172], [104, 172]], lid: 0xf2c230, front: 48 },
+  staphylococcus_aureus_colonia: { motion: 'jelly', eyes: [[70, 134], [116, 134]], lid: 0xf2c230, front: 30 },
   virus: { motion: 'crawler', eyes: [[100, 150], [134, 150]], lid: 0x36b862, front: 66 },
 };
 

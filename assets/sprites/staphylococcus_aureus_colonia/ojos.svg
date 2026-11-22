@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- ojos base compartidos -->
+    <ellipse cx="70" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="67" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="73.5" cy="139" r="2" fill="#FBF7F2"/>
+    <ellipse cx="116" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="113" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="119.5" cy="139" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 57 118 H 83 V 131 H 57 Z"/>
+    <path fill="#F2C230" d="M 103 118 H 129 V 129 L 103 133 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 58 131 H 82 M 104 133 L 128 129"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 58 116 Q 69 100 83 110 M 104 113 L 128 118"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 75.0 166 Q 93.0 174 109.0 156"/>
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" d="M 95.0 170 L 99.0 178 L 103.0 167 Z"/>
+    <!-- caritas secundarias -->
+    <ellipse cx="128" cy="64" rx="4.5" ry="6" fill="#3A2A2A"/>
+    <circle cx="126.5" cy="62" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 122 56 H 134 V 63 H 122 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 122 63 H 134"/>
+    <ellipse cx="150" cy="112" rx="4.5" ry="6" fill="#3A2A2A"/>
+    <circle cx="148.5" cy="110" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 144 104 H 156 V 111 H 144 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 144 111 H 156"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 143 126 Q 150 131 158 124"/>
+  </g>
+</svg>

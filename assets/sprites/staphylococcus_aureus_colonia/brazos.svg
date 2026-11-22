@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- pseudopatas cortas: casi no se mueve -->
+    <path d="M 62 200 Q 52 214 60 224"/>
+    <path d="M 96 208 Q 88 218 94 225"/>
+    <path d="M 132 210 Q 124 220 132 225"/>
+    <path d="M 176 214 Q 170 220 178 225"/>
+    <path d="M 210 200 Q 206 214 214 224"/>
+  </g>
+</svg>

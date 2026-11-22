@@ -77,6 +77,16 @@ describe('an enemy that spans several lanes', () => {
   });
 });
 
+describe('an anchored enemy', () => {
+  it('walks in and then holds its column, never advancing past it', () => {
+    const sim = setup({}, [{ ...king, sheds: undefined, speed: 1, anchor: 5 }]);
+    run(sim, 10);
+    const boss = kingOf(sim);
+    // Its front edge rests on the right edge of column 5: it stands in that column.
+    expect(boss.pos).toBe(6000);
+  });
+});
+
 describe('shedding', () => {
   it('releases one enemy every `every` seconds from the right edge, rotating through the lanes', () => {
     const sim = setup();

@@ -1,0 +1,72 @@
+{
+  "id": "1-8",
+  "grid": {
+    "rows": 5,
+    "cols": 9
+  },
+  "startEnergy": 300,
+  "marrow": {
+    "amount": 25,
+    "interval": 5
+  },
+  "deck": [
+    "epitelio",
+    "moco",
+    "macrofago",
+    "neutrofilo",
+    "nk",
+    "dendritica"
+  ],
+  "objectives": [
+    "obj.1-8.leukocidin",
+    "obj.1-8.coagulase"
+  ],
+  "signals": [
+    "citocinas",
+    "inflamacion"
+  ],
+  "win": {
+    "type": "boss",
+    "enemy": "staphylococcus_aureus_colonia"
+  },
+  "waves": [
+    {
+      "at": 3,
+      "enemy": "staphylococcus_aureus",
+      "lane": 1,
+      "count": 2,
+      "gap": 2
+    },
+    {
+      "at": 9,
+      "enemy": "staphylococcus_aureus",
+      "lane": 3,
+      "count": 2,
+      "gap": 2
+    },
+    {
+      "at": 15,
+      "enemy": "staphylococcus_aureus",
+      "lane": 0,
+      "count": 2,
+      "gap": 2
+    },
+    {
+      "at": 21,
+      "enemy": "staphylococcus_aureus",
+      "lane": 4,
+      "count": 2,
+      "gap": 2
+    },
+    {
+      "at": 28,
+      "enemy": "staphylococcus_aureus_colonia",
+      "lane": 2,
+      "count": 1,
+      "gap": 1
+    }
+  ],
+  "powers": [
+    "complemento"
+  ]
+}

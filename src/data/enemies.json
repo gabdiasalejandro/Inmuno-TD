@@ -78,5 +78,49 @@
       "gramnegativa",
       "capsula"
     ]
+  },
+  {
+    "id": "staphylococcus_aureus",
+    "hp": 50,
+    "speed": 0.3,
+    "attack": {
+      "damage": 10,
+      "rate": 1
+    },
+    "tags": [
+      "bacteria",
+      "PAMP"
+    ]
+  },
+  {
+    "id": "staphylococcus_aureus_colonia",
+    "hp": 2000,
+    "speed": 0.3,
+    "attack": {
+      "damage": 30,
+      "rate": 1
+    },
+    "span": 1,
+    "sheds": {
+      "enemy": "staphylococcus_aureus",
+      "every": 4
+    },
+    "aura": {
+      "from": 0.7,
+      "radius": 1,
+      "requires": [
+        "granulocito"
+      ],
+      "damagePerSecond": 30
+    },
+    "shield": {
+      "from": 0.4,
+      "hp": 600
+    },
+    "tags": [
+      "bacteria",
+      "PAMP"
+    ],
+    "anchor": 7
   }
 ]

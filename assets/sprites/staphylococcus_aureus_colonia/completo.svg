@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- pseudopatas cortas: casi no se mueve -->
+    <path d="M 62 200 Q 52 214 60 224"/>
+    <path d="M 96 208 Q 88 218 94 225"/>
+    <path d="M 132 210 Q 124 220 132 225"/>
+    <path d="M 176 214 Q 170 220 178 225"/>
+    <path d="M 210 200 Q 206 214 214 224"/>
+  </g>
+  <g id="cuerpo" stroke-linejoin="round" stroke-linecap="round">
+    <!-- colonia: racimo grande; tres cocos arriba hacen de corona; la cara va en el coco central izquierdo -->
+    <circle cx="214" cy="178" r="30" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 241.2 165.3 A 30 30 0 0 1 196.8 202.6 A 36 36 0 0 0 241.2 165.3 Z"/>
+    <path fill="#F9E27A" d="M 193.1 172.4 Q 196.2 161.9 206.6 157.7 Q 200.6 166 193.1 172.4 Z"/>
+    <circle cx="214" cy="178" r="30" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="206" cy="128" r="28" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 231.4 116.2 A 28 28 0 0 1 189.9 150.9 A 33.6 33.6 0 0 0 231.4 116.2 Z"/>
+    <path fill="#F9E27A" d="M 186.5 122.8 Q 189.4 113 199.1 109.1 Q 193.5 116.8 186.5 122.8 Z"/>
+    <circle cx="206" cy="128" r="28" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="214" cy="86" r="20" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 232.1 77.5 A 20 20 0 0 1 202.5 102.4 A 24 24 0 0 0 232.1 77.5 Z"/>
+    <path fill="#F9E27A" d="M 200.1 82.3 Q 202.1 75.3 209.1 72.5 Q 205.1 78 200.1 82.3 Z"/>
+    <circle cx="214" cy="86" r="20" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="172" cy="84" r="24" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 193.8 73.9 A 24 24 0 0 1 158.2 103.7 A 28.8 28.8 0 0 0 193.8 73.9 Z"/>
+    <path fill="#F9E27A" d="M 155.3 79.5 Q 157.7 71.2 166.1 67.8 Q 161.3 74.4 155.3 79.5 Z"/>
+    <circle cx="172" cy="84" r="24" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="178" cy="202" r="22" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 197.9 192.7 A 22 22 0 0 1 165.4 220 A 26.4 26.4 0 0 0 197.9 192.7 Z"/>
+    <path fill="#F9E27A" d="M 162.7 197.9 Q 164.9 190.2 172.6 187.1 Q 168.2 193.2 162.7 197.9 Z"/>
+    <circle cx="178" cy="202" r="22" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="150" cy="112" r="32" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 179 98.5 A 32 32 0 0 1 131.6 138.2 A 38.4 38.4 0 0 0 179 98.5 Z"/>
+    <path fill="#F9E27A" d="M 127.7 106 Q 131 94.9 142.1 90.3 Q 135.7 99.2 127.7 106 Z"/>
+    <circle cx="150" cy="112" r="32" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="134" cy="72" r="22" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 153.9 62.7 A 22 22 0 0 1 121.4 90 A 26.4 26.4 0 0 0 153.9 62.7 Z"/>
+    <path fill="#F9E27A" d="M 118.7 67.9 Q 120.9 60.2 128.6 57.1 Q 124.2 63.2 118.7 67.9 Z"/>
+    <circle cx="134" cy="72" r="22" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="60" cy="76" r="22" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 79.9 66.7 A 22 22 0 0 1 47.4 94 A 26.4 26.4 0 0 0 79.9 66.7 Z"/>
+    <path fill="#F9E27A" d="M 44.7 71.9 Q 46.9 64.2 54.6 61.1 Q 50.2 67.2 44.7 71.9 Z"/>
+    <circle cx="60" cy="76" r="22" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="96" cy="52" r="28" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 121.4 40.2 A 28 28 0 0 1 79.9 74.9 A 33.6 33.6 0 0 0 121.4 40.2 Z"/>
+    <path fill="#F9E27A" d="M 76.5 46.8 Q 79.4 37 89.1 33.1 Q 83.5 40.8 76.5 46.8 Z"/>
+    <circle cx="96" cy="52" r="28" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <circle cx="166" cy="162" r="42" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 204.1 144.3 A 42 42 0 0 1 141.9 196.4 A 50.4 50.4 0 0 0 204.1 144.3 Z"/>
+    <path fill="#F9E27A" d="M 136.8 154.2 Q 141 139.5 155.7 133.6 Q 147.3 145.1 136.8 154.2 Z"/>
+    <circle cx="166" cy="162" r="42" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+    <!-- emblema PAMP en la mitad trasera -->
+    <polygon points="172,148 192,168 172,188 152,168" fill="#8E2C6B" stroke="#F6E9EF" stroke-width="14"/>
+    <polygon points="172,148 192,168 172,188 152,168" fill="#8E2C6B" stroke="#3A2A2A" stroke-width="5"/>
+    <polygon points="172,160 180,168 172,176 164,168" fill="#F6E9EF"/>
+    <circle cx="92" cy="150" r="62" fill="#F2C230"/>
+    <path fill="#D9A21B" d="M 148.2 123.8 A 62 62 0 0 1 56.4 200.8 A 74.4 74.4 0 0 0 148.2 123.8 Z"/>
+    <path fill="#F9E27A" d="M 48.9 138.4 Q 55.1 116.8 76.7 108.1 Q 64.4 125.1 48.9 138.4 Z"/>
+    <circle cx="92" cy="150" r="62" fill="none" stroke="#3A2A2A" stroke-width="8"/>
+  </g>
+  <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
+    <!-- ojos base compartidos -->
+    <ellipse cx="70" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="67" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="73.5" cy="139" r="2" fill="#FBF7F2"/>
+    <ellipse cx="116" cy="134" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="113" cy="130" r="4.5" fill="#FBF7F2"/>
+    <circle cx="119.5" cy="139" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 57 118 H 83 V 131 H 57 Z"/>
+    <path fill="#F2C230" d="M 103 118 H 129 V 129 L 103 133 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 58 131 H 82 M 104 133 L 128 129"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 58 116 Q 69 100 83 110 M 104 113 L 128 118"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 75.0 166 Q 93.0 174 109.0 156"/>
+    <path fill="#FBF7F2" stroke="#3A2A2A" stroke-width="3" d="M 95.0 170 L 99.0 178 L 103.0 167 Z"/>
+    <!-- caritas secundarias -->
+    <ellipse cx="128" cy="64" rx="4.5" ry="6" fill="#3A2A2A"/>
+    <circle cx="126.5" cy="62" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 122 56 H 134 V 63 H 122 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 122 63 H 134"/>
+    <ellipse cx="150" cy="112" rx="4.5" ry="6" fill="#3A2A2A"/>
+    <circle cx="148.5" cy="110" r="2" fill="#FBF7F2"/>
+    <path fill="#F2C230" d="M 144 104 H 156 V 111 H 144 Z"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 144 111 H 156"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="3" d="M 143 126 Q 150 131 158 124"/>
+  </g>
+</svg>

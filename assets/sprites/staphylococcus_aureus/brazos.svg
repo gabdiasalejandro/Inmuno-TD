@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g id="brazos" fill="none" stroke="#3A2A2A" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <!-- patitas cortas: hacen de apoyo -->
+    <path d="M 76 206 Q 70 216 76 224"/>
+    <path d="M 100 210 Q 94 218 100 224"/>
+    <path d="M 132 212 Q 126 219 132 225"/>
+    <path d="M 160 192 Q 156 210 164 224"/>
+  </g>
+</svg>

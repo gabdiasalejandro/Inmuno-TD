@@ -194,6 +194,8 @@ export interface EnemyDef {
    * are attacked as usual.
    */
   infects?: { status: string; requires?: string[]; resisted?: 'pass' | 'lost' };
+  /** Column the enemy stops in and holds: it walks in from the right edge and advances no further. */
+  anchor?: number;
   /** Lanes the enemy covers on each side of its own (a wide boss). Units in any of them reach it, and any of them blocks it. */
   span?: number;
   /** While alive, releases one `enemy` every `every` seconds from the right edge, rotating through the lanes from lane 0. */
