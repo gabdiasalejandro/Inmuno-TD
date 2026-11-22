@@ -130,11 +130,12 @@
   "enemy.staphylococcus_aureus.name": "Staphylococcus aureus",
   "enemy.staphylococcus_aureus_colonia.name": "Colonia de S. aureus",
   "intro.1-8.title": "Jefe: Staphylococcus aureus",
-  "intro.1-8.body": "Una colonia de S. aureus se planta en el tejido y suelta bacterias mientras viva. Cuando la lastimas, suelta leucocidinas, toxinas que matan neutrófilos. Al final usa la coagulasa para encerrarse en un absceso de fibrina. Usa todo lo que aprendiste.",
+  "intro.1-8.body": "Una colonia de S. aureus se planta en el tejido y suelta bacterias mientras viva, a veces hasta una encapsulada o un virus. Herida, suelta leucocidinas que matan neutrófilos; al final se encierra en un absceso de fibrina. Usa todo lo que aprendiste.",
   "banner.boss": "¡Derrota a la colonia!",
   "obj.1-8.leukocidin": "¿Qué hacen las leucocidinas de Staphylococcus aureus y a qué células atacan?",
   "obj.1-8.coagulase": "¿Para qué le sirve la coagulasa a Staphylococcus aureus?",
-  "tutorial.1-8.boss": "¡Ahí está! La colonia se planta y suelta estafilococos sin parar. No esperes a que llegue: rodéala de macrófagos en las casillas de enfrente.",
+  "tutorial.1-8.boss": "¡Ahí está! La colonia se planta y suelta bacterias sin parar. Es demasiado grande para tragarla: rodéala de macrófagos en las casillas de enfrente y le pegarán.",
   "tutorial.1-8.aura": "¡Leucocidinas! Sus toxinas matan a los neutrófilos que tiene cerca. Aquí manda el macrófago.",
-  "tutorial.1-8.shield": "¡Coagulasa! Se encerró en un absceso de fibrina. Rompe el muro a golpes y márcala con el complemento: el C3b multiplica el daño. El MAC no le hace nada, porque es grampositiva."
+  "tutorial.1-8.shield": "¡Coagulasa! Se encerró en un absceso de fibrina. Rompe el muro a golpes y márcala con el complemento: el C3b multiplica el daño. Cuando esté muy débil, un macrófago se la come. Para ganar, limpia también las bacterias que queden.",
+  "game.engulfed": "¡Fagocitada!"
 }

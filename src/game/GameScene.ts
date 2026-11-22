@@ -76,6 +76,8 @@ const ANTIGEN_EDGE = 0x3a2a2a;
 const TOXIN = 0xb9c94a;
 const FIBRIN = 0xe8c9a0;
 const FIBRIN_EDGE = 0x9a6b4a;
+/** Flash of a macrophage's punch landing on the colony. */
+const IMPACT = 0xfbf1c8;
 /** How much bigger than one cell a wide enemy is drawn, per lane it covers on each side. */
 const SPAN_SCALE = 1.0;
 const MEMBRANE_ATTACK = 0x8e2c6b;
@@ -336,6 +338,10 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'unit_attacked': {
+          if (event.kind) {
+            this.showStrike(event.uid, event.target, event.kind);
+            break;
+          }
           const attacker = this.sim.state.units.find((u) => u.uid === event.uid);
           const swallows = attacker && this.unitDefs.get(attacker.defId)?.attack?.type === 'fagocitosis' && died.has(event.target);
           const prey = this.enemyViews.get(event.target);
@@ -984,6 +990,34 @@ export class GameScene extends Phaser.Scene {
    * Boss phases on the board: a pulsing haze of leukocidins once its toxins are out, and the
    * fibrin wall of the abscess around it while its shield holds, thinner as it breaks.
    */
+  /**
+   * A macrophage against the colony: a punch with a burst of golden fragments where it lands, or,
+   * once the colony is weak enough, the final engulfing that pulls the whole colony into it.
+   */
+  private showStrike(uid: number, target: number, kind: 'strike' | 'engulf'): void {
+    const attacker = this.unitViews.get(uid);
+    const prey = this.enemyViews.get(target);
+    if (!attacker) return;
+    const contact = { x: attacker.root.x + this.layout.cellW * 0.55, y: attacker.root.y - this.layout.cellH * 0.35 };
+    if (kind === 'strike') {
+      attacker.punch();
+      this.time.delayedCall(200, () => {
+        prey?.hit();
+        ring(this, contact.x, contact.y, IMPACT, 10, 46, 260, 5);
+        specks(this, contact.x, contact.y, ANTIGEN, 5, 5);
+      });
+      return;
+    }
+    attacker.engulf();
+    floatText(this, attacker.root.x, attacker.root.y - this.layout.cellH, t('game.engulfed'), '#F2C230', 36);
+    if (prey) {
+      this.enemyViews.delete(target);
+      this.reachFor(prey, attacker.root.x + MOUTH.dx, attacker.root.y + MOUTH.dy);
+      prey.engulfedInto(attacker.root.x + MOUTH.dx, attacker.root.y + MOUTH.dy);
+    }
+    this.time.delayedCall(360, () => specks(this, attacker.root.x, attacker.root.y - 40, ANTIGEN, 10));
+  }
+
   /** Health of the level's boss for the HUD, or null when the level has none or it has not come yet. */
   private bossModel(): { hp: number; max: number; shield: number; shieldMax: number } | null {
     const win = this.level.win;

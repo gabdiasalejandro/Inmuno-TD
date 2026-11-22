@@ -67,7 +67,7 @@
   "almanac.staphylococcus_aureus.quote": "¿Una herida? Qué detalle. Avísale a la familia, que aquí hay lugar para todos.",
   "almanac.staphylococcus_aureus_colonia.name": "Colonia de S. aureus",
   "almanac.staphylococcus_aureus_colonia.fact": "S. aureus tiene muchas armas contra la inmunidad innata. Sus leucocidinas, como la de Panton-Valentine, son toxinas que perforan la membrana de neutrófilos y otros leucocitos. Su coagulasa convierte el fibrinógeno en fibrina y ayuda a formar un absceso que lo aísla. Como es grampositivo, su pared gruesa resiste al complejo de ataque a membrana del complemento.",
-  "almanac.staphylococcus_aureus_colonia.note_game": "En el juego la colonia se planta en una columna, suelta estafilococos mientras vive, mata neutrófilos cercanos desde el 70 % de su vida y levanta un muro de fibrina que bloquea todo el daño al llegar al 40 %.",
+  "almanac.staphylococcus_aureus_colonia.note_game": "En el juego se planta en una columna y suelta bacterias al azar. Los macrófagos le pegan hasta que baja al 10 % y uno se la come. Desde el 70 % mata neutrófilos cercanos y al 40 % se encierra en fibrina.",
   "almanac.staphylococcus_aureus_colonia.note_real": "Un absceso no es un escudo perfecto: aísla a las bacterias y les estorba a los fagocitos, pero los neutrófilos se acumulan dentro y forman el pus. En la clínica muchas veces hay que drenarlo.",
   "almanac.staphylococcus_aureus_colonia.quote": "Arrodíllense ante el racimo. ¿Neutrófilos? Ay, qué ternura. Ya no."
 }

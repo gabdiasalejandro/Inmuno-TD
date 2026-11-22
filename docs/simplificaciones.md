@@ -230,7 +230,7 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### colonia-como-jefe
 
-- **En el juego:** una «colonia» de _S. aureus_ se planta en una columna, ocupa tres carriles y suelta un estafilococo cada 4 segundos mientras vive.
+- **En el juego:** una «colonia» de _S. aureus_ se planta en una columna, ocupa tres carriles y, mientras vive, suelta cada 5 segundos una bacteria al azar (casi siempre _S. aureus_, a veces una encapsulada o un virus).
 - **En la realidad:** no hay una colonia que dirija la infección; las bacterias se multiplican en el foco y se diseminan desde ahí.
 - **Por qué se simplifica:** da al mundo 1 un jefe visible que concentra las armas reales de _S. aureus_.
 - **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_real`).
@@ -248,3 +248,17 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **En la realidad:** el absceso aísla a las bacterias y estorba a los fagocitos, pero no las blinda; los neutrófilos se acumulan dentro y forman pus, y a menudo hay que drenarlo.
 - **Por qué se simplifica:** un muro con su propia barra es fácil de leer y obliga a combinar macrófagos con complemento.
 - **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_real`).
+
+### macrofago-golpea-y-traga
+
+- **En el juego:** contra la colonia, el macrófago da golpes rápidos y algo más débiles que su fagocitosis; cuando la colonia baja al 10 % de vida, un macrófago se la traga entera.
+- **En la realidad:** los fagocitos no golpean; atacan un foco grande rodeándolo, fagocitando bacterias una a una y liberando sustancias microbicidas. Nadie se traga una colonia entera.
+- **Por qué se simplifica:** el golpe deja ver que el macrófago está atacando a un enemigo demasiado grande para tragarlo, y el final por fagocitosis cierra el mundo con el concepto del nivel 1-2.
+- **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_game`).
+
+### virus-de-la-colonia
+
+- **En el juego:** la colonia de _S. aureus_ suelta, de vez en cuando, un virus o una bacteria encapsulada.
+- **En la realidad:** una bacteria no produce virus ni otras especies; el nivel mezcla patógenos de niveles anteriores para repasarlos.
+- **Por qué se simplifica:** repaso de NK, interferón y complemento dentro del jefe.
+- **Dónde lo aclara el almanaque:** pendiente.

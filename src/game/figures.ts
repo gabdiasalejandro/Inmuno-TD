@@ -62,7 +62,7 @@ const CHARACTERS: Record<string, CharacterSpec> = {
   // Proposal pending review: a small enveloped virion with glycoprotein spikes, face on the left.
   // Proposal pending review: an arrogant golden cluster of cocci; the colony is the world 1 boss.
   staphylococcus_aureus: { motion: 'crawler', eyes: [[70, 172], [104, 172]], lid: 0xf2c230, front: 48 },
-  staphylococcus_aureus_colonia: { motion: 'jelly', eyes: [[70, 134], [116, 134]], lid: 0xf2c230, front: 30 },
+  staphylococcus_aureus_colonia: { motion: 'jelly', eyes: [[64, 140], [108, 140]], lid: 0xf2c230, front: 20 },
   virus: { motion: 'crawler', eyes: [[100, 150], [134, 150]], lid: 0x36b862, front: 66 },
 };
 
@@ -343,6 +343,23 @@ export class Figure {
   }
 
   /** A short squash used by producers (the bone marrow) when they release something. */
+  /** A punch to the right: wind up back, throw the whole body forward squashed, and settle. */
+  punch(): this {
+    if (this.dying) return this;
+    const tweens = this.scene.tweens;
+    tweens.killTweensOf(this.pose);
+    this.pose.setPosition(0, 0).setScale(1).setAngle(0);
+    tweens.chain({
+      targets: this.pose,
+      tweens: [
+        { x: -14, angle: -8, scaleX: 0.94, scaleY: 1.06, duration: 120, ease: 'Quad.easeOut' },
+        { x: 38, angle: 10, scaleX: 1.14, scaleY: 0.9, duration: 80, ease: 'Quad.easeIn' },
+        { x: 0, angle: 0, scaleX: 1, scaleY: 1, duration: 260, ease: 'Back.easeOut' },
+      ],
+    });
+    return this;
+  }
+
   squeeze(): this {
     const tweens = this.scene.tweens;
     tweens.killTweensOf(this.pose);
