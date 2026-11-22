@@ -194,6 +194,17 @@ export interface EnemyDef {
    * are attacked as usual.
    */
   infects?: { status: string; requires?: string[]; resisted?: 'pass' | 'lost' };
+  /** Lanes the enemy covers on each side of its own (a wide boss). Units in any of them reach it, and any of them blocks it. */
+  span?: number;
+  /** While alive, releases one `enemy` every `every` seconds from the right edge, rotating through the lanes from lane 0. */
+  sheds?: { enemy: string; every: number };
+  /**
+   * Toxins: once its health falls to `from` (share of max), own units carrying every `requires`
+   * tag within `radius` cells of any cell it covers lose `damagePerSecond` hit points per second.
+   */
+  aura?: { from: number; radius: number; requires: string[]; damagePerSecond: number };
+  /** Once its health falls to `from` (share of max), it raises a shield of `hp` that takes all damage until it breaks. Once. */
+  shield?: { from: number; hp: number };
   tags?: string[];
 }
 
@@ -236,7 +247,12 @@ export interface LevelDef {
 }
 
 /** `antigen`: won as soon as `count` antigen reach the lymph node, whatever is still on the board. */
-export type WinCondition = { type: 'clear' } | { type: 'survive'; seconds: number } | { type: 'antigen'; count: number };
+/** `boss`: won the moment the last enemy of that id dies, once one has appeared. */
+export type WinCondition =
+  | { type: 'clear' }
+  | { type: 'survive'; seconds: number }
+  | { type: 'antigen'; count: number }
+  | { type: 'boss'; enemy: string };
 
 export interface WoundDef {
   /** Second at which the lane opens. */
@@ -299,7 +315,16 @@ export interface EnemyState {
   switches: number;
   /** Enemy statuses by name, with the tick from which each is gone. */
   statuses?: Record<string, number>;
+  /** Hit points left on its shield (see `EnemyDef.shield`); damage goes here first. */
+  shield?: number;
+  /** Health phases already reached, in order (`aura`, `shield`). */
+  phases?: BossPhase[];
+  /** Tick of its next shed enemy, and how many it has shed (see `EnemyDef.sheds`). */
+  nextShed?: number;
+  shed?: number;
 }
+
+export type BossPhase = 'aura' | 'shield';
 
 /** A trap laid on a cell (for example a NET). */
 export interface TrapState {
@@ -407,6 +432,8 @@ export type SimEvent =
   | { type: 'unit_migrated'; uid: number; row: number; col: number; antigen: number }
   /** A courier reached the left edge and delivered its antigen. */
   | { type: 'antigen_delivered'; uid: number; row: number; amount: number }
+  /** A boss reached a health phase (its toxins or its shield). */
+  | { type: 'boss_phase'; uid: number; phase: BossPhase }
   /** The pathogen came back for the `count`-th time. */
   | { type: 'pathogen_returned'; count: number }
   | { type: 'won' }

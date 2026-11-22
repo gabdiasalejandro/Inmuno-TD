@@ -22,7 +22,7 @@ export function createPowers(world: World): { system: System; play(defId: string
   let pending: PendingStep[] = [];
 
   const inArea = (enemy: EnemyState, row: number, col: number, radius: number): boolean =>
-    enemy.hp > 0 && Math.abs(enemy.lane - row) <= radius && Math.abs(engagedCol(enemy.pos) - col) <= radius;
+    enemy.hp > 0 && world.rowsOf(enemy).some((lane) => Math.abs(lane - row) <= radius) && Math.abs(engagedCol(enemy.pos) - col) <= radius;
 
   const enemiesIn = (row: number, col: number, radius: number): EnemyState[] =>
     state.enemies.filter((enemy) => inArea(enemy, row, col, radius));
@@ -87,7 +87,7 @@ export function createPowers(world: World): { system: System; play(defId: string
           .filter((enemy) => world.enemyHas(enemy, requires))
           .sort((a, b) => a.pos - b.pos)
           .slice(0, max);
-        for (const enemy of targets) enemy.hp -= damage;
+        for (const enemy of targets) world.damageEnemy(enemy, damage);
         events.push({ type: 'power_step', power, kind, enemies: targets.map((enemy) => enemy.uid) });
         return;
       }

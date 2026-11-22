@@ -69,6 +69,10 @@ export interface World {
    * take it; a shared status the unit already carries is refreshed instead.
    */
   applyStatus(unit: UnitState, name: string, events: SimEvent[], by?: number): boolean;
+  /** Lanes an enemy covers: its own, then outwards on each side (see `EnemyDef.span`), inside the grid. */
+  rowsOf(enemy: EnemyState): number[];
+  /** Deals damage to an enemy: its shield takes it first, and only what the shield cannot hold reaches the body. */
+  damageEnemy(enemy: EnemyState, amount: number): void;
   /** Own units within `radius` cells of (row, col), the cell itself excluded, in deploy order. */
   unitsAround(row: number, col: number, radius: number): UnitState[];
 }
@@ -137,6 +141,10 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     if (!powerDefs.has(id)) throw new Error(`Level ${level.id}: unknown power "${id}"`);
   }
   const statusDefs = content.statuses ?? {};
+  for (const def of content.enemies) {
+    if (def.sheds && !enemyDefs.has(def.sheds.enemy)) throw new Error(`Enemy "${def.id}": sheds unknown enemy "${def.sheds.enemy}"`);
+  }
+  if (level.win?.type === 'boss' && !enemyDefs.has(level.win.enemy)) throw new Error(`Level ${level.id}: unknown boss "${level.win.enemy}"`);
   for (const [name, def] of Object.entries(statusDefs)) {
     if (def.burst && !enemyDefs.has(def.burst.enemy)) throw new Error(`Status "${name}": unknown enemy "${def.burst.enemy}"`);
   }
@@ -168,6 +176,13 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
   // Ids were validated above or come from state the sim itself created.
   const enemyDef = (id: string): EnemyDef => enemyDefs.get(id)!;
 
+  const rowsOf = (enemy: EnemyState): number[] => {
+    const span = enemyDef(enemy.defId).span ?? 0;
+    const rows = [enemy.lane];
+    for (let d = 1; d <= span; d++) rows.push(enemy.lane - d, enemy.lane + d);
+    return rows.filter((row) => row >= 0 && row < level.grid.rows);
+  };
+
   const signalFraction = (name: string): number => {
     const max = activeSignals.get(name)?.max;
     return max ? (state.signals[name] ?? 0) / (max * MILLI) : 0;
@@ -185,7 +200,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
       const farEdge = (unit.col + 1 + range) * CELL;
       let target: EnemyState | undefined;
       for (const enemy of state.enemies) {
-        if (enemy.lane !== unit.row || enemy.hp <= 0) continue;
+        if (enemy.hp <= 0 || !rowsOf(enemy).includes(unit.row)) continue;
         if (enemy.pos <= nearEdge || enemy.pos > farEdge) continue;
         if (!enemyHas(enemy, requires)) continue;
         if (!target || enemy.pos < target.pos) target = enemy;
@@ -198,10 +213,16 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     powerDef: (id) => powerDefs.get(id)!,
     enemyHas,
     enemyDamageMultiplier,
+    rowsOf,
+    damageEnemy(enemy, amount) {
+      const absorbed = Math.min(enemy.shield ?? 0, amount);
+      if (absorbed > 0) enemy.shield = (enemy.shield ?? 0) - absorbed;
+      enemy.hp -= amount - absorbed;
+    },
     trapSlow(enemy, col) {
       let slow = 1;
       for (const trap of state.traps) {
-        if (trap.row !== enemy.lane || trap.col !== col) continue;
+        if (!rowsOf(enemy).includes(trap.row) || trap.col !== col) continue;
         const def = trapDefs.get(trap.defId)!;
         if (enemyHas(enemy, def.requires)) slow *= def.slow;
       }

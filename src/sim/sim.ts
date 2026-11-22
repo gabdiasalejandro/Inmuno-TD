@@ -1,6 +1,7 @@
 import { createCoupling, createHarm } from './systems/collateral';
 import { createEnemyActions, createExpiry, createUnitAttacks } from './systems/combat';
 import { createAntigen } from './systems/antigen';
+import { createBoss } from './systems/boss';
 import { createMarrow } from './systems/marrow';
 import { createOutcome } from './systems/outcome';
 import { createPowers } from './systems/power';
@@ -40,6 +41,7 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
     createExpiry(world),
     createUnitAttacks(world),
     createEnemyActions(world),
+    createBoss(world),
     statuses.expire,
     powers.system,
     createHarm(world),

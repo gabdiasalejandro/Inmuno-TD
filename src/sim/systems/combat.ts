@@ -55,7 +55,7 @@ export function createUnitAttacks(world: World): System {
       const target = world.findTarget(unit, attack.range, attack.requires);
       if (!target) continue;
       const damage = attack.damage * world.enemyDamageMultiplier(target);
-      target.hp -= damage;
+      world.damageEnemy(target, damage);
       unit.attackReadyAt = state.tick + attackIntervalTicks(attack.rate);
       events.push({ type: 'unit_attacked', uid: unit.uid, target: target.uid, damage });
     }
@@ -118,9 +118,11 @@ export function createEnemyActions(world: World): System {
     for (const enemy of state.enemies) {
       const def = world.enemyDef(enemy.defId);
       const col = engagedCol(enemy.pos);
+      // A wide enemy is stopped by whatever stops it in any lane it covers, its own lane first.
+      const rows = world.rowsOf(enemy);
       const occupant = world.unitAt(enemy.lane, col);
       const occupantDef = occupant && world.unitDef(occupant.defId);
-      const blocker = stops(world, enemy, occupant) ? occupant : undefined;
+      const blocker = rows.map((row) => world.unitAt(row, col)).find((unit) => stops(world, enemy, unit));
       if (blocker && def.infects && infectable(world, enemy, blocker)) {
         // Infection instead of an attack: the enemy uses itself up on the cell, even when the
         // cell resists it (only enemies `lost` on resisting cells are stopped by those).
@@ -148,7 +150,7 @@ export function createEnemyActions(world: World): System {
       const stride = Math.max(1, Math.round(((def.speed * CELL) / TICKS_PER_SECOND) * slow));
       const advanced = enemy.pos - stride;
       const cellEdge = col * CELL;
-      const blockedAhead = stops(world, enemy, world.unitAt(enemy.lane, col - 1));
+      const blockedAhead = rows.some((row) => stops(world, enemy, world.unitAt(row, col - 1)));
       // Stop flush against the next blocking unit instead of overlapping it.
       enemy.pos = blockedAhead && advanced < cellEdge ? cellEdge : advanced;
     }

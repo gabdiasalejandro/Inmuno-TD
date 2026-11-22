@@ -32,9 +32,9 @@ export function createTraps(world: World): System {
       const def = world.trapDef(trap.defId);
       if ((state.tick - trap.laidAt) % interval(def.rate) !== 0) continue;
       for (const enemy of state.enemies) {
-        if (enemy.lane !== trap.row || enemy.hp <= 0 || !world.enemyHas(enemy, def.requires)) continue;
+        if (!world.rowsOf(enemy).includes(trap.row) || enemy.hp <= 0 || !world.enemyHas(enemy, def.requires)) continue;
         if (engagedCol(enemy.pos) !== trap.col) continue;
-        enemy.hp -= def.damage;
+        world.damageEnemy(enemy, def.damage);
         events.push({ type: 'trap_hit', uid: trap.uid, target: enemy.uid, damage: def.damage });
       }
     }

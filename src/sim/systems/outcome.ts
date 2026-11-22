@@ -14,6 +14,7 @@ export function createOutcome(
 ): System {
   const { level, state } = world;
   const win = level.win ?? { type: 'clear' };
+  let bossSeen = false;
 
   return (events) => {
     const breached = state.enemies.some((enemy) => enemy.pos <= 0);
@@ -25,12 +26,16 @@ export function createOutcome(
       events.push({ type: 'lost', cause });
       return;
     }
+    const bossAlive = win.type === 'boss' && state.enemies.some((enemy) => enemy.defId === win.enemy);
+    bossSeen ||= bossAlive;
     const won =
       win.type === 'survive'
         ? state.tick >= secondsToTicks(win.seconds)
         : win.type === 'antigen'
           ? state.antigenDelivered >= win.count
-          : allSpawned() && state.enemies.length === 0 && !pendingBurst();
+          : win.type === 'boss'
+            ? bossSeen && !bossAlive
+            : allSpawned() && state.enemies.length === 0 && !pendingBurst();
     if (!won) return;
     state.status = 'won';
     events.push({ type: 'won' });
