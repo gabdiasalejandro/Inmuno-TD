@@ -230,7 +230,7 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### colonia-como-jefe
 
-- **En el juego:** una «colonia» de _S. aureus_ se planta en una columna, ocupa tres carriles y, mientras vive, suelta cada 5 segundos una bacteria al azar (casi siempre _S. aureus_, a veces una encapsulada o un virus).
+- **En el juego:** una «colonia» de _S. aureus_ se planta en una columna, ocupa tres carriles, alcanza a las células a dos casillas y, mientras vive, suelta un _S. aureus_ cada 4 segundos desde su frente.
 - **En la realidad:** no hay una colonia que dirija la infección; las bacterias se multiplican en el foco y se diseminan desde ahí.
 - **Por qué se simplifica:** da al mundo 1 un jefe visible que concentra las armas reales de _S. aureus_.
 - **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_real`).
@@ -256,9 +256,9 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **Por qué se simplifica:** el golpe deja ver que el macrófago está atacando a un enemigo demasiado grande para tragarlo, y el final por fagocitosis cierra el mundo con el concepto del nivel 1-2.
 - **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_game`).
 
-### virus-de-la-colonia
+### otros-patogenos-en-el-jefe
 
-- **En el juego:** la colonia de _S. aureus_ suelta, de vez en cuando, un virus o una bacteria encapsulada.
-- **En la realidad:** una bacteria no produce virus ni otras especies; el nivel mezcla patógenos de niveles anteriores para repasarlos.
+- **En el juego:** mientras vive la colonia, cada 25 segundos entra por las heridas un virus o una bacteria encapsulada.
+- **En la realidad:** son infecciones distintas que no dependen de _S. aureus_; el nivel mezcla patógenos de niveles anteriores para repasarlos.
 - **Por qué se simplifica:** repaso de NK, interferón y complemento dentro del jefe.
 - **Dónde lo aclara el almanaque:** pendiente.

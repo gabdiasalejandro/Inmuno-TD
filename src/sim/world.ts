@@ -142,10 +142,12 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
   }
   const statusDefs = content.statuses ?? {};
   for (const def of content.enemies) {
-    for (const { enemy } of def.sheds?.pool ?? []) {
-      if (!enemyDefs.has(enemy)) throw new Error(`Enemy "${def.id}": sheds unknown enemy "${enemy}"`);
+    for (const stream of def.sheds ?? []) {
+      for (const { enemy } of stream.pool) {
+        if (!enemyDefs.has(enemy)) throw new Error(`Enemy "${def.id}": sheds unknown enemy "${enemy}"`);
+      }
+      if (!stream.pool.some((entry) => entry.weight > 0)) throw new Error(`Enemy "${def.id}": a shed stream needs a positive weight`);
     }
-    if (def.sheds && !def.sheds.pool.some((entry) => entry.weight > 0)) throw new Error(`Enemy "${def.id}": sheds needs a positive weight`);
   }
   if (level.win?.type === 'boss' && !enemyDefs.has(level.win.enemy)) throw new Error(`Level ${level.id}: unknown boss "${level.win.enemy}"`);
   for (const [name, def] of Object.entries(statusDefs)) {

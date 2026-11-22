@@ -25,31 +25,29 @@ export function createBoss(world: World): System {
       const def = world.enemyDef(enemy.defId);
       if (enemy.hp <= 0) continue;
 
-      if (def.sheds) {
-        const every = secondsToTicks(def.sheds.every);
-        enemy.nextShed ??= state.tick + every;
-        if (state.tick >= enemy.nextShed) {
-          const { pool } = def.sheds;
-          const total = pool.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
-          let roll = world.random() * total;
-          const pick = pool.find((entry) => (roll -= Math.max(0, entry.weight)) < 0) ?? pool[pool.length - 1]!;
-          const shedDef = world.enemyDef(pick.enemy);
-          const lane = Math.floor(world.random() * rows);
-          enemy.shed = (enemy.shed ?? 0) + 1;
-          enemy.nextShed += every;
-          const child: EnemyState = {
-            uid: state.nextUid++,
-            defId: shedDef.id,
-            lane,
-            pos: level.grid.cols * CELL,
-            hp: shedDef.hp,
-            attackReadyAt: 0,
-            switches: 0,
-          };
-          born.push(child);
-          events.push({ type: 'enemy_spawned', uid: child.uid, defId: child.defId, lane });
-        }
-      }
+      (def.sheds ?? []).forEach((stream, i) => {
+        const every = secondsToTicks(stream.every);
+        enemy.nextShed ??= [];
+        enemy.nextShed[i] ??= state.tick + every;
+        if (state.tick < enemy.nextShed[i]!) return;
+        enemy.nextShed[i]! += every;
+        const total = stream.pool.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
+        let roll = world.random() * total;
+        const pick = stream.pool.find((entry) => (roll -= Math.max(0, entry.weight)) < 0) ?? stream.pool[stream.pool.length - 1]!;
+        const shedDef = world.enemyDef(pick.enemy);
+        const lane = Math.floor(world.random() * rows);
+        const child: EnemyState = {
+          uid: state.nextUid++,
+          defId: shedDef.id,
+          lane,
+          pos: stream.from === 'self' ? enemy.pos : level.grid.cols * CELL,
+          hp: shedDef.hp,
+          attackReadyAt: 0,
+          switches: 0,
+        };
+        born.push(child);
+        events.push({ type: 'enemy_spawned', uid: child.uid, defId: child.defId, lane });
+      });
 
       if (def.aura && reach(def, enemy, 'aura', def.aura.from, events)) {
         const { radius, requires, damagePerSecond } = def.aura;

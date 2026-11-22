@@ -145,6 +145,9 @@ describe('level 1-8 balance', () => {
     const def = content.enemies.find((e) => e.id === BOSS)!;
     expect(def.anchor).toBeDefined();
     expect(def.engulfBelow).toBeDefined();
-    expect(def.sheds?.pool.map((entry) => entry.enemy)).toEqual(['staphylococcus_aureus', 'bacteria_capsulada', 'virus']);
+    expect(def.sheds?.map((stream) => [stream.from, stream.pool.map((entry) => entry.enemy)])).toEqual([
+      ['self', ['staphylococcus_aureus']],
+      ['edge', ['bacteria_capsulada', 'virus']],
+    ]);
   });
 });

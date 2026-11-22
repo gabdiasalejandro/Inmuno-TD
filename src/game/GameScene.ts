@@ -328,8 +328,15 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'enemy_attacked': {
-          this.enemyViews.get(event.uid)?.attack();
+          const attackerView = this.enemyViews.get(event.uid);
+          attackerView?.attack();
           const target = this.sim.state.units.find((u) => u.uid === event.target);
+          const reaching = (this.enemyDefs.get(this.sim.state.enemies.find((e) => e.uid === event.uid)?.defId ?? '')?.attack.range ?? 0) > 0;
+          if (reaching && attackerView && target) {
+            // A boss with reach spits a golden glob at the unit it hits.
+            const at = cellCenter(layout, target.row, target.col);
+            flyParticle(this, { x: attackerView.root.x - layout.cellW * 0.4, y: at.y - 10 }, { x: at.x, y: at.y - 10 }, ANTIGEN, () => {}, 320);
+          }
           this.unitViews.get(event.target)?.hit();
           if (target) {
             const { x, y } = cellCenter(layout, target.row, target.col);
@@ -998,9 +1005,13 @@ export class GameScene extends Phaser.Scene {
     const attacker = this.unitViews.get(uid);
     const prey = this.enemyViews.get(target);
     if (!attacker) return;
-    const contact = { x: attacker.root.x + this.layout.cellW * 0.55, y: attacker.root.y - this.layout.cellH * 0.35 };
+    const boss = this.sim.state.enemies.find((enemy) => enemy.uid === target);
+    const mouth = { x: attacker.root.x + MOUTH.dx, y: attacker.root.y + MOUTH.dy };
+    const contact = { x: boss ? enemyFrontX(this.layout, boss.pos) + 18 : attacker.root.x + this.layout.cellW * 0.55, y: mouth.y };
     if (kind === 'strike') {
       attacker.punch();
+      // The pseudopod shoots out to the colony like a fist and snaps back, as when it phagocytoses.
+      this.jab(mouth, contact);
       this.time.delayedCall(200, () => {
         prey?.hit();
         ring(this, contact.x, contact.y, IMPACT, 10, 46, 260, 5);
@@ -1016,6 +1027,36 @@ export class GameScene extends Phaser.Scene {
       prey.engulfedInto(attacker.root.x + MOUTH.dx, attacker.root.y + MOUTH.dy);
     }
     this.time.delayedCall(360, () => specks(this, attacker.root.x, attacker.root.y - 40, ANTIGEN, 10));
+  }
+
+  /** A pseudopod stretched from `from` to `to` with a knob at its tip, out fast and back a little slower. */
+  private jab(from: { x: number; y: number }, to: { x: number; y: number }): void {
+    const g = this.add.graphics().setDepth(2.04);
+    const draw = (k: number): void => {
+      const tip = { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k };
+      g.clear();
+      g.lineStyle(20, OUTLINE, 1).lineBetween(from.x, from.y, tip.x, tip.y);
+      g.lineStyle(11, 0xe1d9e8, 1).lineBetween(from.x, from.y, tip.x, tip.y);
+      g.fillStyle(OUTLINE, 1).fillCircle(tip.x, tip.y, 15);
+      g.fillStyle(0xfbf7f2, 1).fillCircle(tip.x, tip.y, 10);
+    };
+    this.tweens.addCounter({
+      from: 0,
+      to: 1,
+      delay: 110,
+      duration: 110,
+      ease: 'Quad.easeIn',
+      onUpdate: (tween) => draw(tween.getValue() ?? 0),
+      onComplete: () =>
+        this.tweens.addCounter({
+          from: 1,
+          to: 0,
+          duration: 220,
+          ease: 'Quad.easeOut',
+          onUpdate: (tween) => draw(tween.getValue() ?? 0),
+          onComplete: () => g.destroy(),
+        }),
+    });
   }
 
   /** Health of the level's boss for the HUD, or null when the level has none or it has not come yet. */

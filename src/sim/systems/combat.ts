@@ -157,6 +157,18 @@ export function createEnemyActions(world: World): System {
         events.push({ type: 'enemy_attacked', uid: enemy.uid, target: blocker.uid, damage: def.attack.damage });
         continue;
       }
+      // With reach, it also strikes the nearest own unit up to `range` cells ahead in a lane it covers.
+      const range = def.attack.range ?? 0;
+      if (range > 0 && state.tick >= enemy.attackReadyAt) {
+        const reached = state.units
+          .filter((unit) => unit.hp > 0 && rows.includes(unit.row) && unit.col < col + 1 && unit.col >= col - range)
+          .sort((a, b) => b.col - a.col || Math.abs(a.row - enemy.lane) - Math.abs(b.row - enemy.lane))[0];
+        if (reached) {
+          reached.hp -= def.attack.damage;
+          enemy.attackReadyAt = state.tick + attackIntervalTicks(def.attack.rate);
+          events.push({ type: 'enemy_attacked', uid: enemy.uid, target: reached.uid, damage: def.attack.damage });
+        }
+      }
       // A non-blocking occupant (or one an infecting enemy goes through) and any trap may slow whoever crosses the cell.
       const slow = (occupantDef?.slow ?? 1) * world.trapSlow(enemy, col);
       const stride = Math.max(1, Math.round(((def.speed * CELL) / TICKS_PER_SECOND) * slow));

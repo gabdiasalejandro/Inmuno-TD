@@ -9,7 +9,7 @@ const king: EnemyDef = {
   speed: 0.05,
   attack: { damage: 5, rate: 1 },
   span: 1,
-  sheds: { every: 2, pool: [{ enemy: 'grunt', weight: 1 }] },
+  sheds: [{ every: 2, from: 'edge', pool: [{ enemy: 'grunt', weight: 1 }] }],
   tags: ['big'],
 };
 const hitter: UnitDef = { id: 'hitter', cost: 10, cooldown: 0, hp: 5000, attack: { type: 'melee', damage: 50, rate: 1, range: 1 } };
@@ -98,7 +98,7 @@ describe('an anchored enemy', () => {
 });
 
 describe('shedding', () => {
-  const mixed: EnemyDef = { ...king, sheds: { every: 1, pool: [{ enemy: 'grunt', weight: 3 }, { enemy: 'imp', weight: 1 }] } };
+  const mixed: EnemyDef = { ...king, sheds: [{ every: 1, from: 'edge', pool: [{ enemy: 'grunt', weight: 3 }, { enemy: 'imp', weight: 1 }] }] };
   const sheds = (seed: number) => {
     const sim = createSim(
       level({ grid: { rows: 5, cols: 8 }, deck: ['wall'], waves: [{ at: 0, enemy: 'king', lane: 2, count: 1, gap: 1 }], win: { type: 'survive', seconds: 999 } }),
@@ -130,6 +130,33 @@ describe('shedding', () => {
     expect(sheds(2)).not.toEqual(shed);
   });
 
+  it('releases from its own front with `from: self` and from the right edge with `from: edge`, each stream on its own clock', () => {
+    const twoStreams: EnemyDef = {
+      ...king,
+      speed: 1,
+      anchor: 6,
+      sheds: [
+        { every: 2, from: 'self', pool: [{ enemy: 'grunt', weight: 1 }] },
+        { every: 5, from: 'edge', pool: [{ enemy: 'imp', weight: 1 }] },
+      ],
+    };
+    const sim = setup({}, [twoStreams]);
+    const seen: Array<{ defId: string; pos: number }> = [];
+    for (let i = 0; i < secondsToTicks(6.1); i++) {
+      for (const e of sim.step()) {
+        if (e.type !== 'enemy_spawned' || e.defId === 'king') continue;
+        seen.push({ defId: e.defId, pos: sim.state.enemies.find((x) => x.uid === e.uid)!.pos });
+      }
+    }
+    const grunts = seen.filter((s) => s.defId === 'grunt');
+    const imps = seen.filter((s) => s.defId === 'imp');
+    expect(grunts).toHaveLength(3);
+    expect(imps).toHaveLength(1);
+    // Anchored at column 6 its front rests at 7000: grunts come out there; imps from the edge (8 columns).
+    expect(grunts.every((g) => g.pos === 7000)).toBe(true);
+    expect(imps.every((g) => g.pos === 8000)).toBe(true);
+  });
+
   it('stops when the shedding enemy dies', () => {
     const sim = setup({}, [{ ...king, hp: 60 }]);
     sim.placeUnit('hitter', 2, 6);
@@ -137,6 +164,31 @@ describe('shedding', () => {
     expect(sim.state.enemies.some((e) => e.defId === 'king')).toBe(false);
     const later = run(sim, 6).filter((e) => e.type === 'enemy_spawned');
     expect(later).toHaveLength(0);
+  });
+});
+
+describe('an enemy attack with reach', () => {
+  const reaching: EnemyDef = { ...king, sheds: undefined, speed: 1, anchor: 5, attack: { damage: 10, rate: 1, range: 2 } };
+
+  it('hits the nearest unit within `range` cells ahead in a lane it covers, without anything blocking it', () => {
+    const sim = setup({}, [reaching]);
+    sim.placeUnit('runner', 1, 3);
+    sim.placeUnit('runner', 0, 3);
+    sim.placeUnit('runner', 2, 2);
+    const events = run(sim, 6);
+    const hit = new Set(events.flatMap((e) => (e.type === 'enemy_attacked' ? [e.target] : [])));
+    const at = (row: number, col: number) => sim.state.units.find((u) => u.row === row && u.col === col)!.uid;
+    expect(hit.has(at(1, 3))).toBe(true);
+    // Lane 0 is not covered; column 2 is three cells away.
+    expect(hit.has(at(0, 3))).toBe(false);
+    expect(hit.has(at(2, 2))).toBe(false);
+  });
+
+  it('without reach, attacks only what blocks it', () => {
+    const sim = setup({}, [{ ...reaching, attack: { damage: 10, rate: 1 } }]);
+    sim.placeUnit('wall', 1, 3);
+    const events = run(sim, 6);
+    expect(events.some((e) => e.type === 'enemy_attacked')).toBe(false);
   });
 });
 

@@ -185,7 +185,8 @@ export interface EnemyDef {
   id: string;
   hp: number;
   speed: number;
-  attack: { damage: number; rate: number };
+  /** `range`: cells ahead of the cell it presses against; it then also hits the nearest own unit that far in a lane it covers. */
+  attack: { damage: number; rate: number; range?: number };
   /**
    * Spreads through the tissue: on reaching a blocking unit that carries any of `around` tags it
    * moves to a neighbouring lane instead of attacking, when one is free at that column. With
@@ -205,10 +206,11 @@ export interface EnemyDef {
   /** Lanes the enemy covers on each side of its own (a wide boss). Units in any of them reach it, and any of them blocks it. */
   span?: number;
   /**
-   * While alive, releases one enemy every `every` seconds from the right edge, of a kind drawn from
-   * `pool` by weight and in a lane drawn at random, both with the level's seeded RNG.
+   * While alive, each stream releases one enemy every `every` seconds, of a kind drawn from `pool`
+   * by weight and in a lane drawn at random (the level's seeded RNG). `from: 'self'` brings it out
+   * at the enemy's own front, `from: 'edge'` from the right edge (the wounds).
    */
-  sheds?: { every: number; pool: Array<{ enemy: string; weight: number }> };
+  sheds?: Array<{ every: number; from: 'self' | 'edge'; pool: Array<{ enemy: string; weight: number }> }>;
   /** Share of max health at or under which a unit that strikes it engulfs it whole (see `AttackDef.strike`). */
   engulfBelow?: number;
   /**
@@ -332,9 +334,8 @@ export interface EnemyState {
   shield?: number;
   /** Health phases already reached, in order (`aura`, `shield`). */
   phases?: BossPhase[];
-  /** Tick of its next shed enemy, and how many it has shed (see `EnemyDef.sheds`). */
-  nextShed?: number;
-  shed?: number;
+  /** Tick of the next enemy of each of its shed streams, in `EnemyDef.sheds` order. */
+  nextShed?: number[];
 }
 
 export type BossPhase = 'aura' | 'shield';
