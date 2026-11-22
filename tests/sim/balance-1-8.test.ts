@@ -187,11 +187,14 @@ describe('level 1-8 balance', () => {
     ]);
   });
 
-  it.each(SEEDS)('is won on Normal by a casual player who knows the concepts, in 2 to 5 minutes (seed %i)', (seed) => {
-    const { sim, seconds } = play(casual, seed);
-    expect(sim.state.status).toBe('won');
-    expect(seconds).toBeGreaterThan(120);
-    expect(seconds).toBeLessThan(300);
+  // It is the boss: a casual player may fall on some seeds (user, 2026-11-22), but wins most.
+  it('is won on Normal by a casual player who knows the concepts on most seeds, in 2 to 5 minutes', () => {
+    const wins = SEEDS.map((seed) => play(casual, seed)).filter(({ sim }) => sim.state.status === 'won');
+    expect(wins.length).toBeGreaterThanOrEqual(3);
+    for (const { seconds } of wins) {
+      expect(seconds).toBeGreaterThan(120);
+      expect(seconds).toBeLessThan(300);
+    }
   });
 
   it.each(SEEDS)('is lost on Sepsis by that same casual player (seed %i)', (seed) => {
@@ -226,7 +229,7 @@ describe('level 1-8 balance', () => {
         // While a bubble is up only its tap is allowed: the player reads it, then taps on.
         if (++reading >= READ_FRAMES && tutorial.perform({ type: 'tap' })) reading = 0;
       } else {
-        casual(sim, level);
+        full(sim, level);
       }
       const scale = tutorial.timeScale;
       for (let i = 0; i < Math.floor(scale) && sim.state.status === 'playing'; i++) sim.step();

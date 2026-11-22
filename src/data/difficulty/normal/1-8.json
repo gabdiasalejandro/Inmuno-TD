@@ -57,21 +57,14 @@
       "gap": 2
     },
     {
-      "at": 77,
-      "enemy": "staphylococcus_aureus",
-      "lane": 4,
-      "count": 1,
-      "gap": 2
-    },
-    {
-      "at": 80,
+      "at": 70,
       "enemy": "staphylococcus_aureus_colonia",
       "lane": 2,
       "count": 1,
       "gap": 1
     },
     {
-      "at": 90,
+      "at": 80,
       "enemy": "bacteria_capsulada",
       "lane": 4,
       "count": 2,
