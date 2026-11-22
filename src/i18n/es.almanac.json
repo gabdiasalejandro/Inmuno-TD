@@ -56,5 +56,10 @@
   "almanac.bacteria_capsulada.fact": "Algunas bacterias gramnegativas se rodean de una cápsula de polisacáridos. La cápsula impide que el complemento se deposite sobre la superficie, así que los fagocitos tienen poco a lo que agarrarse. Klebsiella pneumoniae es un ejemplo conocido.",
   "almanac.bacteria_capsulada.note_game": "Los fagocitos no la ven hasta que el complemento la marca. Marcada, la comen más deprisa. El complejo de ataque también la perfora, por ser gramnegativa.",
   "almanac.bacteria_capsulada.note_real": "La cápsula dificulta la opsonización pero no la impide del todo, y los anticuerpos también ayudan a superarla. En el juego, la cápsula oculta por completo a los fagocitos hasta que se marca.",
-  "almanac.bacteria_capsulada.quote": "Llevo mi casa encima. Pesa, pero nadie me agarra con las manos mojadas."
+  "almanac.bacteria_capsulada.quote": "Llevo mi casa encima. Pesa, pero nadie me agarra con las manos mojadas.",
+  "almanac.dendritica.name": "Célula dendrítica",
+  "almanac.dendritica.fact": "La célula dendrítica vigila los tejidos con sus largas prolongaciones y captura antígeno, trozos de los microbios. Al detectar señales de peligro madura y viaja por los vasos linfáticos hasta el ganglio. Allí presenta el antígeno a los linfocitos T sobre moléculas MHC y pone en marcha la inmunidad adaptativa, la única que tiene memoria.",
+  "almanac.dendritica.note_game": "En el juego recoge un antígeno por cada bacteria que muere en las casillas de alrededor y, con tres, camina por su carril hasta el ganglio, en el borde izquierdo.",
+  "almanac.dendritica.note_real": "En realidad captura el antígeno ella misma, por fagocitosis o macropinocitosis, también de microbios vivos y restos de células, y no espera a llevar una cantidad fija: su salida la decide la maduración. Lo que hace en el ganglio llega en el mundo 2.",
+  "almanac.dendritica.quote": "¿A que no sabes lo que he encontrado? Un trocito de bacteria, todavía caliente. Me lo llevo al ganglio, que allí les encanta un buen chisme."
 }

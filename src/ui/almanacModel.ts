@@ -30,6 +30,7 @@ export const ALMANAC_ENTRIES: readonly AlmanacEntry[] = [
   { id: 'complemento', kind: 'unit', category: 'system', note: true },
   { id: 'bacteria_gram_neg', kind: 'enemy', category: 'pathogen', note: true },
   { id: 'bacteria_capsulada', kind: 'enemy', category: 'pathogen', note: true },
+  { id: 'dendritica', kind: 'unit', category: 'innate_cell', note: true },
 ];
 
 /** Translation keys to try for the real name, best first: the game's own, then the almanac's fallback. */

@@ -198,3 +198,32 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **En la realidad:** C5a atrae neutrófilos hacia el sitio de la infección y los activa; no los crea de la nada, aunque la médula produce y libera neutrófilos.
 - **Por qué se simplifica:** el jugador ve el efecto del complemento de forma directa en el tablero.
 - **Dónde lo aclara el almanaque:** ficha del complemento (`note_real`).
+
+### dendritica-recoge-de-muertas
+
+- **En el juego:** la célula dendrítica no ataca; recoge un antígeno por cada bacteria que muere en las casillas de alrededor.
+- **En la realidad:** captura el antígeno ella misma, por fagocitosis o macropinocitosis, de microbios vivos y de restos de células muertas.
+- **Por qué se simplifica:** el jugador tiene que combinar la dendrítica con quien mata, que es la idea del nivel: la innata mata, la dendrítica informa.
+- **Dónde lo aclara el almanaque:** ficha de la célula dendrítica (`note_real`).
+
+### dendritica-carga-fija-y-carril
+
+- **En el juego:** con tres antígenos sale de su casilla y camina por su carril hasta el borde izquierdo, que hace de ganglio.
+- **En la realidad:** su salida la decide la maduración tras señales de peligro, no una cantidad de antígeno, y viaja por los vasos linfáticos, no por el tejido hacia la «base».
+- **Por qué se simplifica:** el viaje se ve y se puede seguir con la vista; el contador del ganglio da al jugador un objetivo claro.
+- **Dónde lo aclara el almanaque:** ficha de la célula dendrítica (`note_real`).
+
+### innata-sin-memoria
+
+- **En el juego:** cada vez que vuelve el patógeno, la defensa innata es exactamente igual que la primera vez.
+- **En la realidad:** la innata no tiene memoria específica, pero sí una «inmunidad entrenada» inespecífica que puede reforzarla durante un tiempo.
+- **Por qué se simplifica:** el nivel enseña la diferencia principal entre innata y adaptativa; el matiz puede ir en el almanaque.
+- **Fuente:** `fuentes.md` (sección Nivel 1-7). **Estado:** dudoso.
+- **Dónde lo aclara el almanaque:** pendiente (ficha de la célula dendrítica o una ficha de sistema futura).
+
+### inflamacion-cronica-por-vuelta
+
+- **En el juego:** cada vuelta del patógeno sube 20 puntos un suelo bajo la inflamación, que ya no baja de ahí; con cinco vueltas se pierde.
+- **En la realidad:** las infecciones repetidas o persistentes mantienen la inflamación y dañan el tejido, pero no con un escalón fijo por episodio.
+- **Por qué se simplifica:** convierte «la innata sola no basta» en una derrota que el jugador entiende.
+- **Dónde lo aclara el almanaque:** pendiente.

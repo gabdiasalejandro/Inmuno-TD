@@ -50,5 +50,14 @@
       "bacteria_gram_neg"
     ],
     "banner": "banner.complement"
+  },
+  "1-7": {
+    "title": "intro.1-7.title",
+    "body": "intro.1-7.body",
+    "feature": [
+      "dendritica",
+      "streptococcus_pyogenes"
+    ],
+    "banner": "banner.antigen"
   }
 }

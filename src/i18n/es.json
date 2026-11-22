@@ -113,5 +113,15 @@
   "tutorial.1-6.play": "¡Oh, no, un grupo de encapsuladas! La cápsula las esconde de los fagocitos. Pulsa el botón del complemento y luego una casilla en medio del grupo.",
   "tutorial.1-6.cascade": "Mira la cascada, en orden. C3b las marca, C3a inflama, C5a te regala un neutrófilo y C5b perfora a tres gramnegativas. La marca no se va: tus fagocitos ya pueden comerse a las que queden.",
   "tutorial.1-6.cost": "Pero cada uso sube la inflamación. Este medidor es el precio que pagas.",
-  "tutorial.1-6.recharge": "La barra del complemento se llena mientras se recarga. Cuando esté morada, puedes volver a usarlo."
+  "tutorial.1-6.recharge": "La barra del complemento se llena mientras se recarga. Cuando esté morada, puedes volver a usarlo.",
+  "unit.dendritica.name": "Célula dendrítica",
+  "intro.1-7.title": "Célula dendrítica",
+  "intro.1-7.body": "La misma bacteria vuelve una y otra vez, y la inmunidad innata responde igual de lenta cada vez: no tiene memoria. La célula dendrítica recoge trozos de las bacterias muertas, el antígeno, y los lleva al ganglio linfático. Allí empieza la respuesta que sí recuerda.",
+  "banner.antigen": "¡Lleva el antígeno al ganglio!",
+  "obj.1-7.dendritic": "¿Qué hace una célula dendrítica con el antígeno que captura en un tejido?",
+  "obj.1-7.memory": "¿Por qué la inmunidad innata no responde más rápido la segunda vez que encuentra el mismo patógeno?",
+  "tutorial.1-7.place": "¡Llegan las bacterias! Coloca la célula dendrítica delante de un macrófago: no ataca ni bloquea, recoge lo que muere a su alrededor.",
+  "tutorial.1-7.taken": "¡Ha cogido un trozo de bacteria! Eso es el antígeno. Cuando lleve tres, se irá al ganglio.",
+  "tutorial.1-7.migrate": "Ya va llena: viaja por la linfa hasta el ganglio. Allí enseñará el antígeno a los linfocitos; lo verás en el mundo 2.",
+  "tutorial.1-7.delivered": "¡Entregado! Arriba ves cuánto antígeno ha llegado. Si acaban los tres encuentros sin el suficiente, la misma bacteria volverá, y cada vuelta deja más inflamación."
 }

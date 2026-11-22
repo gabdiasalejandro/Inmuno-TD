@@ -142,3 +142,11 @@ Todas **por revisar** salvo las marcadas.
 - Klebsiella pneumoniae es una bacteria gramnegativa con cápsula. Uso: texto del almanaque de la bacteria encapsulada. **Estado:** por revisar.
 - Las bacterias gramnegativas tienen flagelos en un extremo, a menudo alrededor de la célula. Uso: sprite de la bacteria gramnegativa (flagelos traseros). **Estado:** por revisar.
 - La opsonización no es un PAMP: la reconocen receptores propios de los fagocitos (CR1, receptores Fc). Uso: el estado `opsonizado` concede la etiqueta `PAMP` a efectos de detección. Es una simplificación; ver `simplificaciones.md`. **Estado:** por revisar.
+
+### Nivel 1-7 (célula dendrítica, reencuentro)
+
+- La célula dendrítica captura antígeno en los tejidos, madura con señales de peligro y migra por los vasos linfáticos al ganglio, donde presenta el antígeno a los linfocitos T sobre MHC. Uso: unidad `dendritica`, sistema `antigen` (recoge y lleva antígeno al borde izquierdo), almanaque. **Estado:** por revisar.
+- La inmunidad innata no genera memoria específica: ante el mismo patógeno responde igual la segunda vez. Uso: el 1-7 repite el mismo encuentro con la misma defensa innata; objetivo `obj.1-7.memory`. **Estado:** dudoso (existe la «inmunidad entrenada» de la innata, que es inespecífica; el juego la ignora).
+- La memoria inmunitaria la aporta la inmunidad adaptativa, que se pone en marcha en el ganglio linfático. Uso: condición de victoria del 1-7 (antígeno entregado al ganglio) e introducción del nivel. **Estado:** por revisar.
+- Una infección que se repite o persiste mantiene la inflamación del tejido (inflamación crónica). Uso: cada vuelta del patógeno sube un suelo de inflamación que no baja (`returns.chronic`). **Estado:** por revisar.
+- _Streptococcus pyogenes_ puede causar infecciones repetidas en la misma persona. Uso: es el patógeno que vuelve en el 1-7. **Estado:** por revisar (en la realidad influye la variedad de tipos de proteína M; el juego no la modela).

@@ -52,7 +52,7 @@ describe('almanac content', () => {
   const t = createTranslator(esAlmanac);
 
   it('lists every character in the order the almanac shows them', () => {
-    expect(ALMANAC_ENTRIES.map((e) => e.id)).toEqual(['epitelio', 'moco', 'bacteria_gram_pos', 'medula_osea', 'macrofago', 'neutrofilo', 'streptococcus_pyogenes', 'virus', 'nk', 'complemento', 'bacteria_gram_neg', 'bacteria_capsulada']);
+    expect(ALMANAC_ENTRIES.map((e) => e.id)).toEqual(['epitelio', 'moco', 'bacteria_gram_pos', 'medula_osea', 'macrofago', 'neutrofilo', 'streptococcus_pyogenes', 'virus', 'nk', 'complemento', 'bacteria_gram_neg', 'bacteria_capsulada', 'dendritica']);
   });
 
   it('has a fact, a quote and a category label for every entry', () => {

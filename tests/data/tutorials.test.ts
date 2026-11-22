@@ -260,3 +260,55 @@ describe('tutorial 1-5', () => {
     }
   });
 });
+
+describe('tutorial 1-7', () => {
+  /** A player with a macrophage in every lane who follows the steps, placing the dendritic cell in front of one. */
+  function playFollowing(maxSeconds: number) {
+    const level = levels['1-7']!;
+    const sim = createSim(level, content, 1);
+    const tutorial = createTutorial(tutorials['1-7']!.steps);
+    const seen = new Set<string>();
+    const shown: number[] = [];
+    while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
+      tutorial.observe({ stored: 0, seen, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)) });
+      const step = tutorial.step;
+      if (step && tutorial.active) {
+        if (!shown.includes(tutorial.index)) shown.push(tutorial.index);
+        if (step.advance.type === 'tap') {
+          tutorial.perform({ type: 'tap' });
+          continue;
+        }
+        const lane = sim.state.enemies[0]?.lane ?? 2;
+        if (sim.placeUnit('dendritica', lane, 4).ok) tutorial.perform({ type: 'place', unit: 'dendritica', row: lane, col: 4 });
+      } else {
+        for (const lane of sim.state.openLanes) {
+          if (!sim.state.units.some((u) => u.row === lane && u.defId === 'macrofago')) sim.placeUnit('macrofago', lane, 3);
+        }
+      }
+      for (const event of sim.step()) seen.add(event.type);
+    }
+    return { shown, finished: tutorial.finished, seconds: sim.state.tick / 20 };
+  }
+
+  it('can be followed to the end with the real rules, during the first encounters', () => {
+    const { shown, finished, seconds } = playFollowing(120);
+    expect(finished).toBe(true);
+    expect(shown).toEqual([0, 1, 2, 3]);
+    expect(seconds).toBeLessThan(120);
+  });
+
+  it('asks for the dendritic cell when the first bacteria arrive, not before', () => {
+    const steps = tutorials['1-7']!.steps;
+    expect(steps[0]!.waitFor).toEqual({ type: 'enemy', enemy: 'streptococcus_pyogenes' });
+    expect(steps[0]!.advance).toEqual({ type: 'place', unit: 'dendritica' });
+  });
+
+  it('states the level objectives as exam questions that exist in the translations', () => {
+    const objectives = levels['1-7']!.objectives ?? [];
+    expect(objectives).toHaveLength(2);
+    for (const key of objectives) {
+      expect(t(key)).not.toBe(key);
+      expect(t(key).endsWith('?')).toBe(true);
+    }
+  });
+});

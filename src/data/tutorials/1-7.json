@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-7.place",
+      "waitFor": {
+        "type": "enemy",
+        "enemy": "streptococcus_pyogenes"
+      },
+      "target": {
+        "type": "card",
+        "unit": "dendritica"
+      },
+      "advance": {
+        "type": "place",
+        "unit": "dendritica"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-7.taken",
+      "waitFor": {
+        "type": "event",
+        "event": "antigen_taken"
+      },
+      "target": {
+        "type": "unit",
+        "unit": "dendritica"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-7.migrate",
+      "waitFor": {
+        "type": "event",
+        "event": "unit_migrated"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-7.delivered",
+      "waitFor": {
+        "type": "event",
+        "event": "antigen_delivered"
+      },
+      "advance": {
+        "type": "tap"
+      }
+    }
+  ]
+}
