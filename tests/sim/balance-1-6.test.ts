@@ -34,12 +34,13 @@ const neutrophils: Bot = (sim) => {
 const carefulRelease: Bot = (sim) => sim.setReleasing(sim.signal('inflamacion') < 0.3);
 
 /**
- * Plays the complement power when it is ready, capsulated bacteria reach the middle of the board,
- * and inflammation can take another use (each use adds 42 points).
+ * Plays the complement power when it is ready, capsulated bacteria not yet marked by C3b reach the
+ * middle of the board, and inflammation can take another use. A marked one needs no second play:
+ * the mark stays and phagocytes can take it.
  */
 const complement: Bot = (sim) => {
   if (sim.signal('inflamacion') > 0.6) return;
-  const target = sim.state.enemies.find((e) => e.defId === 'bacteria_capsulada' && engagedCol(e.pos) <= 6);
+  const target = sim.state.enemies.find((e) => e.defId === 'bacteria_capsulada' && !e.statuses?.opsonizado && engagedCol(e.pos) <= 6);
   if (target) sim.playPower('complemento', target.lane, engagedCol(target.pos));
 };
 

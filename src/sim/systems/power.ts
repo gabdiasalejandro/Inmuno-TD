@@ -1,6 +1,6 @@
 import { secondsToTicks } from '../time';
 import type { EnemyState, PowerDef, PowerResult, PowerStepKind, SimEvent, UnitState } from '../types';
-import { engagedCol, type System, type World } from '../world';
+import { engagedCol, statusEnd, type System, type World } from '../world';
 
 interface PendingStep {
   due: number;
@@ -42,7 +42,7 @@ export function createPowers(world: World): { system: System; play(defId: string
     switch (kind) {
       case 'opsonize': {
         const status = def.opsonize!.status;
-        const until = state.tick + secondsToTicks(world.statusDef(status)?.duration ?? 0);
+        const until = statusEnd(world.statusDef(status), state.tick);
         for (const enemy of area) {
           enemy.statuses ??= {};
           enemy.statuses[status] = Math.max(enemy.statuses[status] ?? 0, until);

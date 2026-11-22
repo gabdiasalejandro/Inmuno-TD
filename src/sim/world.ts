@@ -77,6 +77,11 @@ function indexById<T extends { id: string }>(defs: T[]): Map<string, T> {
   return new Map(defs.map((def) => [def.id, def]));
 }
 
+/** Tick from which a status applied at `tick` is gone; a status without duration never runs out. */
+export function statusEnd(def: StatusDef | undefined, tick: number): number {
+  return def?.duration === undefined ? Number.MAX_SAFE_INTEGER : tick + secondsToTicks(def.duration);
+}
+
 /** Cell an enemy is pressing against: a front edge exactly on a boundary belongs to the cell on its left. */
 export function engagedCol(pos: number): number {
   return Math.ceil(pos / CELL) - 1;
@@ -140,7 +145,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
       (unit) => (unit.row !== row || unit.col !== col) && Math.abs(unit.row - row) <= radius && Math.abs(unit.col - col) <= radius,
     );
   const give = (unit: UnitState, name: string, def: StatusDef): void => {
-    unit.statuses[name] = Math.max(unit.statuses[name] ?? 0, state.tick + secondsToTicks(def.duration));
+    unit.statuses[name] = Math.max(unit.statuses[name] ?? 0, statusEnd(def, state.tick));
   };
 
   const activeEnemyStatuses = (enemy: EnemyState): StatusDef[] =>

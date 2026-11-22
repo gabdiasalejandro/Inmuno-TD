@@ -172,8 +172,8 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### opsonizacion-multiplica-la-fagocitosis
 
-- **En el juego:** un enemigo opsonizado recibe 1,5 veces el daño de los fagocitos durante 8 segundos.
-- **En la realidad:** la opsonización aumenta la eficacia de la fagocitosis, pero el factor exacto depende del tipo de célula y del microbio; no es un multiplicador fijo.
+- **En el juego:** un enemigo opsonizado recibe 1,5 veces el daño de los fagocitos, y la marca dura hasta que muere.
+- **En la realidad:** la opsonización aumenta la eficacia de la fagocitosis, pero el factor exacto depende del tipo de célula y del microbio; no es un multiplicador fijo. El C3b queda unido de forma covalente a la superficie y se degrada a iC3b, que sigue siendo opsonina, así que una marca que no caduca es razonable a la escala de una partida.
 - **Por qué se simplifica:** un número visible permite al jugador ver el efecto.
 - **Dónde lo aclara el almanaque:** ficha del complemento (pendiente de ampliar).
 

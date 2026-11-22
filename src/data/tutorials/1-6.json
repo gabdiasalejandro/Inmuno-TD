@@ -14,7 +14,8 @@
       "text": "tutorial.1-6.play",
       "waitFor": {
         "type": "enemy",
-        "enemy": "bacteria_capsulada"
+        "enemy": "bacteria_capsulada",
+        "atLeast": 4
       },
       "target": {
         "type": "power",

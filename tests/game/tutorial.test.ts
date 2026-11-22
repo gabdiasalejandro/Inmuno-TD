@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TutorialStep } from '../../src/data';
-import { FAST_SCALE, SLOW_SCALE, createTutorial, needsNext, shouldRunTutorial, targetsFor } from '../../src/game/tutorial';
+import { FAST_SCALE, SLOW_SCALE, countEnemies, createTutorial, needsNext, shouldRunTutorial, targetsFor } from '../../src/game/tutorial';
 
 const none = { stored: 0 };
 const some = { stored: 5 };
@@ -238,9 +238,19 @@ describe('waiting for a signal level or an event', () => {
     const tutorial = createTutorial([{ text: 'e', advance: { type: 'tap' }, waitFor: { type: 'enemy', enemy: 'streptococcus_pyogenes' } }]);
     tutorial.observe(quiet);
     expect(tutorial.active).toBe(false);
-    tutorial.observe({ ...quiet, enemies: new Set(['bacteria_gram_pos']) });
+    tutorial.observe({ ...quiet, enemies: countEnemies(['bacteria_gram_pos']) });
     expect(tutorial.active).toBe(false);
-    tutorial.observe({ ...quiet, enemies: new Set(['bacteria_gram_pos', 'streptococcus_pyogenes']) });
+    tutorial.observe({ ...quiet, enemies: countEnemies(['bacteria_gram_pos', 'streptococcus_pyogenes']) });
+    expect(tutorial.active).toBe(true);
+  });
+
+  it('an enemy wait with a count shows only once that many enemies of that id are on the board', () => {
+    const tutorial = createTutorial([
+      { text: 'g', advance: { type: 'tap' }, waitFor: { type: 'enemy', enemy: 'bacteria_capsulada', atLeast: 4 } },
+    ]);
+    tutorial.observe({ ...quiet, enemies: countEnemies(['bacteria_capsulada', 'bacteria_capsulada', 'bacteria_capsulada', 'bacteria_gram_pos']) });
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, enemies: countEnemies(Array(4).fill('bacteria_capsulada')) });
     expect(tutorial.active).toBe(true);
   });
 

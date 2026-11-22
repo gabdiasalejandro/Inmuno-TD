@@ -132,7 +132,8 @@ Todas **por revisar** salvo las marcadas.
 Todas **por revisar** salvo las marcadas.
 
 - El complemento es un sistema de unas 30 proteínas plasmáticas que se activan en cascada. Uso: poder `complemento` y almanaque. **Estado:** por revisar (cifra aproximada; confirmar).
-- C3b marca (opsoniza) al microbio para que los fagocitos lo fagociten con más eficacia. Uso: paso 1 de la cascada, estado `opsonizado`. **Estado:** por revisar.
+- C3b marca (opsoniza) al microbio para que los fagocitos lo fagociten con más eficacia. Uso: paso 1 de la cascada, estado `opsonizado` (sin caducidad). **Estado:** por revisar.
+- El C3b se une de forma covalente a la superficie del microbio y, al degradarse a iC3b, sigue actuando como opsonina. Uso: la marca `opsonizado` no caduca. **Estado:** por revisar.
 - C3a y C5a son anafilotoxinas que aumentan la inflamación y atraen neutrófilos. Uso: paso 2 (C3a sube la inflamación) y paso 3 (C5a aporta un neutrófilo). **Estado:** por revisar (en el juego, C5a es un regalo, no una atracción gradual).
 - C5b, con C6 a C9, forma el complejo de ataque a membrana (MAC), un poro que perfora la membrana. Uso: paso 4, sobre hasta tres bacterias gramnegativas del área. **Estado:** por revisar.
 - El MAC perfora sobre todo bacterias gramnegativas; las grampositivas, con su pared gruesa de peptidoglucano, resisten en gran medida. Uso: `attack.requires: ["gramnegativa"]`, y la pregunta "¿Por qué el complejo de ataque a membrana no mata a las bacterias grampositivas?". **Estado:** por revisar.

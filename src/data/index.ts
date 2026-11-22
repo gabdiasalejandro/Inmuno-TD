@@ -91,8 +91,11 @@ export type TutorialWait =
   | { type: 'signal'; signal: string; atLeast?: number }
   /** The sim has reported an event of this type (for example `enemy_switched_lane`) at least once. */
   | { type: 'event'; event: string }
-  /** An enemy with this id is on the board (for example the first of a new kind arriving). */
-  | { type: 'enemy'; enemy: string }
+  /**
+   * At least `atLeast` enemies with this id are on the board at once (default: one, the first of a
+   * new kind arriving; a group's size waits until the whole group is out).
+   */
+  | { type: 'enemy'; enemy: string; atLeast?: number }
   /** Some unit on the board carries this status (for example the first infected cell). */
   | { type: 'status'; status: string };
 

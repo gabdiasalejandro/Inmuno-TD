@@ -26,8 +26,8 @@ export interface AttackDef {
  * name; enemies and other statuses apply them.
  */
 export interface StatusDef {
-  /** Seconds the status lasts once applied. */
-  duration: number;
+  /** Seconds the status lasts once applied. Omitted: it lasts as long as its carrier (a C3b mark stays on the microbe). */
+  duration?: number;
   /**
    * Enemy statuses only: tags the enemy counts as carrying while it has the status (for example
    * an opsonized enemy counts as PAMP-marked for phagocytes).

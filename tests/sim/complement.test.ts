@@ -89,6 +89,27 @@ describe('complement cascade', () => {
     expect(outside!.statuses?.opsonizado ?? 0).toBe(0);
   });
 
+  it('keeps the C3b mark until the enemy dies, so phagocytes take the capsulated one the MAC spared', () => {
+    const sim = setup({
+      waves: [{ at: 0, enemy: 'bacteria_capsulada', lane: 2, count: 4, gap: 1 }],
+      deck: ['epitelio', 'macrofago'],
+    });
+    run(sim, 3.1);
+    const group = [...sim.state.enemies];
+    expect(group).toHaveLength(4);
+    sim.playPower('complemento', 2, engagedCol(group[1]!.pos));
+    run(sim, 3);
+    // The MAC kills three; the fourth is left marked.
+    expect(sim.state.enemies).toHaveLength(1);
+    const survivor = sim.state.enemies[0]!;
+    // Well past any timed status, it is still opsonized and a macrophage placed now attacks it.
+    run(sim, 12);
+    expect(survivor.statuses?.opsonizado ?? 0).toBeGreaterThan(sim.state.tick);
+    expect(sim.placeUnit('macrofago', 2, engagedCol(survivor.pos) - 1)).toEqual({ ok: true });
+    const hits = allEvents(run(sim, 3)).filter((e) => e.type === 'unit_attacked' && e.target === survivor.uid);
+    expect(hits.length).toBeGreaterThan(0);
+  });
+
   it('raises inflammation by its amount when the level has that signal', () => {
     const sim = setup({ waves: [] });
     sim.playPower('complemento', 2, 4);

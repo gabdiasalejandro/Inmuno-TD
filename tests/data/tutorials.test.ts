@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { content, levels, tutorials, type TutorialStep } from '../../src/data';
-import { createTutorial, FAST_SCALE } from '../../src/game/tutorial';
+import { countEnemies, createTutorial, FAST_SCALE } from '../../src/game/tutorial';
 import { engagedCol } from '../../src/sim/world';
 import { t } from '../../src/i18n';
 import { createSim, secondsToTicks, type Sim, type SimEvent } from '../../src/sim';
@@ -55,7 +55,7 @@ function followTutorial(levelId: string, steps: TutorialStep[], maxSeconds: numb
     tutorial.observe({
       stored: level.signals?.reduce((sum, name) => sum + sim.stored(name), 0) ?? 0,
       seen,
-      enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)),
+      enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)),
     });
     const step = tutorial.step;
     let holding = false;
@@ -137,6 +137,12 @@ describe('tutorial 1-6', () => {
     expect(steps[0]!.target).toEqual({ type: 'power', power: 'complemento' });
     expect(steps.some((step) => step.advance.type === 'power')).toBe(true);
   });
+
+  it('asks for the complement once the whole first group of capsulated bacteria is out, not at the first one', () => {
+    const play = tutorials['1-6']!.steps.find((step) => step.advance.type === 'power')!;
+    const group = levels['1-6']!.waves.find((wave) => wave.enemy === 'bacteria_capsulada')!;
+    expect(play.waitFor).toEqual({ type: 'enemy', enemy: 'bacteria_capsulada', atLeast: group.count });
+  });
 });
 
 describe('tutorial 1-4', () => {
@@ -151,7 +157,7 @@ describe('tutorial 1-4', () => {
     const seen = new Set<string>();
     const shown: number[] = [];
     while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
-      tutorial.observe({ stored: 0, signals: { inflamacion: sim.signal('inflamacion') }, seen, enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)) });
+      tutorial.observe({ stored: 0, signals: { inflamacion: sim.signal('inflamacion') }, seen, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)) });
       if (tutorial.active) {
         shown.push(tutorial.index);
         tutorial.perform({ type: 'tap' });
@@ -202,7 +208,7 @@ describe('tutorial 1-5', () => {
     while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
       const tick = sim.state.tick;
       const statuses = new Set(sim.state.units.flatMap((u) => Object.keys(u.statuses).filter((name) => (u.statuses[name] ?? 0) > tick)));
-      tutorial.observe({ stored: 0, enemies: new Set(sim.state.enemies.map((enemy) => enemy.defId)), statuses });
+      tutorial.observe({ stored: 0, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)), statuses });
       const step = tutorial.step;
       if (tutorial.active && step) {
         if (shown[shown.length - 1] !== tutorial.index) shown.push(tutorial.index);

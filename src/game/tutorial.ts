@@ -16,8 +16,8 @@ export interface TutorialObservation {
   signals?: Readonly<Record<string, number>>;
   /** Types of the sim events reported so far in this play. */
   seen?: ReadonlySet<string>;
-  /** Ids of the enemies on the board right now. */
-  enemies?: ReadonlySet<string>;
+  /** How many enemies of each id are on the board right now (see `countEnemies`). */
+  enemies?: ReadonlyMap<string, number>;
   /** Statuses some unit on the board carries right now. */
   statuses?: ReadonlySet<string>;
 }
@@ -47,6 +47,13 @@ export interface Tutorial {
   perform(action: TutorialAction): boolean;
 }
 
+/** Counts the enemies on the board by id, as `TutorialObservation.enemies` wants them. */
+export function countEnemies(defIds: Iterable<string>): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const id of defIds) counts.set(id, (counts.get(id) ?? 0) + 1);
+  return counts;
+}
+
 function waitHolds(wait: TutorialWait, observation: TutorialObservation | null): boolean {
   if (!observation) return false;
   const reaches = (value: number, atLeast: number | undefined): boolean => (atLeast === undefined ? value > 0 : value >= atLeast);
@@ -58,7 +65,7 @@ function waitHolds(wait: TutorialWait, observation: TutorialObservation | null):
     case 'event':
       return observation.seen?.has(wait.event) ?? false;
     case 'enemy':
-      return observation.enemies?.has(wait.enemy) ?? false;
+      return reaches(observation.enemies?.get(wait.enemy) ?? 0, wait.atLeast);
     case 'status':
       return observation.statuses?.has(wait.status) ?? false;
   }

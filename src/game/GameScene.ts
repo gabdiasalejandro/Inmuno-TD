@@ -33,7 +33,7 @@ import { cytokineEffects, enemiesRemaining, digestFraction, gaugeSignal, isClear
 import { marrowCharge, marrowExcitement } from './marrow';
 import { progressStore } from './progress';
 import { preloadSprites } from './sprites';
-import { createTutorial, needsNext, shouldRunTutorial, targetsFor, type Tutorial, type TutorialAction } from './tutorial';
+import { countEnemies, createTutorial, needsNext, shouldRunTutorial, targetsFor, type Tutorial, type TutorialAction } from './tutorial';
 
 /** Longest catch-up per frame: 5 steps = 250 ms of simulated time. */
 const MAX_STEPS_PER_FRAME = 5;
@@ -254,7 +254,7 @@ export class GameScene extends Phaser.Scene {
       stored: this.storedCharge(),
       signals: this.signalLevels(),
       seen: this.seenEvents,
-      enemies: new Set(this.sim.state.enemies.map((enemy) => enemy.defId)),
+      enemies: countEnemies(this.sim.state.enemies.map((enemy) => enemy.defId)),
       statuses: this.carriedStatuses(),
     });
     this.reportHold();
