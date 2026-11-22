@@ -112,7 +112,7 @@ function catmull(a: number, b: number, c: number, d: number, t: number): number 
  * Difficulty selector, bottom right of the map and of every level path (clear of the world labels): two halves, Normal on
  * the left and Sepsis on the right. Phaser-free like the rest of the layout.
  */
-export const DIFFICULTY_BUTTON: Rect = { x: 900, y: 640, w: 356, h: 64 };
+export const DIFFICULTY_BUTTON: Rect = { x: 1040, y: 656, w: 224, h: 48 };
 
 export function difficultyAt(x: number, y: number): Difficulty | null {
   if (!pointInRect(DIFFICULTY_BUTTON, x, y)) return null;

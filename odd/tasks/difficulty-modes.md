@@ -21,7 +21,7 @@ Branch: feat/difficulty-modes. Delivery: ask-on-risk. Runner: `pnpm typecheck &&
 - [x] T2 (S2, S3, S4) difficulty core: `Difficulty` type, `normal/` override files merged over base levels by `resolveLevel`, stored preference, menu selector, GameScene and balance bots use the resolved level. Route: inline (one dependent unit). Selector bottom right, checked in headless Chromium (map, world view, tap to Sepsis).
 - [ ] T3 (S2, S3) Normal balance of 1-2, 1-3, 1-4, 1-5, 1-8: one override file and balance test per level. Route: delegated, parallel writers (independent levels, disjoint files, long bot iteration). Numbers shown to the user before acceptance (CLAUDE.md 2.2).
 - [x] T4 (S5) loading: Phaser in its own chunk (357 KB gz, cached across deploys), game sprites loaded in the background from the menu instead of per level (no risk of a missing sprite), "Cargando…" placeholder until Phaser boots. Measured at 1.5 Mbps + 4x CPU: JS 2.4 s, level sprites +1 s. Route: inline.
-- [ ] T6 (S8) smaller selector, Sepsis menu effect (redder background, small bacteria drifting). Route: inline.
+- [x] T6 (S8) smaller selector (224x48), Sepsis menu mood: red wash fading in and 14 small cocci and bacilli drifting, popping in when Sepsis is picked. Checked in headless Chromium. Route: inline.
 - [ ] T5 (S7) world scene proposals. Route: delegated (Sonnet), SVG + preview only.
 
 ## Log

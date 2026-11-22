@@ -50,6 +50,11 @@ const FOCUS_SCALE = 1.12;
 const ACCENT = 0x7b4fa3;
 /** Sepsis half of the difficulty selector when chosen: a deep inflamed red. */
 const SEPSIS = 0xa8323e;
+/** Red wash over the menu while Sepsis is chosen. */
+const SEPSIS_WASH = 0xc0404c;
+/** Saturated pathogen bodies of the Sepsis menu bacteria. */
+const BACTERIUM = 0xd9644f;
+const BACTERIUM_DARK = 0x8e2c6b;
 const INK_LIGHT = '#FBF7F2';
 
 type Target =
@@ -83,6 +88,8 @@ export class MenuScene extends Phaser.Scene {
   private tweensOfView: Phaser.Tweens.Tween[] = [];
   /** One container per world on the map, or per level on a level path. */
   private nodes: Phaser.GameObjects.Container[] = [];
+  /** The player just picked Sepsis: the next render fades its mood in. */
+  private sepsisEntering = false;
 
   constructor() {
     super('menu');
@@ -163,6 +170,8 @@ export class MenuScene extends Phaser.Scene {
     if (this.view.kind === 'map') this.renderMap();
     else this.renderWorld(this.view.index);
     this.drawDifficulty();
+    if (difficultyStore().load() === 'sepsis') this.drawSepsis(this.sepsisEntering);
+    this.sepsisEntering = false;
     this.drawDrifters();
     this.fullscreen = createFullscreenButton(this, CANVAS_FULLSCREEN);
     if (animate) this.cameras.main.fadeIn(180, 0xdd, 0xbd, 0xb8);
@@ -175,19 +184,56 @@ export class MenuScene extends Phaser.Scene {
     const half = r.w / DIFFICULTIES.length;
     const g = this.keep(this.add.graphics().setDepth(2));
     g.fillStyle(PANEL, 1);
-    g.fillRoundedRect(r.x, r.y, r.w, r.h, 18);
+    g.fillRoundedRect(r.x, r.y, r.w, r.h, 14);
     DIFFICULTIES.forEach((difficulty, i) => {
       const x = r.x + i * half;
       const on = difficulty === chosen;
       if (on) {
         g.fillStyle(difficulty === 'sepsis' ? SEPSIS : ACCENT, 1);
-        g.fillRoundedRect(x + 6, r.y + 6, half - 12, r.h - 12, 14);
+        g.fillRoundedRect(x + 5, r.y + 5, half - 10, r.h - 10, 10);
       }
-      this.keep(this.text(x + half / 2, r.y + r.h / 2, t(`difficulty.${difficulty}`), 26, true, on ? INK_LIGHT : INK).setOrigin(0.5).setDepth(2.1));
+      this.keep(this.text(x + half / 2, r.y + r.h / 2, t(`difficulty.${difficulty}`), 20, true, on ? INK_LIGHT : INK).setOrigin(0.5).setDepth(2.1));
     });
-    g.lineStyle(5, OUTLINE, 1);
-    g.strokeRoundedRect(r.x, r.y, r.w, r.h, 18);
-    g.lineBetween(r.x + half, r.y + 10, r.x + half, r.y + r.h - 10);
+    g.lineStyle(4, OUTLINE, 1);
+    g.strokeRoundedRect(r.x, r.y, r.w, r.h, 14);
+    g.lineBetween(r.x + half, r.y + 8, r.x + half, r.y + r.h - 8);
+  }
+
+  /**
+   * Sepsis mood behind the menu: the tissue turns redder and small, simple bacteria drift around.
+   * `entering` fades it in, for the moment the player picks Sepsis.
+   */
+  private drawSepsis(entering: boolean): void {
+    const wash = this.keep(this.add.rectangle(640, 360, 1280, 720, SEPSIS_WASH, 0.22).setDepth(-9));
+    if (entering) this.tween({ targets: wash, alpha: { from: 0, to: 1 }, duration: 600 });
+    for (let i = 0; i < 14; i++) {
+      const x = Phaser.Math.Between(40, 1240);
+      const y = Phaser.Math.Between(130, 700);
+      const g = this.keep(this.add.graphics({ x, y }).setDepth(-4.5));
+      g.fillStyle(i % 3 === 0 ? BACTERIUM_DARK : BACTERIUM, 1);
+      g.lineStyle(3, OUTLINE, 0.8);
+      if (i % 2 === 0) {
+        // Coccus: a small round cell.
+        g.fillCircle(0, 0, 9);
+        g.strokeCircle(0, 0, 9);
+      } else {
+        // Bacillus: a short rod.
+        g.fillRoundedRect(-14, -7, 28, 14, 7);
+        g.strokeRoundedRect(-14, -7, 28, 14, 7);
+      }
+      g.setRotation(Phaser.Math.FloatBetween(0, Math.PI)).setAlpha(0.7);
+      if (entering) this.tween({ targets: g, scale: { from: 0, to: 1 }, duration: 350, delay: i * 40, ease: 'Back.easeOut' });
+      this.tween({
+        targets: g,
+        x: x + Phaser.Math.Between(-60, 60),
+        y: y + Phaser.Math.Between(-40, 40),
+        rotation: g.rotation + Phaser.Math.FloatBetween(-1, 1),
+        duration: Phaser.Math.Between(5000, 9000),
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
   }
 
   /** A few pale specks that drift slowly. Cheap: a dozen sprites, one yoyo tween each. */
@@ -524,6 +570,7 @@ export class MenuScene extends Phaser.Scene {
     } else if (up.kind === 'difficulty') {
       if (down.kind === 'difficulty' && down.value === up.value && up.value !== difficultyStore().load()) {
         difficultyStore().save(up.value);
+        this.sepsisEntering = up.value === 'sepsis';
         this.render(false);
       }
     } else if (up.kind === 'next') {
