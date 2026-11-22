@@ -229,8 +229,10 @@ export interface LevelDef {
    * The pathogen comes back: once every wave has spawned and the board is clear, while the antigen
    * the win condition needs is neither delivered nor on its way, the waves at or after `from`
    * seconds spawn again, the first of them `after` seconds later. Only for `antigen` wins.
+   * `chronic`: each return raises a floor of `points` under that signal, which its decay cannot
+   * go below (a recurring infection keeps the tissue inflamed).
    */
-  returns?: { from: number; after: number };
+  returns?: { from: number; after: number; chronic?: { signal: string; points: number } };
 }
 
 /** `antigen`: every wave spawned, the board clear and `count` antigen delivered to the lymph node. */
@@ -351,6 +353,8 @@ export interface SimState {
   antigenDelivered: number;
   /** Times the pathogen came back (see `LevelDef.returns`). */
   returns: number;
+  /** Level, in thousandths of a point, under which each signal cannot decay (chronic returns). */
+  signalFloors: Record<string, number>;
   rngState: number;
 }
 

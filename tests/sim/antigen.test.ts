@@ -129,6 +129,33 @@ describe('a returning pathogen', () => {
     expect(sim.state.status).toBe('won');
   });
 
+  it('each return raises a chronic floor of a signal that its decay cannot go under', () => {
+    const signals = { harm: { max: 100, decayPerSecond: 50, defeatAt: 1 } };
+    const sim = createSim(
+      level({
+        grid: { rows: 3, cols: 8 },
+        startEnergy: 1000,
+        deck: ['sniper'],
+        waves,
+        win: { type: 'antigen', count: 2 },
+        returns: { from: 10, after: 3, chronic: { signal: 'harm', points: 30 } },
+      }),
+      { ...content, signals },
+      1,
+    );
+    sim.placeUnit('sniper', 1, 5);
+    sim.placeUnit('sniper', 2, 5);
+    const events = run(sim, 16);
+    const returned = events.filter((e) => e.type === 'pathogen_returned').length;
+    expect(returned).toBeGreaterThanOrEqual(1);
+    // Decay (50 points per second) has had time to empty the signal, but it rests on the floor.
+    expect(sim.signal('harm')).toBeCloseTo(0.3 * returned);
+    run(sim, 200);
+    // Four returns reach 120 points: the signal hits its defeat level and the level is lost.
+    expect(sim.state.status).toBe('lost');
+    expect(sim.state.defeat).toEqual({ type: 'signal', signal: 'harm' });
+  });
+
   it('does nothing on a level that does not declare returns', () => {
     const sim = setup({ waves: [grunts(0, 1)], win: { type: 'antigen', count: 2 } });
     sim.placeUnit('sniper', 1, 5);

@@ -127,6 +127,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     couriers: [],
     antigenDelivered: 0,
     returns: 0,
+    signalFloors: {},
     rngState: createRng(seed).state,
   };
 

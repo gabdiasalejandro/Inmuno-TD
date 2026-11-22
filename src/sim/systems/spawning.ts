@@ -1,6 +1,6 @@
 import { secondsToTicks } from '../time';
 import type { EnemyState } from '../types';
-import { CELL, assertLaneInGrid, type System, type World } from '../world';
+import { CELL, MILLI, assertLaneInGrid, type System, type World } from '../world';
 
 /**
  * Opens wounded lanes and brings enemies in on the schedule the level's waves describe. With
@@ -69,6 +69,11 @@ export function createSpawning(
       const offset = state.tick + secondsToTicks(level.returns.after) - secondsToTicks(level.returns.from);
       schedule.push(...scheduleOf(returning!, offset));
       state.returns++;
+      const chronic = level.returns.chronic;
+      if (chronic) {
+        state.signalFloors[chronic.signal] = (state.signalFloors[chronic.signal] ?? 0) + Math.round(chronic.points * MILLI);
+        world.raise(chronic.signal, Math.max(0, state.signalFloors[chronic.signal]! - (state.signals[chronic.signal] ?? 0)) / MILLI);
+      }
       events.push({ type: 'pathogen_returned', count: state.returns });
     },
 

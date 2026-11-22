@@ -1,0 +1,107 @@
+{
+  "id": "1-7",
+  "grid": {
+    "rows": 5,
+    "cols": 9
+  },
+  "startEnergy": 200,
+  "marrow": {
+    "amount": 25,
+    "interval": 5
+  },
+  "deck": [
+    "epitelio",
+    "moco",
+    "macrofago",
+    "neutrofilo",
+    "dendritica"
+  ],
+  "objectives": [
+    "obj.1-7.dendritic",
+    "obj.1-7.memory"
+  ],
+  "signals": [
+    "citocinas",
+    "inflamacion"
+  ],
+  "win": {
+    "type": "antigen",
+    "count": 9
+  },
+  "returns": {
+    "from": 115,
+    "after": 8,
+    "chronic": {
+      "signal": "inflamacion",
+      "points": 20
+    }
+  },
+  "waves": [
+    {
+      "at": 5,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 1,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 9,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 3,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 13,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 2,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 60,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 1,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 64,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 3,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 68,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 2,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 115,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 1,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 119,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 3,
+      "count": 3,
+      "gap": 2.5
+    },
+    {
+      "at": 123,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 2,
+      "count": 3,
+      "gap": 2.5
+    }
+  ],
+  "powers": [
+    "complemento"
+  ]
+}

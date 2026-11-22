@@ -11,7 +11,8 @@ export function createSignals(world: World): System {
 
   return () => {
     for (const [name, def] of signalDefs) {
-      state.signals[name] = Math.max(0, (state.signals[name] ?? 0) - perTick(def.decayPerSecond));
+      const floor = state.signalFloors[name] ?? 0;
+      state.signals[name] = Math.max(Math.min(floor, state.signals[name] ?? 0), (state.signals[name] ?? 0) - perTick(def.decayPerSecond));
     }
   };
 }
