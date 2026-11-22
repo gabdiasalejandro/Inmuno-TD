@@ -20,9 +20,9 @@ const plug: Bot = (sim) => {
 /** Once the colony stands in its column, a macrophage right in front of it in each lane it covers. */
 const siege: Bot = (sim) => {
   const boss = colony(sim);
-  if (!boss || engagedCol(boss.pos) > 6) return;
+  if (!boss || engagedCol(boss.pos) > 5) return;
   for (const lane of [boss.lane - 1, boss.lane, boss.lane + 1]) {
-    if (!occupied(sim, lane, 5) && sim.state.energy >= 100) sim.placeUnit('macrofago', lane, 5);
+    if (!occupied(sim, lane, 4) && sim.state.energy >= 100) sim.placeUnit('macrofago', lane, 4);
   }
 };
 /** Neutrophils behind a lane's macrophage when bacteria come close, kept out of the colony's toxins. */
@@ -31,8 +31,8 @@ const neutrophils: Bot = (sim) => {
     const near = sim.state.enemies.filter((e) => e.lane === lane && e.defId !== BOSS).map((e) => engagedCol(e.pos));
     const front = Math.min(99, ...near);
     if (front > 5 || sim.state.energy < 150 || !sim.state.units.some((u) => u.row === lane && u.defId === 'macrofago')) continue;
-    const col = Math.max(2, Math.min(4, front - 1));
-    if (Math.abs(lane - 2) <= 1 && col >= 4) continue;
+    const col = Math.max(2, Math.min(3, front - 1));
+    if (Math.abs(lane - 2) <= 1 && col >= 3) continue;
     if (!occupied(sim, lane, col)) sim.placeUnit('neutrofilo', lane, col);
   }
 };
@@ -54,7 +54,7 @@ const complement: Bot = (sim) => {
   if (sim.signal('inflamacion') > 0.4) return;
   const capsule = sim.state.enemies.find((e) => e.defId === 'bacteria_capsulada' && !e.statuses?.opsonizado && e.pos < 6000);
   const boss = colony(sim);
-  const target = capsule ?? (boss && engagedCol(boss.pos) <= 6 ? boss : undefined);
+  const target = capsule ?? (boss && engagedCol(boss.pos) <= 5 ? boss : undefined);
   if (target) sim.playPower('complemento', target.lane, engagedCol(target.pos));
 };
 const withoutComplement = together(defence, plug, nk, siege, neutrophils, carefulRelease);
@@ -118,14 +118,14 @@ describe('level 1-8 balance', () => {
   it('kills a neutrophil next to the colony within two seconds once the leukocidins are out', () => {
     const level = levels['1-8']!;
     const sim = createSim(level, content, 1);
-    while (!colony(sim) || engagedCol(colony(sim)!.pos) > 6) {
+    while (!colony(sim) || engagedCol(colony(sim)!.pos) > 5) {
       defence(sim, level);
       sim.step();
     }
     const boss = colony(sim)!;
     boss.hp = 0.6 * content.enemies.find((e) => e.id === BOSS)!.hp;
     sim.state.energy = 1000;
-    expect(sim.placeUnit('neutrofilo', boss.lane + 1, 5)).toEqual({ ok: true });
+    expect(sim.placeUnit('neutrofilo', boss.lane + 1, 4)).toEqual({ ok: true });
     const events: SimEvent[] = [];
     for (let i = 0; i < secondsToTicks(2); i++) events.push(...sim.step());
     expect(events.some((e) => e.type === 'unit_died' && e.defId === 'neutrofilo' && e.cause === 'killed')).toBe(true);

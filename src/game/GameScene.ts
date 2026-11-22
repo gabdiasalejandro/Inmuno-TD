@@ -79,7 +79,7 @@ const FIBRIN_EDGE = 0x9a6b4a;
 /** Flash of a macrophage's punch landing on the colony. */
 const IMPACT = 0xfbf1c8;
 /** How much bigger than one cell a wide enemy is drawn, per lane it covers on each side. */
-const SPAN_SCALE = 1.0;
+const SPAN_SCALE = 0.85;
 const MEMBRANE_ATTACK = 0x8e2c6b;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
