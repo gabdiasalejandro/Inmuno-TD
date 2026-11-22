@@ -1,19 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
   <g id="ojos" stroke-linejoin="round" stroke-linecap="round">
-    <!-- rubor -->
-    <ellipse cx="86" cy="132" rx="10" ry="5.5" fill="#E8A29A"/>
-    <ellipse cx="170" cy="132" rx="10" ry="5.5" fill="#E8A29A"/>
-    <!-- ojo izquierdo: base compartida, abierto -->
-    <ellipse cx="106" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
-    <circle cx="103" cy="108" r="4.5" fill="#FBF7F2"/>
-    <circle cx="109.5" cy="117" r="2" fill="#FBF7F2"/>
-    <!-- ojo derecho: base compartida, abierto -->
-    <ellipse cx="150" cy="112" rx="10" ry="13" fill="#3A2A2A"/>
-    <circle cx="147" cy="108" r="4.5" fill="#FBF7F2"/>
-    <circle cx="153.5" cy="117" r="2" fill="#FBF7F2"/>
-    <!-- cejas en arco suave, alzadas: amable y atenta -->
-    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 94 90 Q 106 82 118 88 M 138 88 Q 150 82 162 90"/>
-    <!-- boca recta y amable, con una sonrisa leve -->
-    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 118 140 Q 128 146 138 140"/>
+    <ellipse cx="88" cy="140" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="172" cy="140" rx="10" ry="5.5" fill="#E8A29A"/>
+    <ellipse cx="108" cy="122" rx="10" ry="13" fill="#3A2A2A"/>
+    <circle cx="105" cy="118" r="4.5" fill="#FBF7F2"/>
+    <circle cx="111.5" cy="127" r="2" fill="#FBF7F2"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 140 124 Q 152 114 164 124"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="5" d="M 94 100 Q 106 92 120 98"/>
+    <path fill="none" stroke="#3A2A2A" stroke-width="6" d="M 138 94 Q 152 84 166 92"/>
+    <path fill="#3A2A2A" stroke="#3A2A2A" stroke-width="5" d="M 114 146 Q 130 150 146 144 Q 142 164 128 164 Q 116 162 114 146 Z"/>
+    <path fill="#E8A29A" d="M 120 156 Q 128 152 138 156 Q 134 162 128 162 Q 122 162 120 156 Z"/>
   </g>
 </svg>

@@ -54,8 +54,8 @@ const CHARACTERS: Record<string, CharacterSpec> = {
     receptors: [[160, 48], [177, 56], [203, 88], [211, 124]],
     belly: [153, 178, 16],
   },
-  // Tutor: friendly teacher, calm breathing and a gentle wave of its branches.
-  dendritica: { motion: 'worker', eyes: [[106, 112], [150, 112]], lid: 0xfbf7f2 },
+  // Mint messenger, approved 2026-11-21: winks (only the open eye blinks) and holds up antigen on a tray.
+  dendritica: { motion: 'worker', eyes: [[108, 122]], lid: 0xd3eedf },
   neutrofilo: { motion: 'rush', eyes: [[142, 124], [182, 124]], lid: 0xfbf7f2, belly: [198, 178, 11] },
   // Proposal pending review: calm, poised idle; drawn in assets/sprites/nk/.
   nk: { motion: 'worker', eyes: [[104, 128], [150, 128]], lid: 0xb791be },

@@ -146,7 +146,7 @@ Notas de personaje hasta ahora:
 - **Neutrófilo:** blanco, novato impulsivo, ceño decidido, rubor leve.
 - **Macrófago:** veterano grandote y glotón.
 - **NK:** aire de femme fatale. Calma total, pide "identificación" (MHC I) antes de matar.
-- **Dendrítica:** mensajera con muchos brazos.
+- **Dendrítica:** mensajera chismosa con muchos brazos, cuerpo menta (excepción al blanco hueso), guiña un ojo y presenta un trozo de bacteria en una bandeja. Aprobada por el usuario el 2026-11-21.
 - **_S. aureus_:** racimo dorado y arrogante. El diseño de prueba gustó.
 - **Epitelio, moco y bacteria grampositiva:** aprobados por el usuario el 2026-11-14 e integrados en el juego (`assets/sprites/`, guía en `docs/guia-estilo.md`).
 - **Médula ósea:** hueso con cara y canal de médula roja, en el panel de energía, con placa "Médula ósea". Aprobada por el usuario el 2026-11-14.

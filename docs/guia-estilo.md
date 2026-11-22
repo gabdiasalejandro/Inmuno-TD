@@ -59,6 +59,7 @@ Sin blanco puro (`#FFFFFF`) ni negro puro (`#000000`). Sin degradados: cada zona
 | `#5E3A80` | Sombra del núcleo, nucléolo y cromatina. |
 | `#A47CC8` | Brillo del núcleo. |
 | `#3B2260` / `#2A1745` / `#6E4C94` | _Propuesta:_ NK, núcleo redondo índigo oscuro: base, sombra y brillo. |
+| `#2F7D6B` / `#215A4D` | Dendrítica, núcleo verde azulado a juego con su cuerpo: base y sombra. |
 
 ### Tejido propio (no leucocitos)
 
@@ -217,6 +218,13 @@ No es una unidad: es la estructura fija que produce la energía. No se coloca en
 - **Reposo:** impaciente: saltitos de 2 px cada 0,5 s y balanceo hacia adelante de ±3°; el puño delantero tiembla 2 px.
 - **Ataque (carrera y engullida):** se agacha 4 px (1,06 × 0,94) en 80 ms, sale disparado 14 px hacia la derecha en 120 ms con rotación de 6° hacia adelante, se hincha al tragar (1,10 × 0,92) y vuelve a su sitio en 250 ms.
 - **Daño y muerte:** daño, retroceso de 4 px a la izquierda; muerte (vive poco), se encoge rápido y se desvanece en escala.
+
+### dendritica
+
+- **Excepción de color (aprobada el 2026-11-21):** cuerpo menta `#D3EEDF` con sombra `#A9D6BE`, en vez del blanco hueso de los leucocitos. La distingue del macrófago y del neutrófilo a primera vista.
+- **Silueta:** cuerpo redondo con nueve dendritas largas de doble trazo, algunas ramificadas.
+- **Gesto:** levanta con el brazo derecho una bandeja (adelanto del MHC II) con un fragmento dorado de bacteria (`#F2C230`): presenta el antígeno.
+- **Personalidad:** mensajera chismosa que siempre trae noticias. Guiña el ojo derecho, ceja izquierda alzada, boca abierta en sonrisa. Solo parpadea el ojo abierto.
 
 ## 8. Cómo comprobar un sprite
 
