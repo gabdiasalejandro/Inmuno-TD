@@ -1,0 +1,23 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-1.marrow",
+      "target": { "type": "marrow" },
+      "advance": { "type": "tap" }
+    },
+    {
+      "text": "tutorial.1-1.epitelio",
+      "advance": { "type": "place", "unit": "epitelio", "row": 2, "col": 3 }
+    },
+    {
+      "text": "tutorial.1-1.moco",
+      "advance": { "type": "place", "unit": "moco", "row": 2, "col": 5 }
+    },
+    {
+      "text": "tutorial.1-1.enemy",
+      "waitFor": { "type": "enemy", "enemy": "bacteria_gram_pos" },
+      "target": { "type": "enemy", "enemy": "bacteria_gram_pos" },
+      "advance": { "type": "tap" }
+    }
+  ]
+}

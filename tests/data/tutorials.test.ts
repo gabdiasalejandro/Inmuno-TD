@@ -93,6 +93,17 @@ function followTutorial(levelId: string, steps: TutorialStep[], maxSeconds: numb
   return { done: tutorial.index, sim, frames, frameOfStep };
 }
 
+describe('tutorial 1-1', () => {
+  it('introduces the marrow, then both barriers, and can be followed to the end with the real rules', () => {
+    const steps = tutorials['1-1']!.steps;
+    expect(steps[0]!.target).toEqual({ type: 'marrow' });
+    expect(steps.filter((step) => step.advance.type === 'place').map((step) => (step.advance as { unit: string }).unit)).toEqual(['epitelio', 'moco']);
+    const { done, sim } = followTutorial('1-1', steps, 60);
+    expect(done).toBe(steps.length);
+    expect(sim.state.status).toBe('playing');
+  });
+});
+
 describe('tutorial 1-3', () => {
   it('can be followed to the end with the real rules, well before the level ends', () => {
     const steps = tutorials['1-3']!.steps;
