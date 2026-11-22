@@ -41,9 +41,7 @@
         "PAMP"
       ],
       "strike": {
-        "against": [
-          "colonia"
-        ],
+        "against": [],
         "damage": 30,
         "rate": 0.67
       }

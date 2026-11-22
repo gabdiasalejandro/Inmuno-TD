@@ -55,7 +55,9 @@ export function createUnitAttacks(world: World): System {
       const target = world.findTarget(unit, attack.range, attack.requires);
       if (!target) continue;
       const targetDef = world.enemyDef(target.defId);
-      const strikes = attack.strike !== undefined && world.enemyHas(target, attack.strike.against);
+      // A bite that would not finish it off is not worth the digestion: strike it down first.
+      const biteKills = (target.shield ?? 0) + target.hp <= attack.damage * world.enemyDamageMultiplier(target);
+      const strikes = attack.strike !== undefined && world.enemyHas(target, attack.strike.against) && !biteKills;
       // Too big to swallow: strike it, until it is weak enough (and unshielded) to engulf whole.
       const engulfs = strikes && targetDef.engulfBelow !== undefined && !(target.shield ?? 0) && target.hp <= targetDef.engulfBelow * targetDef.hp;
       if (engulfs) {

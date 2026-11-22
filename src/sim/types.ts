@@ -20,9 +20,9 @@ export interface AttackDef {
   /** Statuses an own unit must all carry to be a valid target (only with `targets: 'own'`). */
   status?: string[];
   /**
-   * Against enemies carrying every `against` tag (too big to swallow), the unit strikes instead:
-   * `damage` at `rate` per second. If the enemy is weak enough (`EnemyDef.engulfBelow`) and has no
-   * shield up, the unit engulfs it whole at its own rate instead.
+   * Against enemies carrying every `against` tag (none: any enemy) that its own attack would not
+   * finish off, the unit strikes instead: `damage` at `rate` per second, until one ordinary attack
+   * kills it. An enemy weak enough for `EnemyDef.engulfBelow`, with no shield up, is engulfed whole.
    */
   strike?: { against: string[]; damage: number; rate: number };
 }

@@ -262,6 +262,21 @@ describe('a unit that strikes big enemies and engulfs them when weak', () => {
     expect(hits.every((e) => (e as { damage: number }).damage === 30 && (e as { kind?: string }).kind === 'strike')).toBe(true);
   });
 
+  it('strikes any enemy a bite would not kill, and bites it once a bite would', () => {
+    const tough: EnemyDef = { id: 'tough', hp: 100, speed: 1, attack: { damage: 1, rate: 1 } };
+    const brawler: UnitDef = { ...eater, id: 'brawler', attack: { ...eater.attack!, strike: { against: [], damage: 30, rate: 1 } } };
+    const sim = createSim(
+      level({ grid: { rows: 5, cols: 8 }, startEnergy: 1000, deck: ['brawler'], waves: [{ at: 0, enemy: 'tough', lane: 2, count: 1, gap: 1 }], win: { type: 'survive', seconds: 99 } }),
+      { ...content, units: [...content.units, brawler], enemies: [...content.enemies, tough] },
+      1,
+    );
+    sim.placeUnit('brawler', 2, 5);
+    const hits = run(sim, 8).filter((e) => e.type === 'unit_attacked') as Array<{ damage: number; kind?: string }>;
+    // 100 hp: two punches (100 → 70 → 40), then a 40-point bite swallows it.
+    expect(hits.map((h) => [h.kind ?? 'bite', h.damage])).toEqual([['strike', 30], ['strike', 30], ['bite', 40]]);
+    expect(sim.state.enemies).toHaveLength(0);
+  });
+
   it('still bites an ordinary enemy', () => {
     const sim = setup({ waves: [{ at: 0, enemy: 'grunt', lane: 2, count: 1, gap: 1 }] });
     sim.placeUnit('eater', 2, 5);
