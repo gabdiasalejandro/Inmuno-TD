@@ -18,6 +18,9 @@ const game = new Phaser.Game({
   scene: [],
 });
 
+// The game draws its first frame now: drop the "Cargando…" placeholder of index.html.
+game.events.once(Phaser.Core.Events.READY, () => document.getElementById('boot')?.remove());
+
 // `?level=<id>` boots straight into that level and `?almanac=1` into the almanac (development shortcuts);
 // anything else opens the menu.
 const bootLevel = startLevelFromSearch(window.location.search, levels);

@@ -32,6 +32,7 @@ import { buildMenu, nextPlayableLevel, type MenuLevelState, type MenuWorld } fro
 import { BACK_KEY, DOT_KEY, NODE_KEYS, WORLD_TINTS, loadMenuSprites, worldKey } from './menuSprites';
 import { progressStore } from './progress';
 import { difficultyStore } from './difficulty';
+import { backgroundLoadSprites } from './sprites';
 import { DIFFICULTIES, type Difficulty } from '../data';
 
 const FONT = 'sans-serif';
@@ -115,6 +116,7 @@ export class MenuScene extends Phaser.Scene {
     });
 
     this.render(false);
+    backgroundLoadSprites(this);
   }
 
   // ---- drawing helpers -------------------------------------------------------------------------

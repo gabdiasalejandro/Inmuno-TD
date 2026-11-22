@@ -13,8 +13,16 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    // Phaser is a single large dependency; keep it in its own chunk.
+    // Phaser is a single large dependency; keep it in its own chunk so a deploy that only
+    // changes game code leaves it cached in the browser.
     chunkSizeWarningLimit: 2000,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{ name: 'phaser', test: /node_modules[\\/].*phaser/ }],
+        },
+      },
+    },
   },
   test: {
     include: ['tests/**/*.test.ts'],

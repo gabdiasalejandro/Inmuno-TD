@@ -61,3 +61,13 @@ export function preloadSprites(scene: Phaser.Scene): void {
 export function hasSprite(scene: Phaser.Scene, id: string): boolean {
   return PIECES.every((piece) => scene.textures.exists(textureKey(id, piece)));
 }
+
+/**
+ * Starts loading every sprite piece in the background from a scene that is already running (the
+ * menu), so the first level opens without waiting. Textures are shared by all scenes; whatever is
+ * not loaded yet when a level starts is loaded by that level's own `preload`.
+ */
+export function backgroundLoadSprites(scene: Phaser.Scene): void {
+  preloadSprites(scene);
+  if (scene.load.list.size > 0) scene.load.start();
+}
