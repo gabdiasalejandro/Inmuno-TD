@@ -224,8 +224,12 @@ describe('next level shortcut on the world map', () => {
 
 describe('difficulty selector', () => {
   it('sits inside the canvas, clear of every world and level node', async () => {
-    const { DIFFICULTY_BUTTON } = await import('../../src/ui/menuLayout');
-    const r = DIFFICULTY_BUTTON;
+    const { DIFFICULTY_BUTTON, DIFFICULTY_PANEL } = await import('../../src/ui/menuLayout');
+    const r = DIFFICULTY_PANEL;
+    // The selector sits inside its labelled plate.
+    expect(DIFFICULTY_BUTTON.x).toBeGreaterThanOrEqual(r.x);
+    expect(DIFFICULTY_BUTTON.x + DIFFICULTY_BUTTON.w).toBeLessThanOrEqual(r.x + r.w);
+    expect(DIFFICULTY_BUTTON.y + DIFFICULTY_BUTTON.h).toBeLessThanOrEqual(r.y + r.h);
     expect(r.x).toBeGreaterThanOrEqual(0);
     expect(r.x + r.w).toBeLessThanOrEqual(W);
     expect(r.y + r.h).toBeLessThanOrEqual(H);

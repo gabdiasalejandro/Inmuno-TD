@@ -7,6 +7,7 @@ import {
   BACK_BUTTON,
   CAPTION_POS,
   DIFFICULTY_BUTTON,
+  DIFFICULTY_PANEL,
   LEVEL_COUNT_MAX,
   LEVEL_NODE_SIZE,
   NEXT_LEVEL_BUTTON,
@@ -183,6 +184,12 @@ export class MenuScene extends Phaser.Scene {
     const chosen = difficultyStore().load();
     const half = r.w / DIFFICULTIES.length;
     const g = this.keep(this.add.graphics().setDepth(2));
+    const p = DIFFICULTY_PANEL;
+    g.fillStyle(PLATE, 1);
+    g.fillRoundedRect(p.x, p.y, p.w, p.h, 18);
+    g.lineStyle(4, OUTLINE, 1);
+    g.strokeRoundedRect(p.x, p.y, p.w, p.h, 18);
+    this.keep(this.text(p.x + (r.x - p.x) / 2, p.y + p.h / 2, t('difficulty.label'), 22, true).setOrigin(0.5).setDepth(2.1));
     g.fillStyle(PANEL, 1);
     g.fillRoundedRect(r.x, r.y, r.w, r.h, 14);
     DIFFICULTIES.forEach((difficulty, i) => {
