@@ -136,7 +136,7 @@
   "enemy.staphylococcus_aureus.name": "Staphylococcus aureus",
   "enemy.staphylococcus_aureus_colonia.name": "Colonia de S. aureus",
   "intro.1-8.title": "Jefe: Staphylococcus aureus",
-  "intro.1-8.body": "Una colonia de S. aureus se planta en el tejido y suelta más S. aureus mientras viva. Mientras siga ahí, por el borde del tejido se cuelan otros patógenos: bacterias encapsuladas o virus. Herida, suelta leucocidinas que matan neutrófilos; al final se encierra en un absceso de fibrina. Usa todo lo que aprendiste.",
+  "intro.1-8.body": "Una colonia de S. aureus se planta y suelta más S. aureus; mientras viva, por el borde se cuelan encapsuladas o virus. Herida, suelta leucocidinas que matan neutrófilos; al final se encierra en un absceso de fibrina. Usa todo lo que aprendiste.",
   "banner.boss": "¡Derrota a la colonia!",
   "obj.1-8.leukocidin": "¿Qué hacen las leucocidinas de Staphylococcus aureus y a qué células atacan?",
   "obj.1-8.coagulase": "¿Para qué le sirve la coagulasa a Staphylococcus aureus?",
