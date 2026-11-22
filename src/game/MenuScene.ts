@@ -29,7 +29,7 @@ import {
 import { createFullscreenButton, type FullscreenButton } from '../ui/FullscreenButton';
 import { CANVAS_FULLSCREEN } from '../ui/fullscreenLayout';
 import { buildMenu, nextPlayableLevel, type MenuLevelState, type MenuWorld } from '../ui/menuModel';
-import { BACKDROP_SIZE, BACK_KEY, DOT_KEY, NODE_KEYS, WORLD_TINTS, backdropKey, loadMenuSprites, loadWorldBackdrop, worldKey } from './menuSprites';
+import { BACK_KEY, DOT_KEY, NODE_KEYS, WORLD_TINTS, loadMenuSprites, worldKey } from './menuSprites';
 import { progressStore } from './progress';
 import { difficultyStore } from './difficulty';
 import { backgroundLoadSprites } from './sprites';
@@ -428,29 +428,39 @@ export class MenuScene extends Phaser.Scene {
     const levelList = world.levels.slice(0, LEVEL_COUNT_MAX);
     const count = levelList.length;
 
-    // Backdrop: tinted panel, the world's illustrated scene, and a dark vignette frame.
+    // Backdrop: tinted panel, a slowly turning sunburst, a glow, the world's art large, and a dark vignette.
     const tint = WORLD_TINTS[worldIndex] ?? PLATE;
     const light = Phaser.Display.Color.IntegerToColor(tint).lighten(22).color;
     const dark = Phaser.Display.Color.IntegerToColor(tint).darken(30).color;
     const bg = this.keep(this.add.graphics().setDepth(-8));
     bg.fillStyle(tint, 1);
     bg.fillRoundedRect(24, 124, 1232, 572, 28);
-    const frame = this.keep(this.add.graphics().setDepth(-7));
     for (let i = 0; i < 4; i++) {
-      frame.lineStyle(26 - i * 6, dark, 0.14 + i * 0.05);
-      frame.strokeRoundedRect(24 + 14 - i * 3, 124 + 14 - i * 3, 1232 - 28 + i * 6, 572 - 28 + i * 6, 24);
+      bg.lineStyle(26 - i * 6, dark, 0.14 + i * 0.05);
+      bg.strokeRoundedRect(24 + 14 - i * 3, 124 + 14 - i * 3, 1232 - 28 + i * 6, 572 - 28 + i * 6, 24);
     }
-    frame.lineStyle(5, OUTLINE, 1);
-    frame.strokeRoundedRect(24, 124, 1232, 572, 28);
+    bg.lineStyle(5, OUTLINE, 1);
+    bg.strokeRoundedRect(24, 124, 1232, 572, 28);
 
-    // The world's illustrated scene fills the panel, under the frame; until it has loaded the
-    // plain tint shows, and the view redraws itself once it is there.
-    const ready = loadWorldBackdrop(this, worldIndex, () => {
-      if (this.view.kind === 'world' && this.view.index === worldIndex) this.render(false);
-    });
-    if (ready) {
-      this.keep(this.add.image(24, 124, backdropKey(worldIndex)).setOrigin(0).setDisplaySize(BACKDROP_SIZE.w, BACKDROP_SIZE.h).setDepth(-7.5));
+    const rays = this.keep(this.add.graphics({ x: 640, y: 410 }).setDepth(-7));
+    rays.fillStyle(light, 0.4);
+    const spokes = 14;
+    for (let i = 0; i < spokes; i++) {
+      const a = (i / spokes) * Math.PI * 2;
+      const w = Math.PI / spokes;
+      rays.fillTriangle(0, 0, Math.cos(a - w / 2) * 278, Math.sin(a - w / 2) * 278, Math.cos(a + w / 2) * 278, Math.sin(a + w / 2) * 278);
     }
+    this.tween({ targets: rays, rotation: Math.PI * 2, duration: 90000, repeat: -1 });
+    const glow = this.keep(this.add.graphics().setDepth(-6));
+    for (const [radius, alpha] of [[270, 0.12], [220, 0.16], [170, 0.22]] as const) {
+      glow.fillStyle(light, alpha);
+      glow.fillCircle(640, 410, radius);
+    }
+    const art = this.keep(this.add.image(640, 410, worldKey(worldIndex)).setDisplaySize(520, 520).setAlpha(0.3).setDepth(-5));
+    const artScale = art.scale;
+    art.setScale(artScale * 0.75);
+    this.tween({ targets: art, scale: artScale, duration: 600, ease: 'Back.easeOut' });
+    this.tween({ targets: art, y: 398, duration: 3200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: 600 });
     this.drawMotes(light);
 
     // Heading with the world's emblem and name.
