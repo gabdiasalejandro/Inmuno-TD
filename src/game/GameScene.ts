@@ -68,6 +68,9 @@ const VIRUS = 0x36b862;
 const SHIELD = 0x9fd3e6;
 // Complement: the opsonin purple of the style guide and the membrane-attack PAMP colour.
 const OPSONIN = 0x7b4fa3;
+/** Antigen gold: the fragment the dendritic cell picks up and carries to the lymph node. */
+const ANTIGEN = 0xf2c230;
+const ANTIGEN_EDGE = 0x3a2a2a;
 const MEMBRANE_ATTACK = 0x8e2c6b;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
@@ -110,6 +113,9 @@ export class GameScene extends Phaser.Scene {
   private enemyDefs = new Map<string, EnemyDef>();
   /** Enemy positions before the most recent step, for smooth rendering between ticks. */
   private prevPos = new Map<number, number>();
+  /** Couriers (dendritic cells walking to the lymph node): their figure, kept from the unit they were. */
+  private courierViews = new Map<number, Figure>();
+  private prevCourierPos = new Map<number, number>();
   private alpha = 0;
   private selected: string | null = null;
   private hover: Cell | null = null;
@@ -172,6 +178,8 @@ export class GameScene extends Phaser.Scene {
     this.unitDefs = new Map(content.units.map((d) => [d.id, d]));
     this.enemyDefs = new Map(content.enemies.map((d) => [d.id, d]));
     this.prevPos = new Map();
+    this.courierViews = new Map();
+    this.prevCourierPos = new Map();
     this.alpha = 0;
     this.selected = null;
     this.hover = null;
@@ -264,6 +272,7 @@ export class GameScene extends Phaser.Scene {
       this.alpha = alpha;
       for (let i = 0; i < steps && this.sim.state.status === 'playing'; i++) {
         this.prevPos = new Map(state.enemies.map((e) => [e.uid, e.pos]));
+        this.prevCourierPos = new Map(state.couriers.map((c) => [c.uid, c.pos]));
         this.handleEvents(this.sim.step());
       }
     }
@@ -404,6 +413,38 @@ export class GameScene extends Phaser.Scene {
         }
         case 'power_step':
           this.showPowerStep(event);
+          break;
+        case 'antigen_taken': {
+          // A golden fragment flies from the dead bacterium to the dendritic cell's tray.
+          const from = this.enemyViews.get(event.enemy);
+          const to = this.unitViews.get(event.uid);
+          if (from && to) {
+            flyParticle(this, { x: from.root.x, y: from.root.y - 30 }, { x: to.root.x + 30, y: to.root.y - 110 }, ANTIGEN, () => to.squeeze(), 520);
+          }
+          break;
+        }
+        case 'unit_migrated': {
+          // The full dendritic cell keeps its figure and sets off for the lymph node.
+          const view = this.unitViews.get(event.uid);
+          if (view) {
+            this.unitViews.delete(event.uid);
+            this.courierViews.set(event.uid, view);
+            floatText(this, view.root.x, view.root.y - 120, t('game.to_lymph_node'), '#F2C230', 24);
+          }
+          break;
+        }
+        case 'antigen_delivered': {
+          const view = this.courierViews.get(event.uid);
+          const { y } = cellCenter(layout, event.row, 0);
+          ring(this, layout.x, y, ANTIGEN, 14, 70, 520);
+          floatText(this, layout.x + 60, y - 40, `+${event.amount}`, '#F2C230', 34);
+          view?.die('expired');
+          this.courierViews.delete(event.uid);
+          this.prevCourierPos.delete(event.uid);
+          break;
+        }
+        case 'pathogen_returned':
+          banner(this, t('game.pathogen_returned'), layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2);
           break;
         case 'won':
           progressStore().markCompleted(this.levelId);
@@ -829,6 +870,7 @@ export class GameScene extends Phaser.Scene {
       } else if (unit.hp < def.hp) {
         this.drawBar(bars, x - barW / 2, foot - 2, barW, 7, unit.hp / def.hp, unit.hp / def.hp < 0.35 ? BAR_LOW : BAR_OK);
       }
+      if (def.collects) this.drawLoad(bars, x, foot, unit.antigen ?? 0, def.collects.capacity);
     }
     for (const [uid, view] of this.unitViews) {
       if (liveUnits.has(uid)) continue;
@@ -837,6 +879,21 @@ export class GameScene extends Phaser.Scene {
       view.die(cause);
       this.unitViews.delete(uid);
       this.deathCause.delete(uid);
+    }
+
+    // Couriers walk left along their lane, bobbing, with their full load over their head.
+    for (const courier of state.couriers) {
+      const prev = this.prevCourierPos.get(courier.uid) ?? courier.pos;
+      const pos = prev + (courier.pos - prev) * this.alpha;
+      const x = layout.x + (pos / 1000 + 0.5) * layout.cellW;
+      const foot = cellCenter(layout, courier.row, 0).y + layout.cellH / 2 - FOOT_INSET - Math.abs(Math.sin(now / 150)) * 6;
+      let view = this.courierViews.get(courier.uid);
+      if (!view) {
+        view = createFigure(this, courier.defId, x, foot).idle();
+        this.courierViews.set(courier.uid, view);
+      }
+      view.setPosition(x, foot).setDepth(2.08 + courier.row * 0.1);
+      this.drawLoad(bars, x, foot, courier.antigen, courier.antigen);
     }
 
     const liveEnemies = new Set<number>();
@@ -886,6 +943,7 @@ export class GameScene extends Phaser.Scene {
       totalSeconds: total,
       remainingEnemies: isClearLevel(this.level) ? enemiesRemaining(this.level, state.nextSpawn, state.enemies.length) : null,
       totalEnemies: scheduledEnemies(this.level) + this.released,
+      antigen: this.level.win?.type === 'antigen' ? { delivered: state.antigenDelivered, needed: this.level.win.count } : null,
       charge: marrowCharge(this.sim.marrowFraction()),
       excite: marrowExcitement(cytokines ?? 0),
       cytokines,
@@ -901,6 +959,17 @@ export class GameScene extends Phaser.Scene {
       shake: this.cardShake,
       powerReadyAt: state.powerReadyAt,
     });
+  }
+
+  /** Antigen slots over a dendritic cell's head: gold for each fragment it carries, empty for the room left. */
+  private drawLoad(g: Phaser.GameObjects.Graphics, x: number, foot: number, load: number, capacity: number): void {
+    const r = 7;
+    const y = foot - this.layout.cellH * 0.92;
+    for (let i = 0; i < capacity; i++) {
+      const cx = x + (i - (capacity - 1) / 2) * (r * 2 + 6);
+      if (i < load) g.fillStyle(ANTIGEN, 1).fillCircle(cx, y, r);
+      g.lineStyle(3, ANTIGEN_EDGE, i < load ? 1 : 0.35).strokeCircle(cx, y, r);
+    }
   }
 
   /**

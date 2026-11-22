@@ -50,6 +50,8 @@ const COLUMN = 0xe9d6d1;
 const SELECTED = 0x7b4fa3;
 const WARN = 0xb5483f;
 const TIME_FILL = 0x8aa9b8;
+/** Antigen gold: the fragment the dendritic cell carries (S. aureus body colour of the style guide). */
+const ANTIGEN = 0xf2c230;
 const TIME_LOW = 0xc98a6a;
 const PROGRESS = 0x8db28a;
 const PROGRESS_LIGHT = 0xb9d3a8;
@@ -83,6 +85,8 @@ export interface HudModel {
   /** Bacteria still to defeat in a clear level, or null in a timed one. */
   remainingEnemies: number | null;
   totalEnemies: number;
+  /** Antigen delivered to the lymph node and needed to win, or null when the level does not ask for it. */
+  antigen?: { delivered: number; needed: number } | null;
   /** Marrow progress toward its next energy batch, 0..1. */
   charge: number;
   /** How hard the marrow is working because of cytokines, 0..1. */
@@ -481,6 +485,18 @@ export class Hud {
 
   private drawTimer(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const rect = this.layout.timer;
+    // Antigen levels count what reached the lymph node, the win condition, instead of time or bacteria.
+    if (m.antigen) {
+      const { delivered, needed } = m.antigen;
+      this.timeLabel.setText(t('hud.antigen')).setVisible(true);
+      this.timeValue.setText(`${Math.min(delivered, needed)}/${needed}`).setVisible(true);
+      const bar = { x: rect.x + 16, y: rect.y + 40, w: rect.w - 32, h: 18 };
+      g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
+      const fraction = needed > 0 ? Math.min(1, delivered / needed) : 0;
+      if (fraction > 0) g.fillStyle(ANTIGEN, 1).fillRoundedRect(bar.x, bar.y, Math.max(bar.w * fraction, 18), bar.h, 9);
+      g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
+      return;
+    }
     // Clear levels have no countdown and no remaining count: only how much of the level is done.
     if (m.remainingEnemies !== null) {
       this.timeLabel.setVisible(false);
