@@ -235,7 +235,7 @@ export interface LevelDef {
   returns?: { from: number; after: number; chronic?: { signal: string; points: number } };
 }
 
-/** `antigen`: every wave spawned, the board clear and `count` antigen delivered to the lymph node. */
+/** `antigen`: won as soon as `count` antigen reach the lymph node, whatever is still on the board. */
 export type WinCondition = { type: 'clear' } | { type: 'survive'; seconds: number } | { type: 'antigen'; count: number };
 
 export interface WoundDef {

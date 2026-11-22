@@ -123,5 +123,5 @@
   "tutorial.1-7.place": "¡Llegan las bacterias! Coloca la célula dendrítica delante de un macrófago: no ataca ni bloquea, recoge lo que muere a su alrededor.",
   "tutorial.1-7.taken": "¡Ha cogido un trozo de bacteria! Eso es el antígeno. Cuando lleve tres, se irá al ganglio.",
   "tutorial.1-7.migrate": "Ya va llena: viaja por la linfa hasta el ganglio. Allí enseñará el antígeno a los linfocitos; lo verás en el mundo 2.",
-  "tutorial.1-7.delivered": "¡Entregado! Arriba ves cuánto antígeno ha llegado. Si acaban los tres encuentros sin el suficiente, la misma bacteria volverá, y cada vuelta deja más inflamación."
+  "tutorial.1-7.delivered": "¡Entregado! Arriba ves cuánto antígeno ha llegado. Al llegar a 9 ganas. Mientras no lleguen, la misma bacteria seguirá volviendo, y cada vuelta deja más inflamación."
 }

@@ -51,8 +51,10 @@ describe('level 1-7 balance', () => {
       sim.step();
     }
     expect(sim.state.status).toBe('lost');
-    expect(sim.state.defeat).toEqual({ type: 'signal', signal: 'inflamacion' });
     expect(sim.state.returns).toBeGreaterThanOrEqual(3);
+    // The chronic floor sits in the tier where inflammation harms own cells: the defence wears down
+    // until the gauge tops out or a bacterium gets through.
+    expect(sim.signal('inflamacion')).toBeGreaterThanOrEqual(0.6);
   });
 
   it('is still won by a player who finds the dendritic cell late, after the pathogen has come back', () => {

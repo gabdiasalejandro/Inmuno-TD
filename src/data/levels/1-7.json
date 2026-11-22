@@ -29,8 +29,8 @@
     "count": 9
   },
   "returns": {
-    "from": 115,
-    "after": 8,
+    "from": 61,
+    "after": 2,
     "chronic": {
       "signal": "inflamacion",
       "points": 20
@@ -41,63 +41,91 @@
       "at": 5,
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
-      "count": 3,
-      "gap": 2.5
-    },
-    {
-      "at": 9,
-      "enemy": "streptococcus_pyogenes",
-      "lane": 3,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
       "at": 13,
       "enemy": "streptococcus_pyogenes",
-      "lane": 2,
-      "count": 3,
+      "lane": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 60,
+      "at": 21,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 2,
+      "count": 2,
+      "gap": 2.5
+    },
+    {
+      "at": 29,
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 64,
+      "at": 37,
       "enemy": "streptococcus_pyogenes",
       "lane": 3,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 68,
+      "at": 45,
       "enemy": "streptococcus_pyogenes",
       "lane": 2,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 115,
+      "at": 53,
       "enemy": "streptococcus_pyogenes",
       "lane": 1,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 119,
+      "at": 61,
       "enemy": "streptococcus_pyogenes",
       "lane": 3,
-      "count": 3,
+      "count": 2,
       "gap": 2.5
     },
     {
-      "at": 123,
+      "at": 69,
       "enemy": "streptococcus_pyogenes",
       "lane": 2,
-      "count": 3,
+      "count": 2,
+      "gap": 2.5
+    },
+    {
+      "at": 77,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 1,
+      "count": 2,
+      "gap": 2.5
+    },
+    {
+      "at": 85,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 3,
+      "count": 2,
+      "gap": 2.5
+    },
+    {
+      "at": 93,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 2,
+      "count": 2,
+      "gap": 2.5
+    },
+    {
+      "at": 101,
+      "enemy": "streptococcus_pyogenes",
+      "lane": 1,
+      "count": 2,
       "gap": 2.5
     }
   ],

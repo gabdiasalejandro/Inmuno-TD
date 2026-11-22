@@ -92,13 +92,16 @@ describe('antigen win condition', () => {
     expect(sim.state.status).toBe('playing');
   });
 
-  it('is won once enough antigen reached the edge and the board is clear', () => {
-    const sim = setup({ waves: [grunts(0, 1, 2, 1)], win: { type: 'antigen', count: 2 } });
+  it('is won on the tick enough antigen reaches the edge, with enemies still on the board and waves still to come', () => {
+    const sim = setup({ waves: [grunts(0, 1, 2, 1), grunts(4, 2), grunts(60, 2)], win: { type: 'antigen', count: 2 } });
     sim.placeUnit('sniper', 1, 5);
     sim.placeUnit('scout', 0, 6);
-    run(sim, 15);
-    expect(sim.state.antigenDelivered).toBe(2);
+    let wonOn: SimEvent[] = [];
+    for (let i = 0; i < secondsToTicks(20) && sim.state.status === 'playing'; i++) wonOn = sim.step();
     expect(sim.state.status).toBe('won');
+    expect(wonOn.some((e) => e.type === 'antigen_delivered')).toBe(true);
+    expect(sim.state.antigenDelivered).toBe(2);
+    expect(sim.state.enemies.length).toBeGreaterThan(0);
   });
 });
 

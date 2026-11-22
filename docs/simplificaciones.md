@@ -223,7 +223,7 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 
 ### inflamacion-cronica-por-vuelta
 
-- **En el juego:** cada vuelta del patógeno sube 20 puntos un suelo bajo la inflamación, que ya no baja de ahí; con cinco vueltas se pierde.
+- **En el juego:** cada vuelta del patógeno sube 20 puntos un suelo bajo la inflamación, que ya no baja de ahí; desde el 60 % la inflamación daña a las células propias y la defensa acaba cediendo.
 - **En la realidad:** las infecciones repetidas o persistentes mantienen la inflamación y dañan el tejido, pero no con un escalón fijo por episodio.
 - **Por qué se simplifica:** convierte «la innata sola no basta» en una derrota que el jugador entiende.
 - **Dónde lo aclara el almanaque:** pendiente.
