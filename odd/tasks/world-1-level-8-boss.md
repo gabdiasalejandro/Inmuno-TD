@@ -24,15 +24,18 @@ Assumptions (mine, to confirm with the user when delivering):
 
 ## Tasks
 
-- [ ] T1 (S1, S2, A1) sim: enemies that span several lanes (targeting, blocking, power area, traps). Route: inline.
-- [ ] T2 (S1, S2, A2-A5) sim: `sheds`, `aura` from a health threshold, `shield` from a health threshold, `boss` win. Route: inline.
-- [ ] T3 (S4) sprites: colony and shed S. aureus, proposals. Route: delegated (Sonnet), parallel to T1-T2, disjoint surface `assets/sprites/staphylococcus_aureus*/`.
-- [ ] T4 (S1, S2) level 1-8 data, enemies, balance bots. Route: inline.
-- [ ] T5 (S1) render and HUD: big colony, toxin aura, fibrin wall with its bar, boss health bar. Route: inline.
-- [ ] T6 (S4) tutorial, intro, objectives, almanac, physician notes; browser check. Route: inline.
+- [x] T1 (S1, S2, A1) sim: enemies that span several lanes (targeting, blocking, power area, traps). Route: inline.
+- [x] T2 (S1, S2, A2-A5) sim: `sheds`, `aura` from a health threshold, `shield` from a health threshold, `boss` win. Route: inline.
+- [x] T3 (S4) sprites: colony and shed S. aureus, proposals. Route: delegated (Sonnet), parallel to T1-T2, disjoint surface `assets/sprites/staphylococcus_aureus*/`. Commit 0729d7a.
+- [x] T4 (S1, S2) level 1-8 data, enemies, balance bots. Route: inline.
+- [x] T5 (S1) render and HUD: big colony, toxin aura, fibrin wall with its bar, boss health bar. Route: inline.
+- [x] T6 (S4) tutorial, intro, objectives, almanac, physician notes; browser check. Route: inline.
 
 Route evidence: T3 is an independent unit (art) with a disjoint surface and several minutes of work, launched while T1-T2 run inline.
 
 ## Log
 
 - L1 (2026-11-21, user, verbatim): "y cómo harías el lvl del jefe?" then, to the three-phase proposal: "sí, me gustaría que el jefe se quedara más o menos quieto y fueran llegando bacterias mientras esté vivo"
+- L2 (decision, mine): the colony first only crawled forward and nobody could reach it. Added `anchor`: it walks in and holds column 6, so the player must lay siege to it (macrophages at column 5). Shed S. aureus every 4 s, rotating lanes. Colony 2000 hp, aura from 70 % (30 dps on `granulocito`, radius 1), fibrin shield 600 hp from 40 %. Bots: siege + complement wins at about 150 s, siege alone about 216 s, a defence that only waits loses.
+- L3 (checks): `pnpm typecheck`, `pnpm test` (582) and `pnpm build` pass. Headless browser: intro, HUD "Jefe 100%", colony across lanes 1-3, shed S. aureus. Not seen in the browser: the toxin haze, the fibrin wall, the phase banners and the win screen (my click script kept losing early).
+- L4 (open): the defeat card shows the generic gram-negative bacteria, not S. aureus. Clinical case after the boss (S3) is a separate feature. Sprites are proposals pending user review.

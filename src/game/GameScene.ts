@@ -77,7 +77,7 @@ const TOXIN = 0xb9c94a;
 const FIBRIN = 0xe8c9a0;
 const FIBRIN_EDGE = 0x9a6b4a;
 /** How much bigger than one cell a wide enemy is drawn, per lane it covers on each side. */
-const SPAN_SCALE = 1.2;
+const SPAN_SCALE = 1.0;
 const MEMBRANE_ATTACK = 0x8e2c6b;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
