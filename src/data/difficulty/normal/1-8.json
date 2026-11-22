@@ -1,0 +1,86 @@
+{
+  "waves": [
+    {
+      "at": 9,
+      "enemy": "staphylococcus_aureus",
+      "lane": 1,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 15,
+      "enemy": "staphylococcus_aureus",
+      "lane": 3,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 21,
+      "enemy": "staphylococcus_aureus",
+      "lane": 0,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 27,
+      "enemy": "staphylococcus_aureus",
+      "lane": 4,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 37,
+      "enemy": "staphylococcus_aureus",
+      "lane": 2,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 47,
+      "enemy": "staphylococcus_aureus",
+      "lane": 1,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 57,
+      "enemy": "staphylococcus_aureus",
+      "lane": 3,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 67,
+      "enemy": "staphylococcus_aureus",
+      "lane": 0,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 77,
+      "enemy": "staphylococcus_aureus",
+      "lane": 4,
+      "count": 1,
+      "gap": 2
+    },
+    {
+      "at": 80,
+      "enemy": "staphylococcus_aureus_colonia",
+      "lane": 2,
+      "count": 1,
+      "gap": 1
+    },
+    {
+      "at": 90,
+      "enemy": "bacteria_capsulada",
+      "lane": 4,
+      "count": 2,
+      "gap": 3
+    }
+  ],
+  "signalTuning": {
+    "inflamacion": {
+      "decayPerSecond": 1.3
+    }
+  }
+}
