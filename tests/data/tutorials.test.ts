@@ -312,3 +312,23 @@ describe('tutorial 1-7', () => {
     }
   });
 });
+
+describe('tutorial 1-8', () => {
+  it('introduces the colony, then each of its phases as it reaches them', () => {
+    const steps = tutorials['1-8']!.steps;
+    expect(steps.map((step) => step.waitFor)).toEqual([
+      { type: 'enemy', enemy: 'staphylococcus_aureus_colonia' },
+      { type: 'boss_phase', phase: 'aura' },
+      { type: 'boss_phase', phase: 'shield' },
+    ]);
+  });
+
+  it('states the level objectives as exam questions that exist in the translations', () => {
+    const objectives = levels['1-8']!.objectives ?? [];
+    expect(objectives).toHaveLength(2);
+    for (const key of objectives) {
+      expect(t(key)).not.toBe(key);
+      expect(t(key).endsWith('?')).toBe(true);
+    }
+  });
+});

@@ -150,3 +150,11 @@ Todas **por revisar** salvo las marcadas.
 - La memoria inmunitaria la aporta la inmunidad adaptativa, que se pone en marcha en el ganglio linfático. Uso: condición de victoria del 1-7 (antígeno entregado al ganglio) e introducción del nivel. **Estado:** por revisar.
 - Una infección que se repite o persiste mantiene la inflamación del tejido (inflamación crónica). Uso: cada vuelta del patógeno sube un suelo de inflamación que no baja (`returns.chronic`). **Estado:** por revisar.
 - _Streptococcus pyogenes_ puede causar infecciones repetidas en la misma persona. Uso: es el patógeno que vuelve en el 1-7. **Estado:** por revisar (en la realidad influye la variedad de tipos de proteína M; el juego no la modela).
+
+### Nivel 1-8 (jefe _Staphylococcus aureus_)
+
+- _S. aureus_ es un coco grampositivo que crece en racimos y coloniza piel y nariz; entra por heridas y causa infecciones de piel y abscesos. Uso: enemigos `staphylococcus_aureus` y `staphylococcus_aureus_colonia`, almanaque. **Estado:** por revisar.
+- Las leucocidinas de _S. aureus_ (por ejemplo la de Panton-Valentine) forman poros y matan neutrófilos y otros leucocitos. Uso: aura de la colonia que daña a las unidades con etiqueta `granulocito` (el neutrófilo); objetivo `obj.1-8.leukocidin`. **Estado:** por revisar.
+- La coagulasa de _S. aureus_ convierte el fibrinógeno en fibrina y contribuye a formar el absceso que aísla a la bacteria. Uso: escudo de fibrina de la colonia desde el 40 % de vida; objetivo `obj.1-8.coagulase`. **Estado:** por revisar.
+- La pared gruesa de las grampositivas las hace resistentes al complejo de ataque a membrana (MAC). Uso: el paso C5b del complemento no afecta a la colonia. **Estado:** por revisar.
+- La opsonización con C3b aumenta la fagocitosis de _S. aureus_. Uso: el complemento multiplica el daño de los fagocitos sobre la colonia y su muro. **Estado:** por revisar.

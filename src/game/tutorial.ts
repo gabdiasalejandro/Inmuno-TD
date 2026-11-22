@@ -20,6 +20,8 @@ export interface TutorialObservation {
   enemies?: ReadonlyMap<string, number>;
   /** Statuses some unit on the board carries right now. */
   statuses?: ReadonlySet<string>;
+  /** Health phases the bosses on the board have reached. */
+  bossPhases?: ReadonlySet<string>;
 }
 
 /** What the player tries to do, as the tutorial needs to know it. */
@@ -68,6 +70,8 @@ function waitHolds(wait: TutorialWait, observation: TutorialObservation | null):
       return reaches(observation.enemies?.get(wait.enemy) ?? 0, wait.atLeast);
     case 'status':
       return observation.statuses?.has(wait.status) ?? false;
+    case 'boss_phase':
+      return observation.bossPhases?.has(wait.phase) ?? false;
   }
 }
 

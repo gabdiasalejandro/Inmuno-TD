@@ -59,5 +59,14 @@
       "streptococcus_pyogenes"
     ],
     "banner": "banner.antigen"
+  },
+  "1-8": {
+    "title": "intro.1-8.title",
+    "body": "intro.1-8.body",
+    "feature": [
+      "staphylococcus_aureus_colonia",
+      "staphylococcus_aureus"
+    ],
+    "banner": "banner.boss"
   }
 }

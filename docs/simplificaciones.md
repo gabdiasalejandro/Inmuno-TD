@@ -227,3 +227,24 @@ El almanaque debe poder aclarar cada una. Una simplificación nunca puede enseñ
 - **En la realidad:** las infecciones repetidas o persistentes mantienen la inflamación y dañan el tejido, pero no con un escalón fijo por episodio.
 - **Por qué se simplifica:** convierte «la innata sola no basta» en una derrota que el jugador entiende.
 - **Dónde lo aclara el almanaque:** pendiente.
+
+### colonia-como-jefe
+
+- **En el juego:** una «colonia» de _S. aureus_ se planta en una columna, ocupa tres carriles y suelta un estafilococo cada 4 segundos mientras vive.
+- **En la realidad:** no hay una colonia que dirija la infección; las bacterias se multiplican en el foco y se diseminan desde ahí.
+- **Por qué se simplifica:** da al mundo 1 un jefe visible que concentra las armas reales de _S. aureus_.
+- **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_real`).
+
+### leucocidinas-solo-neutrofilos
+
+- **En el juego:** las leucocidinas solo dañan a los neutrófilos cercanos, y solo desde que la colonia baja al 70 % de vida.
+- **En la realidad:** también dañan a monocitos y macrófagos, y la bacteria las produce según su regulación, no según cuánto daño recibe.
+- **Por qué se simplifica:** enseña que el neutrófilo no siempre es la respuesta y deja al macrófago como protagonista del asedio.
+- **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_.
+
+### absceso-escudo-total
+
+- **En el juego:** desde el 40 % de vida, la colonia levanta un muro de fibrina que absorbe todo el daño hasta romperse.
+- **En la realidad:** el absceso aísla a las bacterias y estorba a los fagocitos, pero no las blinda; los neutrófilos se acumulan dentro y forman pus, y a menudo hay que drenarlo.
+- **Por qué se simplifica:** un muro con su propia barra es fácil de leer y obliga a combinar macrófagos con complemento.
+- **Dónde lo aclara el almanaque:** ficha de la colonia de _S. aureus_ (`note_real`).

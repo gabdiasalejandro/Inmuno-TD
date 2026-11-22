@@ -31,6 +31,8 @@ export const ALMANAC_ENTRIES: readonly AlmanacEntry[] = [
   { id: 'bacteria_gram_neg', kind: 'enemy', category: 'pathogen', note: true },
   { id: 'bacteria_capsulada', kind: 'enemy', category: 'pathogen', note: true },
   { id: 'dendritica', kind: 'unit', category: 'innate_cell', note: true },
+  { id: 'staphylococcus_aureus', kind: 'enemy', category: 'pathogen', note: false },
+  { id: 'staphylococcus_aureus_colonia', kind: 'enemy', category: 'pathogen', note: true },
 ];
 
 /** Translation keys to try for the real name, best first: the game's own, then the almanac's fallback. */

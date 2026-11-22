@@ -1,4 +1,4 @@
-import type { Content, EnemyDef, LevelDef, PowerDef, StatusDef, UnitDef } from '../sim';
+import type { BossPhase, Content, EnemyDef, LevelDef, PowerDef, StatusDef, UnitDef } from '../sim';
 import enemies from './enemies.json';
 import introList from './intros.json';
 import signals from './signals.json';
@@ -97,7 +97,9 @@ export type TutorialWait =
    */
   | { type: 'enemy'; enemy: string; atLeast?: number }
   /** Some unit on the board carries this status (for example the first infected cell). */
-  | { type: 'status'; status: string };
+  | { type: 'status'; status: string }
+  /** A boss on the board has reached this health phase (its toxins or its shield). */
+  | { type: 'boss_phase'; phase: BossPhase };
 
 export interface TutorialStep {
   /** i18n key of the tutor's line. */

@@ -254,6 +254,14 @@ describe('waiting for a signal level or an event', () => {
     expect(tutorial.active).toBe(true);
   });
 
+  it('a boss phase wait shows once a boss on the board has reached that phase', () => {
+    const tutorial = createTutorial([{ text: 'p', advance: { type: 'tap' }, waitFor: { type: 'boss_phase', phase: 'shield' } }]);
+    tutorial.observe({ ...quiet, bossPhases: new Set(['aura']) });
+    expect(tutorial.active).toBe(false);
+    tutorial.observe({ ...quiet, bossPhases: new Set(['aura', 'shield']) });
+    expect(tutorial.active).toBe(true);
+  });
+
   it('a status wait shows once some unit on the board carries that status', () => {
     const tutorial = createTutorial([{ text: 'i', advance: { type: 'tap' }, waitFor: { type: 'status', status: 'infectada' } }]);
     tutorial.observe(quiet);

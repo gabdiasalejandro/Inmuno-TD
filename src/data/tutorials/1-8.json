@@ -1,0 +1,49 @@
+{
+  "steps": [
+    {
+      "text": "tutorial.1-8.boss",
+      "waitFor": {
+        "type": "enemy",
+        "enemy": "staphylococcus_aureus_colonia"
+      },
+      "target": {
+        "type": "enemy",
+        "enemy": "staphylococcus_aureus_colonia"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-8.aura",
+      "waitFor": {
+        "type": "boss_phase",
+        "phase": "aura"
+      },
+      "target": {
+        "type": "enemy",
+        "enemy": "staphylococcus_aureus_colonia"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    },
+    {
+      "text": "tutorial.1-8.shield",
+      "waitFor": {
+        "type": "boss_phase",
+        "phase": "shield"
+      },
+      "target": {
+        "type": "power",
+        "power": "complemento"
+      },
+      "advance": {
+        "type": "tap"
+      },
+      "time": "slow"
+    }
+  ]
+}

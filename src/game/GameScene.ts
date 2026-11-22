@@ -271,6 +271,7 @@ export class GameScene extends Phaser.Scene {
       seen: this.seenEvents,
       enemies: countEnemies(this.sim.state.enemies.map((enemy) => enemy.defId)),
       statuses: this.carriedStatuses(),
+      bossPhases: new Set(this.sim.state.enemies.flatMap((enemy) => enemy.phases ?? [])),
     });
     this.reportHold();
     if (state.status === 'playing' && this.phase === 'play') {
