@@ -48,5 +48,32 @@ export function loadMenuSprites(scene: Phaser.Scene): void {
   queue(DOT_KEY, dot, 64);
 }
 
+/**
+ * Illustrated scene behind each world's level path, one per world, 1232x572 like the panel.
+ * Loaded only when that world is opened (see `loadWorldBackdrop`).
+ */
+const BACKDROP_URLS = import.meta.glob('../../assets/sprites/mundos/escenas/fondo-*.svg', { query: '?url&no-inline', import: 'default', eager: true }) as Record<string, string>;
+export const BACKDROP_SIZE = { w: 1232, h: 572 };
+export const backdropKey = (index: number): string => `menu-backdrop-${index + 1}`;
+
+function backdropUrl(index: number): string | undefined {
+  return Object.entries(BACKDROP_URLS).find(([path]) => path.endsWith(`/fondo-${index + 1}.svg`))?.[1];
+}
+
+/**
+ * Makes sure the world's backdrop texture exists: true when it is ready now; otherwise starts
+ * loading it (if the world has one) and calls `onReady` once it is.
+ */
+export function loadWorldBackdrop(scene: Phaser.Scene, index: number, onReady: () => void): boolean {
+  const key = backdropKey(index);
+  if (scene.textures.exists(key)) return true;
+  const url = backdropUrl(index);
+  if (!url) return false;
+  scene.load.svg(key, url, { width: BACKDROP_SIZE.w, height: BACKDROP_SIZE.h });
+  scene.load.once(`filecomplete-svg-${key}`, onReady);
+  scene.load.start();
+  return false;
+}
+
 /** Soft backdrop tint per world, drawn behind its level path. Same muted family as the game field. */
 export const WORLD_TINTS = [0xe2c7a8, 0xcfb2d2, 0xe6b9ab, 0xb9cbe0, 0xdcc9a3, 0xb3b896, 0xe6b2a8, 0xb69aa8];

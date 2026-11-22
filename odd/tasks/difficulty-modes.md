@@ -22,7 +22,7 @@ Branch: feat/difficulty-modes. Delivery: ask-on-risk. Runner: `pnpm typecheck &&
 - [ ] T3 (S2, S3) Normal balance of 1-2, 1-3, 1-4, 1-5, 1-8: one override file and balance test per level. Route: delegated, parallel writers (independent levels, disjoint files, long bot iteration). Numbers shown to the user before acceptance (CLAUDE.md 2.2).
 - [x] T4 (S5) loading: Phaser in its own chunk (357 KB gz, cached across deploys), game sprites loaded in the background from the menu instead of per level (no risk of a missing sprite), "Cargando…" placeholder until Phaser boots. Measured at 1.5 Mbps + 4x CPU: JS 2.4 s, level sprites +1 s. Route: inline.
 - [x] T6 (S8) smaller selector (224x48), Sepsis menu mood: red wash fading in and 14 small cocci and bacilli drifting, popping in when Sepsis is picked. Checked in headless Chromium. Route: inline.
-- [ ] T5 (S7) world scene proposals. Route: delegated (Sonnet), SVG + preview only.
+- [x] T5 (S7) world backdrops: 8 panoramas (assets/sprites/mundos/escenas/fondo-N.svg, Sonnet agent; first brief wrongly targeted the map icons, corrected) replace the sunburst, glow and faded emblem of the world view; loaded on demand when a world opens. Integrated on user request ("no veo rediseño de este fondo"). Route: delegated art, inline integration.
 
 ## Log
 
