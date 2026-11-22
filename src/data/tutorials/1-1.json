@@ -7,6 +7,7 @@
     },
     {
       "text": "tutorial.1-1.epitelio",
+      "waitFor": { "type": "event", "event": "wound_opened" },
       "advance": { "type": "place", "unit": "epitelio", "row": 2, "col": 3 }
     },
     {

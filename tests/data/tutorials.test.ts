@@ -97,6 +97,8 @@ describe('tutorial 1-1', () => {
   it('introduces the marrow, then both barriers, and can be followed to the end with the real rules', () => {
     const steps = tutorials['1-1']!.steps;
     expect(steps[0]!.target).toEqual({ type: 'marrow' });
+    // The wall step speaks of the wound, so it waits until the wound has opened.
+    expect(steps[1]!.waitFor).toEqual({ type: 'event', event: 'wound_opened' });
     expect(steps.filter((step) => step.advance.type === 'place').map((step) => (step.advance as { unit: string }).unit)).toEqual(['epitelio', 'moco']);
     const { done, sim } = followTutorial('1-1', steps, 60);
     expect(done).toBe(steps.length);
