@@ -7,6 +7,7 @@ import {
   createSim,
   secondsToTicks,
   type EnemyDef,
+  type EnemyState,
   type LevelDef,
   type PlaceFailure,
   type PowerFailure,
@@ -71,6 +72,12 @@ const OPSONIN = 0x7b4fa3;
 /** Antigen gold: the fragment the dendritic cell picks up and carries to the lymph node. */
 const ANTIGEN = 0xf2c230;
 const ANTIGEN_EDGE = 0x3a2a2a;
+/** Leukocidin haze around a boss and the fibrin wall of its abscess. */
+const TOXIN = 0xb9c94a;
+const FIBRIN = 0xe8c9a0;
+const FIBRIN_EDGE = 0x9a6b4a;
+/** How much bigger than one cell a wide enemy is drawn, per lane it covers on each side. */
+const SPAN_SCALE = 1.2;
 const MEMBRANE_ATTACK = 0x8e2c6b;
 
 /** Vertical gap between a cell's bottom edge and the figure's ground point. */
@@ -441,6 +448,12 @@ export class GameScene extends Phaser.Scene {
           view?.die('expired');
           this.courierViews.delete(event.uid);
           this.prevCourierPos.delete(event.uid);
+          break;
+        }
+        case 'boss_phase': {
+          const view = this.enemyViews.get(event.uid);
+          banner(this, t(`game.boss_phase.${event.phase}`), layout.x + (layout.cols * layout.cellW) / 2, layout.y + (layout.rows * layout.cellH) / 2);
+          if (view) ring(this, view.root.x, view.root.y - layout.cellH * 1.4, event.phase === 'aura' ? TOXIN : FIBRIN_EDGE, 40, 260, 700);
           break;
         }
         case 'pathogen_returned':
@@ -905,18 +918,22 @@ export class GameScene extends Phaser.Scene {
       const shownRow = this.enemyRow.get(enemy.uid) ?? enemy.lane;
       const row = Math.abs(enemy.lane - shownRow) < 0.02 ? enemy.lane : shownRow + (enemy.lane - shownRow) * 0.18;
       this.enemyRow.set(enemy.uid, row);
-      const y = layout.y + (row + 0.5) * layout.cellH;
+      const def = this.enemyDefs.get(enemy.defId);
+      // A wide enemy (the boss) stands on the lowest lane it covers and is drawn big enough to fill them.
+      const span = def?.span ?? 0;
+      const scale = BOARD_SCALE * (1 + 2 * span * SPAN_SCALE);
+      const y = layout.y + (row + span + 0.5) * layout.cellH;
       const foot = y + layout.cellH / 2 - FOOT_INSET;
-      const x = enemyFrontX(layout, pos) + frontOffset(enemy.defId) * BOARD_SCALE;
+      const x = enemyFrontX(layout, pos) + frontOffset(enemy.defId) * scale;
       let view = this.enemyViews.get(enemy.uid);
       if (!view) {
-        view = createFigure(this, enemy.defId, x, foot).setDepth(2.05 + enemy.lane * 0.1).idle().pop();
+        view = createFigure(this, enemy.defId, x, foot, scale).setDepth(2.05 + enemy.lane * 0.1).idle().pop();
         this.enemyViews.set(enemy.uid, view);
       }
       view.setPosition(x, foot).setMoving(enemy.pos !== prev || row !== enemy.lane);
-      view.setDepth(2.05 + row * 0.1);
-      const def = this.enemyDefs.get(enemy.defId);
-      if (def && enemy.hp < def.hp) this.drawBar(bars, x - 30, foot - 70, 60, 6, enemy.hp / def.hp, BAR_LOW);
+      view.setDepth(2.05 + (row + span) * 0.1);
+      if (span > 0) this.drawBossOverlays(bars, enemy, view, now);
+      else if (def && enemy.hp < def.hp) this.drawBar(bars, x - 30, foot - 70, 60, 6, enemy.hp / def.hp, BAR_LOW);
       // Opsonized: a pulsing purple ring tells the player phagocytes can now see this enemy.
       if ((enemy.statuses?.opsonizado ?? 0) > state.tick) {
         const pulse = 0.5 + 0.5 * Math.sin(now / 110 + enemy.uid);
@@ -944,6 +961,7 @@ export class GameScene extends Phaser.Scene {
       remainingEnemies: isClearLevel(this.level) ? enemiesRemaining(this.level, state.nextSpawn, state.enemies.length) : null,
       totalEnemies: scheduledEnemies(this.level) + this.released,
       antigen: this.level.win?.type === 'antigen' ? { delivered: state.antigenDelivered, needed: this.level.win.count } : null,
+      boss: this.bossModel(),
       charge: marrowCharge(this.sim.marrowFraction()),
       excite: marrowExcitement(cytokines ?? 0),
       cytokines,
@@ -959,6 +977,44 @@ export class GameScene extends Phaser.Scene {
       shake: this.cardShake,
       powerReadyAt: state.powerReadyAt,
     });
+  }
+
+  /**
+   * Boss phases on the board: a pulsing haze of leukocidins once its toxins are out, and the
+   * fibrin wall of the abscess around it while its shield holds, thinner as it breaks.
+   */
+  /** Health of the level's boss for the HUD, or null when the level has none or it has not come yet. */
+  private bossModel(): { hp: number; max: number; shield: number; shieldMax: number } | null {
+    const win = this.level.win;
+    if (win?.type !== 'boss') return null;
+    const boss = this.sim.state.enemies.find((enemy) => enemy.defId === win.enemy);
+    const def = this.enemyDefs.get(win.enemy);
+    if (!def) return null;
+    if (!boss) return { hp: this.sim.state.status === 'won' ? 0 : def.hp, max: def.hp, shield: 0, shieldMax: def.shield?.hp ?? 0 };
+    return { hp: Math.max(0, boss.hp), max: def.hp, shield: boss.shield ?? 0, shieldMax: def.shield?.hp ?? 0 };
+  }
+
+  private drawBossOverlays(g: Phaser.GameObjects.Graphics, enemy: EnemyState, view: Figure, now: number): void {
+    const def = this.enemyDefs.get(enemy.defId);
+    if (!def) return;
+    const cx = view.root.x;
+    const cy = view.root.y - this.layout.cellH * 1.4;
+    const rx = this.layout.cellW * 1.25;
+    const ry = this.layout.cellH * 1.55;
+    if (enemy.phases?.includes('aura')) {
+      for (let i = 0; i < 14; i++) {
+        const angle = (i / 14) * Math.PI * 2 + now / 1400;
+        const wobble = 1.05 + 0.08 * Math.sin(now / 260 + i * 1.7);
+        g.fillStyle(TOXIN, 0.55).fillCircle(cx + Math.cos(angle) * rx * wobble, cy + Math.sin(angle) * ry * wobble, 9);
+      }
+    }
+    const shieldMax = def.shield?.hp ?? 0;
+    const shield = enemy.shield ?? 0;
+    if (shield > 0 && shieldMax > 0) {
+      const thickness = 6 + 16 * (shield / shieldMax);
+      g.lineStyle(thickness + 6, FIBRIN_EDGE, 0.9).strokeEllipse(cx, cy, rx * 1.9, ry * 1.9);
+      g.lineStyle(thickness, FIBRIN, 0.95).strokeEllipse(cx, cy, rx * 1.9, ry * 1.9);
+    }
   }
 
   /** Antigen slots over a dendritic cell's head: gold for each fragment it carries, empty for the room left. */

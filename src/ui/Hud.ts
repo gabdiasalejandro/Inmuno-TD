@@ -52,6 +52,8 @@ const WARN = 0xb5483f;
 const TIME_FILL = 0x8aa9b8;
 /** Antigen gold: the fragment the dendritic cell carries (S. aureus body colour of the style guide). */
 const ANTIGEN = 0xf2c230;
+const BOSS_FILL = 0xd9a21b;
+const FIBRIN = 0xe8c9a0;
 const TIME_LOW = 0xc98a6a;
 const PROGRESS = 0x8db28a;
 const PROGRESS_LIGHT = 0xb9d3a8;
@@ -87,6 +89,8 @@ export interface HudModel {
   totalEnemies: number;
   /** Antigen delivered to the lymph node and needed to win, or null when the level does not ask for it. */
   antigen?: { delivered: number; needed: number } | null;
+  /** The boss's health and the shield of its abscess, or null on levels without a boss. */
+  boss?: { hp: number; max: number; shield: number; shieldMax: number } | null;
   /** Marrow progress toward its next energy batch, 0..1. */
   charge: number;
   /** How hard the marrow is working because of cytokines, 0..1. */
@@ -485,6 +489,21 @@ export class Hud {
 
   private drawTimer(g: Phaser.GameObjects.Graphics, m: HudModel): void {
     const rect = this.layout.timer;
+    // Boss levels show the boss's health, with the abscess wall laid over it while it stands.
+    if (m.boss) {
+      const { hp, max, shield, shieldMax } = m.boss;
+      this.timeLabel.setText(t('hud.boss')).setVisible(true);
+      this.timeValue.setText(`${Math.ceil((100 * hp) / Math.max(1, max))}%`).setVisible(true);
+      const bar = { x: rect.x + 16, y: rect.y + 40, w: rect.w - 32, h: 18 };
+      g.fillStyle(OUTLINE, 0.14).fillRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
+      const fraction = Math.max(0, Math.min(1, hp / Math.max(1, max)));
+      if (fraction > 0) g.fillStyle(BOSS_FILL, 1).fillRoundedRect(bar.x, bar.y, Math.max(bar.w * fraction, 18), bar.h, 9);
+      if (shield > 0 && shieldMax > 0) {
+        g.fillStyle(FIBRIN, 0.95).fillRoundedRect(bar.x, bar.y + 4, Math.max(bar.w * (shield / shieldMax), 18), bar.h - 8, 5);
+      }
+      g.lineStyle(3, OUTLINE, 1).strokeRoundedRect(bar.x, bar.y, bar.w, bar.h, 9);
+      return;
+    }
     // Antigen levels count what reached the lymph node, the win condition, instead of time or bacteria.
     if (m.antigen) {
       const { delivered, needed } = m.antigen;
