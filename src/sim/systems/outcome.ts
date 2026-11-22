@@ -4,9 +4,14 @@ import type { System, World } from '../world';
 
 /**
  * Decides defeat first (a breach, then a signal at its `defeatAt`), then the level's win condition.
- * A clear level is not won while a unit still carries a status that will burst into new enemies.
+ * A clear level is not won while a unit still carries a status that will burst into new enemies;
+ * an antigen level also needs its antigen delivered.
  */
-export function createOutcome(world: World, allSpawned: () => boolean, pendingBurst: () => boolean = () => false): System {
+export function createOutcome(
+  world: World,
+  allSpawned: () => boolean,
+  pendingBurst: () => boolean = () => false,
+): System {
   const { level, state } = world;
   const win = level.win ?? { type: 'clear' };
 
@@ -20,10 +25,11 @@ export function createOutcome(world: World, allSpawned: () => boolean, pendingBu
       events.push({ type: 'lost', cause });
       return;
     }
+    const cleared = allSpawned() && state.enemies.length === 0 && !pendingBurst();
     const won =
       win.type === 'survive'
         ? state.tick >= secondsToTicks(win.seconds)
-        : allSpawned() && state.enemies.length === 0 && !pendingBurst();
+        : cleared && (win.type === 'clear' || state.antigenDelivered >= win.count);
     if (!won) return;
     state.status = 'won';
     events.push({ type: 'won' });

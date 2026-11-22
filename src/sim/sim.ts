@@ -1,5 +1,6 @@
 import { createCoupling, createHarm } from './systems/collateral';
 import { createEnemyActions, createExpiry, createUnitAttacks } from './systems/combat';
+import { createAntigen } from './systems/antigen';
 import { createMarrow } from './systems/marrow';
 import { createOutcome } from './systems/outcome';
 import { createPowers } from './systems/power';
@@ -19,14 +20,16 @@ import { createWorld, type System } from './world';
 export function createSim(level: LevelDef, content: Content, seed: number): Sim {
   const world = createWorld(level, content, seed);
   const { state } = world;
-  const spawning = createSpawning(world);
+  const antigen = createAntigen(world);
+  const win = level.win;
+  const spawning = createSpawning(world, () => win?.type === 'antigen' && antigen.committed() < win.count);
   const marrow = createMarrow(world);
   const sources = createSources(world);
   const statuses = createStatuses(world);
   const powers = createPowers(world);
 
   // What arrives during a tick is decided on the tick it starts...
-  const beforeTick: System[] = [spawning.openWounds, spawning.spawnDue];
+  const beforeTick: System[] = [spawning.openWounds, spawning.comeBack, spawning.spawnDue];
   // ...and everything else resolves once the tick has elapsed.
   const afterTick: System[] = [
     createSignals(world),
@@ -42,6 +45,7 @@ export function createSim(level: LevelDef, content: Content, seed: number): Sim 
     createHarm(world),
     createTraps(world),
     sources.chargeFromDamage,
+    antigen.system,
     createOutcome(world, spawning.allSpawned, statuses.pendingBurst),
   ];
 

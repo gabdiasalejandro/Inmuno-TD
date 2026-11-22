@@ -124,6 +124,9 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     released: Object.fromEntries(signalDefs.map(([name]) => [name, 0])),
     marrowCharge: 0,
     powerReadyAt: {},
+    couriers: [],
+    antigenDelivered: 0,
+    returns: 0,
     rngState: createRng(seed).state,
   };
 

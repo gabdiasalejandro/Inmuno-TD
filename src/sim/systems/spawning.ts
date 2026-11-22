@@ -2,8 +2,14 @@ import { secondsToTicks } from '../time';
 import type { EnemyState } from '../types';
 import { CELL, assertLaneInGrid, type System, type World } from '../world';
 
-/** Opens wounded lanes and brings enemies in on the schedule the level's waves describe. */
-export function createSpawning(world: World): { openWounds: System; spawnDue: System; allSpawned(): boolean } {
+/**
+ * Opens wounded lanes and brings enemies in on the schedule the level's waves describe. With
+ * `returns`, the later waves come again while `short()` says the win still needs antigen.
+ */
+export function createSpawning(
+  world: World,
+  short: () => boolean = () => false,
+): { openWounds: System; spawnDue: System; comeBack: System; allSpawned(): boolean } {
   const { level, state } = world;
 
   const wounds = (level.wounds ?? []).map((wound) => {
@@ -11,17 +17,25 @@ export function createSpawning(world: World): { openWounds: System; spawnDue: Sy
     return { tick: secondsToTicks(wound.at), lane: wound.lane };
   });
 
-  const schedule = level.waves
-    .flatMap((wave) => {
-      assertLaneInGrid(level, wave.lane, 'lane');
-      return Array.from({ length: wave.count }, (_, i) => ({
-        tick: secondsToTicks(wave.at + i * wave.gap),
-        enemy: wave.enemy,
-        lane: wave.lane,
-      }));
-    })
-    // Array.prototype.sort is stable, so same-tick spawns keep their order in the level file.
-    .sort((a, b) => a.tick - b.tick);
+  const scheduleOf = (waves: typeof level.waves, offset: number) =>
+    waves
+      .flatMap((wave) => {
+        assertLaneInGrid(level, wave.lane, 'lane');
+        return Array.from({ length: wave.count }, (_, i) => ({
+          tick: offset + secondsToTicks(wave.at + i * wave.gap),
+          enemy: wave.enemy,
+          lane: wave.lane,
+        }));
+      })
+      // Array.prototype.sort is stable, so same-tick spawns keep their order in the level file.
+      .sort((a, b) => a.tick - b.tick);
+  const schedule = scheduleOf(level.waves, 0);
+
+  const returning = level.returns && level.waves.filter((wave) => wave.at >= level.returns!.from);
+  if (level.returns && (level.win?.type !== 'antigen' || returning!.length === 0)) {
+    throw new Error(`Level ${level.id}: returns needs an antigen win and waves at or after ${level.returns.from} s`);
+  }
+  const allSpawned = (): boolean => schedule.length > 0 && state.nextSpawn >= schedule.length;
 
   return {
     openWounds(events) {
@@ -50,7 +64,15 @@ export function createSpawning(world: World): { openWounds: System; spawnDue: Sy
       }
     },
 
+    comeBack(events) {
+      if (!level.returns || !allSpawned() || state.enemies.length > 0 || !short()) return;
+      const offset = state.tick + secondsToTicks(level.returns.after) - secondsToTicks(level.returns.from);
+      schedule.push(...scheduleOf(returning!, offset));
+      state.returns++;
+      events.push({ type: 'pathogen_returned', count: state.returns });
+    },
+
     // A level without waves is a sandbox: it never counts as fully spawned.
-    allSpawned: () => schedule.length > 0 && state.nextSpawn >= schedule.length,
+    allSpawned,
   };
 }

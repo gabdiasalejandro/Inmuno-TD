@@ -165,6 +165,12 @@ export interface UnitDef {
   slow?: number;
   /** What the unit leaves on its cell when it dies, whether killed or expired. */
   onDeath?: { trap: TrapDef };
+  /**
+   * Antigen pickup (the dendritic cell): one antigen per enemy that dies within `radius` cells.
+   * With `capacity` antigen it leaves its cell and walks left along its lane at `speed` cells per
+   * second, delivering the load when it reaches the left edge (the lymph node).
+   */
+  collects?: { radius: number; capacity: number; speed: number };
   lineage?: string;
   tags?: string[];
 }
@@ -219,9 +225,16 @@ export interface LevelDef {
   signals?: string[];
   /** Lanes that open during the level. When omitted, every lane is open from the start. */
   wounds?: WoundDef[];
+  /**
+   * The pathogen comes back: once every wave has spawned and the board is clear, while the antigen
+   * the win condition needs is neither delivered nor on its way, the waves at or after `from`
+   * seconds spawn again, the first of them `after` seconds later. Only for `antigen` wins.
+   */
+  returns?: { from: number; after: number };
 }
 
-export type WinCondition = { type: 'clear' } | { type: 'survive'; seconds: number };
+/** `antigen`: every wave spawned, the board clear and `count` antigen delivered to the lymph node. */
+export type WinCondition = { type: 'clear' } | { type: 'survive'; seconds: number } | { type: 'antigen'; count: number };
 
 export interface WoundDef {
   /** Second at which the lane opens. */
@@ -255,6 +268,18 @@ export interface UnitState {
   chargedAt: number;
   /** Statuses the unit carries, by name, with the tick from which each is gone. */
   statuses: Record<string, number>;
+  /** Antigen picked up so far, for units that `collects`. */
+  antigen?: number;
+}
+
+/** A collecting unit that left its cell and walks to the lymph node with its antigen. */
+export interface CourierState {
+  uid: number;
+  defId: string;
+  row: number;
+  /** Position in thousandths of a cell from the left edge of the grid. */
+  pos: number;
+  antigen: number;
 }
 
 export interface EnemyState {
@@ -320,6 +345,12 @@ export interface SimState {
   marrowCharge: number;
   /** Tick from which each power can be played again. */
   powerReadyAt: Record<string, number>;
+  /** Collecting units walking to the lymph node, in the order they left. */
+  couriers: CourierState[];
+  /** Antigen delivered to the lymph node so far. */
+  antigenDelivered: number;
+  /** Times the pathogen came back (see `LevelDef.returns`). */
+  returns: number;
   rngState: number;
 }
 
@@ -366,6 +397,14 @@ export type SimEvent =
   | { type: 'status_burst'; uid: number; status: string; row: number; col: number; released: number[] }
   /** A unit attacked an own unit (for example a marked one). */
   | { type: 'cell_attacked'; uid: number; target: number; damage: number }
+  /** A collecting unit took antigen from an enemy that died around it. */
+  | { type: 'antigen_taken'; uid: number; enemy: number }
+  /** A full collecting unit left its cell for the lymph node. */
+  | { type: 'unit_migrated'; uid: number; row: number; col: number; antigen: number }
+  /** A courier reached the left edge and delivered its antigen. */
+  | { type: 'antigen_delivered'; uid: number; row: number; amount: number }
+  /** The pathogen came back for the `count`-th time. */
+  | { type: 'pathogen_returned'; count: number }
   | { type: 'won' }
   | { type: 'lost'; cause: DefeatCause };
 
