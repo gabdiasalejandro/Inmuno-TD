@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks } from '../../src/sim';
 import { frontCol, holdLanes, isFree, play, together, unitsIn, type Bot } from './bots';
 
@@ -45,9 +45,9 @@ describe('level 1-7 balance', () => {
   });
 
   it('is lost by the innate response alone: the pathogen keeps coming back and the inflammation turns chronic', () => {
-    const sim = createSim(levels['1-7']!, content, 1);
+    const sim = createSim(resolveLevel('1-7', 'normal')!, content, 1);
     while (sim.state.status === 'playing' && sim.state.tick < secondsToTicks(900)) {
-      innate(sim, levels['1-7']!);
+      innate(sim, resolveLevel('1-7', 'normal')!);
       sim.step();
     }
     expect(sim.state.status).toBe('lost');
@@ -61,9 +61,9 @@ describe('level 1-7 balance', () => {
     const late: Bot = (sim, level) => {
       if (sim.state.returns > 0) dendritics(sim, level);
     };
-    const sim = createSim(levels['1-7']!, content, 1);
+    const sim = createSim(resolveLevel('1-7', 'normal')!, content, 1);
     while (sim.state.status === 'playing' && sim.state.tick < secondsToTicks(600)) {
-      together(innate, late)(sim, levels['1-7']!);
+      together(innate, late)(sim, resolveLevel('1-7', 'normal')!);
       sim.step();
     }
     expect(sim.state.status).toBe('won');
@@ -76,7 +76,7 @@ describe('level 1-7 balance', () => {
   });
 
   it('brings the same pathogen back each time and asks for antigen, not a clear board', () => {
-    const level = levels['1-7']!;
+    const level = resolveLevel('1-7', 'normal')!;
     expect(new Set(level.waves.map((wave) => wave.enemy))).toEqual(new Set(['streptococcus_pyogenes']));
     expect(level.win).toMatchObject({ type: 'antigen' });
     expect(level.returns).toBeDefined();

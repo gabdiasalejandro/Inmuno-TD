@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { every, frontCol, holdLanes, holdRelease, isFree, play, pulseRelease, together, unitsIn, type Bot } from './bots';
 
 const unitCost = (id: string): number => content.units.find((unit) => unit.id === id)!.cost;
@@ -107,13 +107,13 @@ describe('level data', () => {
   });
 
   it('opens three lanes in 1-2 and all five in 1-3', () => {
-    expect(levels['1-2']!.wounds).toHaveLength(3);
-    expect(levels['1-3']!.wounds).toHaveLength(5);
-    expect(new Set(levels['1-3']!.wounds!.map((wound) => wound.lane))).toEqual(new Set([0, 1, 2, 3, 4]));
+    expect(resolveLevel('1-2', 'normal')!.wounds).toHaveLength(3);
+    expect(resolveLevel('1-3', 'normal')!.wounds).toHaveLength(5);
+    expect(new Set(resolveLevel('1-3', 'normal')!.wounds!.map((wound) => wound.lane))).toEqual(new Set([0, 1, 2, 3, 4]));
   });
 
   it('sends bacteria down every opened lane in 1-3', () => {
-    const lanes = new Set(levels['1-3']!.waves.map((wave) => wave.lane));
+    const lanes = new Set(resolveLevel('1-3', 'normal')!.waves.map((wave) => wave.lane));
     expect(lanes).toEqual(new Set([0, 1, 2, 3, 4]));
   });
 });

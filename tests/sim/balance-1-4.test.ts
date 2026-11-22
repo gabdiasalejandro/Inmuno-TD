@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type Content, type LevelDef } from '../../src/sim';
 import { every, frontCol, holdLanes, holdRelease, isFree, together, unitsIn, type Bot } from './bots';
 
@@ -71,7 +71,7 @@ function play(level: LevelDef, bot: Bot, rules: Content = content) {
   return { status: sim.state.status, defeat: sim.state.defeat, seconds: sim.state.tick / 20, peak, switches, mostByOne };
 }
 
-const level = levels['1-4']!;
+const level = resolveLevel('1-4', 'normal')!;
 const walls = together(macrophages, wallLine, neutrophils);
 
 describe('level 1-4 balance', () => {

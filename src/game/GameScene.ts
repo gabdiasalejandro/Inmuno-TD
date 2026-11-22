@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { content, levelIntros, levels, tutorials, worlds, type TutorialTarget } from '../data';
+import { content, levelIntros, levels, resolveLevel, tutorials, worlds, type TutorialTarget } from '../data';
 import { t } from '../i18n';
 import {
   SIM_TICK_MS,
@@ -34,6 +34,7 @@ import { cytokineEffects, enemiesRemaining, digestFraction, gaugeSignal, isClear
 import { marrowCharge, marrowExcitement } from './marrow';
 import { progressStore } from './progress';
 import { preloadSprites } from './sprites';
+import { difficultyStore } from './difficulty';
 import { countEnemies, createTutorial, needsNext, shouldRunTutorial, targetsFor, type Tutorial, type TutorialAction } from './tutorial';
 
 /** Longest catch-up per frame: 5 steps = 250 ms of simulated time. */
@@ -177,7 +178,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    const level = levels[this.levelId];
+    const level = resolveLevel(this.levelId, difficultyStore().load());
     if (!level) throw new Error(`Unknown level ${this.levelId}`);
     this.level = level;
 

@@ -6,6 +6,7 @@ import {
   ALMANAC_BUTTON,
   BACK_BUTTON,
   CAPTION_POS,
+  DIFFICULTY_BUTTON,
   LEVEL_COUNT_MAX,
   LEVEL_NODE_SIZE,
   NEXT_LEVEL_BUTTON,
@@ -13,6 +14,7 @@ import {
   WORLD_SIZE,
   almanacHit,
   backHit,
+  difficultyAt,
   levelAt,
   levelLabelSide,
   levelPos,
@@ -29,6 +31,8 @@ import { CANVAS_FULLSCREEN } from '../ui/fullscreenLayout';
 import { buildMenu, nextPlayableLevel, type MenuLevelState, type MenuWorld } from '../ui/menuModel';
 import { BACK_KEY, DOT_KEY, NODE_KEYS, WORLD_TINTS, loadMenuSprites, worldKey } from './menuSprites';
 import { progressStore } from './progress';
+import { difficultyStore } from './difficulty';
+import { DIFFICULTIES, type Difficulty } from '../data';
 
 const FONT = 'sans-serif';
 const INK = '#3A2A2A';
@@ -43,6 +47,8 @@ const ROUTE_SAMPLES = 14;
 const SHAKE_MS = 70;
 const FOCUS_SCALE = 1.12;
 const ACCENT = 0x7b4fa3;
+/** Sepsis half of the difficulty selector when chosen: a deep inflamed red. */
+const SEPSIS = 0xa8323e;
 const INK_LIGHT = '#FBF7F2';
 
 type Target =
@@ -51,6 +57,7 @@ type Target =
   | { kind: 'almanac' }
   | { kind: 'fullscreen' }
   | { kind: 'next' }
+  | { kind: 'difficulty'; value: Difficulty }
   | null;
 type View = { kind: 'map' } | { kind: 'world'; index: number };
 
@@ -153,9 +160,32 @@ export class MenuScene extends Phaser.Scene {
     this.clear();
     if (this.view.kind === 'map') this.renderMap();
     else this.renderWorld(this.view.index);
+    this.drawDifficulty();
     this.drawDrifters();
     this.fullscreen = createFullscreenButton(this, CANVAS_FULLSCREEN);
     if (animate) this.cameras.main.fadeIn(180, 0xdd, 0xbd, 0xb8);
+  }
+
+  /** Difficulty selector, bottom right on every view: the chosen half is filled. */
+  private drawDifficulty(): void {
+    const r = DIFFICULTY_BUTTON;
+    const chosen = difficultyStore().load();
+    const half = r.w / DIFFICULTIES.length;
+    const g = this.keep(this.add.graphics().setDepth(2));
+    g.fillStyle(PANEL, 1);
+    g.fillRoundedRect(r.x, r.y, r.w, r.h, 18);
+    DIFFICULTIES.forEach((difficulty, i) => {
+      const x = r.x + i * half;
+      const on = difficulty === chosen;
+      if (on) {
+        g.fillStyle(difficulty === 'sepsis' ? SEPSIS : ACCENT, 1);
+        g.fillRoundedRect(x + 6, r.y + 6, half - 12, r.h - 12, 14);
+      }
+      this.keep(this.text(x + half / 2, r.y + r.h / 2, t(`difficulty.${difficulty}`), 26, true, on ? INK_LIGHT : INK).setOrigin(0.5).setDepth(2.1));
+    });
+    g.lineStyle(5, OUTLINE, 1);
+    g.strokeRoundedRect(r.x, r.y, r.w, r.h, 18);
+    g.lineBetween(r.x + half, r.y + 10, r.x + half, r.y + r.h - 10);
   }
 
   /** A few pale specks that drift slowly. Cheap: a dozen sprites, one yoyo tween each. */
@@ -452,6 +482,8 @@ export class MenuScene extends Phaser.Scene {
 
   private target(x: number, y: number): Target {
     if (this.fullscreen?.hit(x, y)) return { kind: 'fullscreen' };
+    const difficulty = difficultyAt(x, y);
+    if (difficulty) return { kind: 'difficulty', value: difficulty };
     if (this.view.kind === 'map') {
       if (this.nextLevel !== null && nextLevelHit(x, y)) return { kind: 'next' };
       if (almanacHit(x, y)) return { kind: 'almanac' };
@@ -487,6 +519,11 @@ export class MenuScene extends Phaser.Scene {
 
     if (up.kind === 'fullscreen') {
       this.fullscreen?.toggle();
+    } else if (up.kind === 'difficulty') {
+      if (down.kind === 'difficulty' && down.value === up.value && up.value !== difficultyStore().load()) {
+        difficultyStore().save(up.value);
+        this.render(false);
+      }
     } else if (up.kind === 'next') {
       this.startNextLevel();
     } else if (up.kind === 'almanac') {

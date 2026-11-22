@@ -221,3 +221,29 @@ describe('next level shortcut on the world map', () => {
     expect(nextLevelHit(W / 2, H / 2)).toBe(false);
   });
 });
+
+describe('difficulty selector', () => {
+  it('sits inside the canvas, clear of every world and level node', async () => {
+    const { DIFFICULTY_BUTTON } = await import('../../src/ui/menuLayout');
+    const r = DIFFICULTY_BUTTON;
+    expect(r.x).toBeGreaterThanOrEqual(0);
+    expect(r.x + r.w).toBeLessThanOrEqual(W);
+    expect(r.y + r.h).toBeLessThanOrEqual(H);
+    const clear = (p: { x: number; y: number }, radius: number) => {
+      const nx = Math.max(r.x, Math.min(p.x, r.x + r.w));
+      const ny = Math.max(r.y, Math.min(p.y, r.y + r.h));
+      return Math.hypot(p.x - nx, p.y - ny) > radius + 40;
+    };
+    for (let i = 0; i < WORLD_COUNT; i++) expect(clear(worldPos(i), WORLD_HIT_RADIUS), `world ${i}`).toBe(true);
+    for (let i = 0; i < LEVEL_COUNT_MAX; i++) expect(clear(levelPos(i, LEVEL_COUNT_MAX), LEVEL_HIT_RADIUS), `level ${i}`).toBe(true);
+  });
+
+  it('maps the left half to normal and the right half to sepsis', async () => {
+    const { DIFFICULTY_BUTTON, difficultyAt } = await import('../../src/ui/menuLayout');
+    const r = DIFFICULTY_BUTTON;
+    const y = r.y + r.h / 2;
+    expect(difficultyAt(r.x + r.w * 0.25, y)).toBe('normal');
+    expect(difficultyAt(r.x + r.w * 0.75, y)).toBe('sepsis');
+    expect(difficultyAt(r.x - 5, y)).toBeNull();
+  });
+});

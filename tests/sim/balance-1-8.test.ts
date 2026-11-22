@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type Sim, type SimEvent } from '../../src/sim';
 import { engagedCol } from '../../src/sim/world';
 import { holdLanes, together, type Bot } from './bots';
@@ -61,7 +61,7 @@ const withoutComplement = together(defence, plug, nk, siege, neutrophils, carefu
 const full = together(withoutComplement, complement);
 
 function play(bot: Bot, seed = 1, seconds = 600) {
-  const level = levels['1-8']!;
+  const level = resolveLevel('1-8', 'normal')!;
   const sim = createSim(level, content, seed);
   const events: SimEvent[] = [];
   while (sim.state.status === 'playing' && sim.state.tick < secondsToTicks(seconds)) {
@@ -116,7 +116,7 @@ describe('level 1-8 balance', () => {
   });
 
   it('kills a neutrophil next to the colony within two seconds once the leukocidins are out', () => {
-    const level = levels['1-8']!;
+    const level = resolveLevel('1-8', 'normal')!;
     const sim = createSim(level, content, 1);
     while (!colony(sim) || engagedCol(colony(sim)!.pos) > 5) {
       defence(sim, level);
@@ -140,7 +140,7 @@ describe('level 1-8 balance', () => {
   });
 
   it('is a boss level: the colony is the win condition, stands still and sheds a weighted mix', () => {
-    const level = levels['1-8']!;
+    const level = resolveLevel('1-8', 'normal')!;
     expect(level.win).toEqual({ type: 'boss', enemy: BOSS });
     const def = content.enemies.find((e) => e.id === BOSS)!;
     expect(def.anchor).toBeDefined();

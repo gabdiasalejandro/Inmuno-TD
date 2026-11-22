@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type Content, type LevelDef, type Sim } from '../../src/sim';
 import { every, frontCol, holdLanes, isFree, together, unitsIn, type Bot } from './bots';
 
@@ -95,7 +95,7 @@ const noInterferon: Content = {
   statuses: Object.fromEntries(Object.entries(content.statuses ?? {}).map(([name, def]) => [name, { ...def, shares: undefined }])),
 };
 
-const level = levels['1-5']!;
+const level = resolveLevel('1-5', 'normal')!;
 /** Seeds change only where burst virions go; the result must not hang on one of them. */
 const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8];
 

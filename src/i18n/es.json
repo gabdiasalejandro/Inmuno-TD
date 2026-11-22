@@ -27,6 +27,8 @@
   "action.fullscreen": "Pantalla",
   "action.fullscreen_exit": "Salir",
   "menu.title": "Inmuno TD",
+  "difficulty.normal": "Normal",
+  "difficulty.sepsis": "Sepsis",
   "menu.worlds": "Mundos",
   "menu.locked": "Bloqueado",
   "menu.coming_soon": "Próximamente",

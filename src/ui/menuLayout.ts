@@ -1,4 +1,5 @@
 import { pointInRect, type Rect } from './layout';
+import type { Difficulty } from '../data';
 
 /** Menu geometry in logical canvas pixels (1280x720). Phaser-free so it can be tested headless. */
 
@@ -105,4 +106,15 @@ function catmull(a: number, b: number, c: number, d: number, t: number): number 
   const t2 = t * t;
   const t3 = t2 * t;
   return 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+}
+
+/**
+ * Difficulty selector, bottom right of the map and of every level path (clear of the world labels): two halves, Normal on
+ * the left and Sepsis on the right. Phaser-free like the rest of the layout.
+ */
+export const DIFFICULTY_BUTTON: Rect = { x: 900, y: 640, w: 356, h: 64 };
+
+export function difficultyAt(x: number, y: number): Difficulty | null {
+  if (!pointInRect(DIFFICULTY_BUTTON, x, y)) return null;
+  return x < DIFFICULTY_BUTTON.x + DIFFICULTY_BUTTON.w / 2 ? 'normal' : 'sepsis';
 }

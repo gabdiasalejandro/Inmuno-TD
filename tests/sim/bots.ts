@@ -1,4 +1,4 @@
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type LevelDef, type Sim } from '../../src/sim';
 
 export type Bot = (sim: Sim, level: LevelDef) => void;
@@ -40,7 +40,7 @@ export const every =
   };
 
 export function play(levelId: string, bot: Bot, maxSeconds = 240) {
-  const level = levels[levelId]!;
+  const level = resolveLevel(levelId, 'normal')!;
   const sim = createSim(level, content, 1);
   const limit = secondsToTicks(maxSeconds);
   while (sim.state.status === 'playing' && sim.state.tick < limit) {

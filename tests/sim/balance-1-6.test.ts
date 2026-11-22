@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type Sim } from '../../src/sim';
 import { engagedCol } from '../../src/sim/world';
 import { frontCol, holdLanes, isFree, together, unitsIn, type Bot } from './bots';
@@ -45,7 +45,7 @@ const complement: Bot = (sim) => {
 };
 
 function play(bot: Bot, seconds = 240) {
-  const level = levels['1-6']!;
+  const level = resolveLevel('1-6', 'normal')!;
   const sim: Sim = createSim(level, content, 1);
   const limit = secondsToTicks(seconds);
   while (sim.state.status === 'playing' && sim.state.tick < limit) {
@@ -72,7 +72,7 @@ describe('level 1-6 balance', () => {
   });
 
   it('offers the complement as a power, not as a deck card', () => {
-    const level = levels['1-6']!;
+    const level = resolveLevel('1-6', 'normal')!;
     expect(level.powers).toEqual(['complemento']);
     expect(level.deck).not.toContain('complemento');
   });

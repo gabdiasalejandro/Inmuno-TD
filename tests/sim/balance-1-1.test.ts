@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { content, levels } from '../../src/data';
+import { content, resolveLevel } from '../../src/data';
 import { createSim, secondsToTicks, type Sim } from '../../src/sim';
 
 const LANE = 2;
-const level = levels['1-1']!;
+const level = resolveLevel('1-1', 'normal')!;
 
 type Bot = (sim: Sim) => void;
 

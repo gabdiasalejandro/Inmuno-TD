@@ -30,6 +30,37 @@ export const levels: Record<string, LevelDef> = Object.fromEntries(
   }),
 );
 
+/**
+ * Difficulties, easiest first. Sepsis plays the level files as they are; Normal plays them with
+ * the override of `difficulty/normal/<level id>.json` on top, when the level has one.
+ */
+export const DIFFICULTIES = ['normal', 'sepsis'] as const;
+export type Difficulty = (typeof DIFFICULTIES)[number];
+export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+
+/** Top-level level fields a difficulty may replace; the id always stays the base level's. */
+export type LevelOverride = Partial<Omit<LevelDef, 'id'>>;
+
+const normalFiles = import.meta.glob<LevelOverride>('./difficulty/normal/*.json', { eager: true, import: 'default' });
+
+/** Normal overrides by level id, named after their files like the levels: no manual list. */
+export const normalOverrides: Record<string, LevelOverride> = Object.fromEntries(
+  Object.entries(normalFiles).map(([path, def]) => [path.slice('./difficulty/normal/'.length, -'.json'.length), def]),
+);
+
+/** Each field of the override replaces the base field whole (a wave list replaces all waves). */
+export function applyOverride(base: LevelDef, override: LevelOverride): LevelDef {
+  return { ...base, ...override, id: base.id };
+}
+
+/** The level as played on this difficulty, or undefined when there is no such level. */
+export function resolveLevel(id: string, difficulty: Difficulty): LevelDef | undefined {
+  const base = Object.hasOwn(levels, id) ? levels[id] : undefined;
+  if (!base) return undefined;
+  const override = difficulty === 'normal' ? normalOverrides[id] : undefined;
+  return override ? applyOverride(base, override) : base;
+}
+
 export interface WorldDef {
   id: string;
   /** Level ids in play order. A level is playable only if it also exists in `levels`. */
