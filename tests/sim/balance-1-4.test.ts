@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { content, resolveLevel } from '../../src/data';
+import { content, resolveLevel, tutorials } from '../../src/data';
+import { countEnemies, createTutorial } from '../../src/game/tutorial';
 import { createSim, secondsToTicks, type Content, type LevelDef } from '../../src/sim';
 import { every, frontCol, holdLanes, holdRelease, isFree, together, unitsIn, type Bot } from './bots';
 
@@ -52,8 +53,8 @@ const both = together(macrophages, neutrophils);
 /** A slower player: places cells only every two seconds, but still watches the bars. */
 const slow = (bot: Bot): Bot => together(every(2, bot), moderate);
 
-function play(level: LevelDef, bot: Bot, rules: Content = content) {
-  const sim = createSim(level, rules, 1);
+function play(level: LevelDef, bot: Bot, rules: Content = content, seed = 1) {
+  const sim = createSim(level, rules, seed);
   let peak = 0;
   let switches = 0;
   /** Lane switches made by each enemy, by uid. */
@@ -138,6 +139,83 @@ describe('level 1-4 balance', () => {
       expect(wave.count).toBeLessThanOrEqual(4);
       expect(wave.gap).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+/**
+ * A casual player who gets the concept but plays it sloppily: looks at the board only every four
+ * seconds (when exactly depends on the seed), keeps one macrophage per lane and never buys
+ * neutrophils, starts the wall line only once an S. pyogenes has shown up, and releases the
+ * cytokines in clumsy bursts (five seconds out of every fifteen), letting go early only when the
+ * inflammation bar turns red.
+ */
+function casual(seed: number): Bot {
+  let sawPyogenes = false;
+  const walled: Bot = (sim, lvl) => {
+    sawPyogenes ||= sim.state.enemies.some((enemy) => enemy.defId === 'streptococcus_pyogenes');
+    if (sawPyogenes) wallLine(sim, lvl);
+  };
+  const phase = seed % 4;
+  const cells: Bot = (sim, lvl) => {
+    if ((sim.state.tick + secondsToTicks(phase)) % secondsToTicks(4) === 0) together(macrophages, walled)(sim, lvl);
+  };
+  const bursts: Bot = (sim) =>
+    sim.setReleasing(sim.state.tick % secondsToTicks(15) < secondsToTicks(5) && sim.signal('inflamacion') < 0.75);
+  return together(cells, bursts);
+}
+
+const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+describe('level 1-4 difficulty', () => {
+  const sepsis = resolveLevel('1-4', 'sepsis')!;
+
+  it('normal is easier than sepsis: a casual player who walls late and releases in bursts wins on every seed', () => {
+    for (const seed of SEEDS) {
+      const result = play(level, casual(seed), content, seed);
+      expect(result.status, `seed ${seed}`).toBe('won');
+      expect(result.seconds).toBeLessThan(240);
+    }
+  });
+
+  it('sepsis is not: the same casual player loses on almost every seed', () => {
+    const lost = SEEDS.filter((seed) => play(sepsis, casual(seed), content, seed).status === 'lost');
+    expect(lost.length).toBeGreaterThanOrEqual(SEEDS.length - 1);
+  });
+
+  it('normal keeps the S. pyogenes groups and every lane of the final rush', () => {
+    const pyogenes = (lvl: LevelDef) => lvl.waves.filter((wave) => wave.enemy === 'streptococcus_pyogenes').map((wave) => wave.lane);
+    expect(pyogenes(level)).toEqual(pyogenes(sepsis));
+    // The final rush: every wave in the last 26 seconds of spawns.
+    const finalLanes = (lvl: LevelDef) => {
+      const last = Math.max(...lvl.waves.map((wave) => wave.at));
+      return lvl.waves.filter((wave) => wave.at >= last - 26).map((wave) => wave.lane).sort();
+    };
+    expect(finalLanes(level)).toEqual(finalLanes(sepsis));
+  });
+
+  it('the tutorial can be followed to the end on normal', () => {
+    // The player of tests/data/tutorials.test.ts (a macrophage per open lane, walls with gaps, moderate
+    // release), who only buys a wall while a macrophage replacement stays affordable.
+    const sim = createSim(level, content, 1);
+    const tutorial = createTutorial(tutorials['1-4']!.steps);
+    const seen = new Set<string>();
+    const shown: number[] = [];
+    while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(240)) {
+      tutorial.observe({ stored: 0, signals: { inflamacion: sim.signal('inflamacion') }, seen, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)) });
+      if (tutorial.active) {
+        shown.push(tutorial.index);
+        tutorial.perform({ type: 'tap' });
+        continue;
+      }
+      for (const lane of sim.state.openLanes) {
+        if (!sim.state.units.some((unit) => unit.row === lane && unit.defId === 'macrofago')) sim.placeUnit('macrofago', lane, 3);
+        else if (lane % 2 === 0 && sim.state.energy >= WALL_RESERVE + unitCost('epitelio')) sim.placeUnit('epitelio', lane, 6);
+      }
+      sim.setReleasing(sim.signal('citocinas') < 0.5 && sim.signal('inflamacion') < 0.35);
+      for (const event of sim.step()) seen.add(event.type);
+    }
+    expect(tutorial.finished).toBe(true);
+    expect(shown).toEqual([0, 1, 2]);
   });
 });
 

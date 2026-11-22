@@ -1,0 +1,31 @@
+{
+  "waves": [
+    { "at": 6, "enemy": "bacteria_gram_pos", "lane": 2, "count": 3, "gap": 3 },
+    { "at": 17, "enemy": "bacteria_gram_pos", "lane": 1, "count": 3, "gap": 4 },
+    { "at": 28, "enemy": "bacteria_gram_pos", "lane": 3, "count": 4, "gap": 2.5 },
+    { "at": 40, "enemy": "bacteria_gram_pos", "lane": 0, "count": 4, "gap": 2.5 },
+    { "at": 44, "enemy": "bacteria_gram_pos", "lane": 2, "count": 4, "gap": 2 },
+    { "at": 55, "enemy": "bacteria_gram_pos", "lane": 4, "count": 4, "gap": 2 },
+    { "at": 68, "enemy": "streptococcus_pyogenes", "lane": 2, "count": 3, "gap": 0.6 },
+    { "at": 73, "enemy": "bacteria_gram_pos", "lane": 1, "count": 4, "gap": 2 },
+    { "at": 86, "enemy": "streptococcus_pyogenes", "lane": 3, "count": 4, "gap": 0.6 },
+    { "at": 88, "enemy": "bacteria_gram_pos", "lane": 0, "count": 4, "gap": 2 },
+    { "at": 106, "enemy": "streptococcus_pyogenes", "lane": 1, "count": 4, "gap": 0.6 },
+    { "at": 105, "enemy": "bacteria_gram_pos", "lane": 4, "count": 5, "gap": 1.5 },
+    { "at": 119, "enemy": "bacteria_gram_pos", "lane": 2, "count": 5, "gap": 1.5 },
+    { "at": 121, "enemy": "streptococcus_pyogenes", "lane": 0, "count": 3, "gap": 0.6 },
+    { "at": 125, "enemy": "streptococcus_pyogenes", "lane": 4, "count": 3, "gap": 0.6 },
+    { "at": 138, "enemy": "bacteria_gram_pos", "lane": 3, "count": 5, "gap": 1.5 },
+    { "at": 141, "enemy": "streptococcus_pyogenes", "lane": 1, "count": 4, "gap": 0.6 },
+    { "at": 160, "enemy": "bacteria_gram_pos", "lane": 0, "count": 4, "gap": 1.5 },
+    { "at": 160, "enemy": "bacteria_gram_pos", "lane": 2, "count": 5, "gap": 2.5 },
+    { "at": 160, "enemy": "bacteria_gram_pos", "lane": 4, "count": 5, "gap": 1.5 },
+    { "at": 162, "enemy": "streptococcus_pyogenes", "lane": 1, "count": 4, "gap": 0.6 },
+    { "at": 162, "enemy": "streptococcus_pyogenes", "lane": 3, "count": 4, "gap": 0.6 },
+    { "at": 171, "enemy": "bacteria_gram_pos", "lane": 1, "count": 2, "gap": 2 },
+    { "at": 171, "enemy": "bacteria_gram_pos", "lane": 3, "count": 2, "gap": 2 }
+  ],
+  "signalTuning": {
+    "inflamacion": { "risesWith": { "signal": "citocinas", "perPoint": 0.405 } }
+  }
+}

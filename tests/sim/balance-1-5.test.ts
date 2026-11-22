@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { content, resolveLevel } from '../../src/data';
+import { content, resolveLevel, tutorials } from '../../src/data';
+import { countEnemies, createTutorial } from '../../src/game/tutorial';
 import { createSim, secondsToTicks, type Content, type LevelDef, type Sim } from '../../src/sim';
-import { every, frontCol, holdLanes, isFree, together, unitsIn, type Bot } from './bots';
+import { every, frontCol, holdLanes, isFree, pulseRelease, together, unitsIn, type Bot } from './bots';
 
 const unitCost = (id: string): number => content.units.find((unit) => unit.id === id)!.cost;
 /** Keep enough energy to replace a macrophage after buying a neutrophil. */
@@ -149,6 +150,121 @@ describe('level 1-5 balance', () => {
     expect(level.waves.some((wave) => wave.enemy !== 'virus')).toBe(true);
     expect(level.deck).toEqual(['epitelio', 'moco', 'macrofago', 'neutrofilo', 'nk']);
     expect(level.signals).toEqual(['citocinas', 'inflamacion']);
+  });
+});
+
+/**
+ * A casual player who still answers infected cells with NK cells, but sloppily: acts only every
+ * 3 seconds and notices an infected cell `delay` seconds after it was infected, so its NK cell
+ * arrives with the 6-second burst timer half spent.
+ */
+function lateNkCells(delay: number): Bot {
+  const seenAt = new Map<number, number>();
+  return (sim, level) => {
+    const reach = content.units.find((unit) => unit.id === 'nk')!.attack!.range;
+    for (const cell of infected(sim)) {
+      if (!seenAt.has(cell.uid)) seenAt.set(cell.uid, sim.state.tick);
+      if (sim.state.tick - seenAt.get(cell.uid)! < secondsToTicks(delay)) continue;
+      const covered = sim.state.units.some(
+        (u) => u.defId === 'nk' && Math.abs(u.row - cell.row) <= reach && Math.abs(u.col - cell.col) <= reach,
+      );
+      if (covered) continue;
+      for (const [row, col] of [[cell.row, cell.col - 1], [cell.row - 1, cell.col - 1], [cell.row + 1, cell.col - 1]] as const) {
+        if (row < 0 || row >= level.grid.rows || col < 0 || !isFree(sim, row, col)) continue;
+        if (sim.placeUnit('nk', row, col).ok) break;
+      }
+    }
+  };
+}
+
+/** Casual player who releases with moderation but reacts late. Built fresh per game: it remembers cells. */
+const casualModerate = (): Bot => together(every(3, together(walls, lateNkCells(2))), moderate);
+/** Casual player who reacts late and also holds the release button in pulses, ignoring the inflammation bar. */
+const casualCareless = (): Bot => together(every(3, together(walls, lateNkCells(2))), pulseRelease(3, 6));
+
+describe('level 1-5 difficulties', () => {
+  const sepsis = resolveLevel('1-5', 'sepsis')!;
+
+  it('normal is won by a casual player who answers infected cells late, on every seed', () => {
+    for (const make of [casualModerate, casualCareless]) {
+      for (const seed of SEEDS) {
+        const result = play(level, make(), content, seed);
+        expect(result.status, `${make.name} seed ${seed}`).toBe('won');
+        expect(result.seconds).toBeGreaterThan(170);
+        expect(result.seconds).toBeLessThan(240);
+      }
+    }
+  });
+
+  it('sepsis is lost by the casual player who releases carelessly: the inflammation bar fills', () => {
+    for (const seed of SEEDS) {
+      const result = play(sepsis, casualCareless(), content, seed);
+      expect(result.status, `seed ${seed}`).toBe('lost');
+      expect(result.peak).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('sepsis is lost on some seeds even by the casual player who releases with moderation', () => {
+    const lost = SEEDS.filter((seed) => play(sepsis, casualModerate(), content, seed).status === 'lost');
+    expect(lost.length).toBeGreaterThan(0);
+  });
+
+  it('normal only eases the waves and, slightly, the inflammation bar', () => {
+    expect(level.startEnergy).toBe(sepsis.startEnergy);
+    expect(level.marrow).toEqual(sepsis.marrow);
+    expect(level.wounds).toEqual(sepsis.wounds);
+    // Same viruses at the same moments: the concept the level teaches is untouched.
+    const viruses = (lvl: LevelDef) => lvl.waves.filter((wave) => wave.enemy === 'virus');
+    expect(viruses(level)).toEqual(viruses(sepsis));
+    const enemies = (lvl: LevelDef) => lvl.waves.reduce((sum, wave) => sum + wave.count, 0);
+    expect(enemies(level)).toBeLessThan(enemies(sepsis));
+    // The inflammation bar only drains a little faster; harm tiers and the defeat point stay.
+    expect(Object.keys(level.signalTuning ?? {})).toEqual(['inflamacion']);
+    expect(Object.keys(level.signalTuning!.inflamacion!)).toEqual(['decayPerSecond']);
+    const base = content.signals!.inflamacion!.decayPerSecond;
+    expect(level.signalTuning!.inflamacion!.decayPerSecond).toBeGreaterThan(base);
+    expect(level.signalTuning!.inflamacion!.decayPerSecond).toBeLessThanOrEqual(base * 1.25);
+  });
+});
+
+describe('level 1-5 tutorial on normal', () => {
+  /** Same player as tests/data/tutorials.test.ts: a macrophage behind an epithelium per lane, following the steps. */
+  it('can be followed to the end with the real rules', () => {
+    const sim = createSim(level, content, 1);
+    const tutorial = createTutorial(tutorials['1-5']!.steps);
+    const shown: number[] = [];
+    let nkPlaced = false;
+    while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(240)) {
+      const tick = sim.state.tick;
+      const statuses = new Set(sim.state.units.flatMap((u) => Object.keys(u.statuses).filter((name) => (u.statuses[name] ?? 0) > tick)));
+      tutorial.observe({ stored: 0, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)), statuses });
+      const step = tutorial.step;
+      if (tutorial.active && step) {
+        if (shown[shown.length - 1] !== tutorial.index) shown.push(tutorial.index);
+        if (step.advance.type === 'tap') {
+          tutorial.perform({ type: 'tap' });
+          continue;
+        }
+        const cell = sim.state.units.find((u) => (u.statuses.infectada ?? 0) > tick) ?? sim.state.units[0]!;
+        for (const [row, col] of [[cell.row, cell.col - 1], [cell.row - 1, cell.col], [cell.row + 1, cell.col], [cell.row, cell.col + 1]] as const) {
+          if (row < 0 || row >= level.grid.rows || col < 0) continue;
+          if (sim.placeUnit('nk', row, col).ok) {
+            nkPlaced = true;
+            tutorial.perform({ type: 'place', unit: 'nk', row, col });
+            break;
+          }
+        }
+      } else {
+        for (const lane of sim.state.openLanes) {
+          if (!sim.state.units.some((u) => u.row === lane && u.defId === 'macrofago')) sim.placeUnit('macrofago', lane, 3);
+          else if (!sim.state.units.some((u) => u.row === lane && u.defId === 'epitelio')) sim.placeUnit('epitelio', lane, 4);
+        }
+      }
+      if (tutorial.timeScale > 0) sim.step();
+    }
+    expect(tutorial.finished).toBe(true);
+    expect(shown).toEqual([0, 1, 2, 3]);
+    expect(nkPlaced).toBe(true);
   });
 });
 

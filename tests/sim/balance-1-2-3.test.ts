@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { content, resolveLevel } from '../../src/data';
+import { content, resolveLevel, tutorials, type Difficulty } from '../../src/data';
+import { countEnemies, createTutorial } from '../../src/game/tutorial';
+import { createRng, createSim, secondsToTicks } from '../../src/sim';
 import { every, frontCol, holdLanes, holdRelease, isFree, play, pulseRelease, together, unitsIn, type Bot } from './bots';
 
 const unitCost = (id: string): number => content.units.find((unit) => unit.id === id)!.cost;
@@ -115,5 +117,145 @@ describe('level data', () => {
   it('sends bacteria down every opened lane in 1-3', () => {
     const lanes = new Set(resolveLevel('1-3', 'normal')!.waves.map((wave) => wave.lane));
     expect(lanes).toEqual(new Set([0, 1, 2, 3, 4]));
+  });
+});
+
+const SEEDS = [1, 2, 3, 4, 5];
+
+/** Plays a level on a difficulty with a bot built for that seed; the sim gets the same seed. */
+function playOn(levelId: string, difficulty: Difficulty, makeBot: (seed: number) => Bot, seed: number, maxSeconds = 240) {
+  const level = resolveLevel(levelId, difficulty)!;
+  const sim = createSim(level, content, seed);
+  const bot = makeBot(seed);
+  while (sim.state.status === 'playing' && sim.state.tick < secondsToTicks(maxSeconds)) {
+    bot(sim, level);
+    sim.step();
+  }
+  return { status: sim.state.status, seconds: sim.state.tick / 20 };
+}
+
+interface CasualStyle {
+  /** Seconds between two looks at the board. */
+  period: number;
+  /** Column the player drops a macrophage at, or just behind the bacteria if they got past. */
+  macroCol: number;
+  /** Energy the player waits to have before spending on anything but a macrophage. */
+  spare: number;
+  barriers: boolean;
+  neutrophils: boolean;
+  /** Seconds held out of every period on the release button, if the player releases at all. */
+  release?: [held: number, period: number];
+}
+
+/**
+ * A casual player who knows the right concept but plays it loosely: looks at the board only every
+ * few seconds, notices each newly opened lane 4 to 10 s late (drawn from the seed), puts the
+ * macrophage too far forward, hoards energy before buying barriers or neutrophils, and only taps
+ * the release now and then.
+ */
+const casual =
+  (style: CasualStyle) =>
+  (seed: number): Bot => {
+    const rng = createRng(seed * 7919);
+    const noticeAt = new Map<number, number>();
+    const release = style.release ? pulseRelease(...style.release) : undefined;
+    return (sim, level) => {
+      release?.(sim, level);
+      if (sim.state.tick % secondsToTicks(style.period) !== 0) return;
+      const now = sim.state.tick / 20;
+      for (const lane of sim.state.openLanes) {
+        if (!noticeAt.has(lane)) noticeAt.set(lane, now + 4 + rng.next() * 6);
+        if (now < noticeAt.get(lane)!) continue;
+        const front = frontCol(sim, lane) ?? 8;
+        if (unitsIn(sim, lane, 'macrofago').length === 0) {
+          if (sim.state.energy >= 100) sim.placeUnit('macrofago', lane, Math.max(0, Math.min(style.macroCol, front - 1)));
+          continue;
+        }
+        if (sim.state.energy < style.spare) continue;
+        if (style.neutrophils && front < 8) {
+          const col = Math.max(4, Math.min(7, front - 1));
+          if (isFree(sim, lane, col)) sim.placeUnit('neutrofilo', lane, col);
+          continue;
+        }
+        if (style.barriers && !unitsIn(sim, lane, 'epitelio').some((unit) => unit.col <= front)) {
+          sim.placeUnit('epitelio', lane, Math.max(0, Math.min(style.macroCol + 2, front - 1)));
+          continue;
+        }
+        if (style.barriers && style.macroCol + 1 > front && isFree(sim, lane, style.macroCol + 1)) sim.placeUnit('moco', lane, style.macroCol + 1);
+      }
+    };
+  };
+
+const casual12: CasualStyle = { period: 4, macroCol: 4, spare: 200, barriers: true, neutrophils: false };
+const casual13: CasualStyle = { period: 3, macroCol: 3, spare: 200, barriers: false, neutrophils: true, release: [2, 10] };
+
+describe('normal difficulty, 1-2 and 1-3', () => {
+  it.each(SEEDS)('a casual player with macrophages and barriers wins 1-2 on normal and loses it on sepsis (seed %i)', (seed) => {
+    expect(playOn('1-2', 'normal', casual(casual12), seed).status).toBe('won');
+    expect(playOn('1-2', 'sepsis', casual(casual12), seed).status).toBe('lost');
+  });
+
+  it.each(SEEDS)('the same casual player still loses 1-2 on normal without barriers (seed %i)', (seed) => {
+    expect(playOn('1-2', 'normal', casual({ ...casual12, barriers: false }), seed).status).toBe('lost');
+  });
+
+  it.each(SEEDS)('a casual player who releases now and then wins 1-3 on normal and loses it on sepsis (seed %i)', (seed) => {
+    expect(playOn('1-3', 'normal', casual(casual13), seed).status).toBe('won');
+    expect(playOn('1-3', 'sepsis', casual(casual13), seed).status).toBe('lost');
+  });
+
+  it.each(SEEDS)('the same casual player still loses 1-3 on normal if they never release the cytokines (seed %i)', (seed) => {
+    expect(playOn('1-3', 'normal', casual({ ...casual13, release: undefined }), seed).status).toBe('lost');
+  });
+
+  it('keeps the tutorial of 1-3 followable to the end on normal', () => {
+    const level = resolveLevel('1-3', 'normal')!;
+    const steps = tutorials['1-3']!.steps;
+    const sim = createSim(level, content, 1);
+    const tutorial = createTutorial(steps);
+    const seen = new Set<string>();
+    let heldTicks = 0;
+    let slowCarry = 0;
+    while (!tutorial.finished && sim.state.status === 'playing' && sim.state.tick < secondsToTicks(90)) {
+      tutorial.observe({ stored: level.signals?.reduce((sum, name) => sum + sim.stored(name), 0) ?? 0, seen, enemies: countEnemies(sim.state.enemies.map((enemy) => enemy.defId)) });
+      const step = tutorial.step;
+      let holding = false;
+      if (step && tutorial.active) {
+        const { advance } = step;
+        if (advance.type === 'place' && sim.placeUnit(advance.unit, advance.row ?? 0, advance.col ?? 0).ok) {
+          tutorial.perform({ type: 'place', unit: advance.unit, row: advance.row ?? 0, col: advance.col ?? 0 });
+        } else if (advance.type === 'hold') {
+          holding = true;
+          tutorial.perform({ type: 'hold', seconds: heldTicks / secondsToTicks(1) });
+        } else if (advance.type === 'tap') {
+          tutorial.perform({ type: 'tap' });
+        }
+      }
+      sim.setReleasing(holding);
+      heldTicks = holding ? heldTicks + 1 : 0;
+      // As in the game: a paused step freezes the clock, a fast one runs several ticks per frame, a slow one fewer.
+      const tick = () => sim.step().forEach((event) => seen.add(event.type));
+      for (let i = 0; i < Math.floor(tutorial.timeScale) && sim.state.status === 'playing'; i++) tick();
+      if (tutorial.timeScale > 0 && tutorial.timeScale < 1) {
+        slowCarry += tutorial.timeScale;
+        if (slowCarry >= 1) {
+          slowCarry -= 1;
+          tick();
+        }
+      }
+    }
+    expect(tutorial.index).toBe(steps.length);
+    expect(sim.state.status).toBe('playing');
+    expect(sim.state.released.citocinas).toBeGreaterThan(0);
+  });
+
+  it('makes normal easier only through the waves: same economy, lanes and deck as sepsis, fewer bacteria', () => {
+    for (const id of ['1-2', '1-3']) {
+      const normal = resolveLevel(id, 'normal')!;
+      const sepsis = resolveLevel(id, 'sepsis')!;
+      expect({ ...normal, waves: [] }).toEqual({ ...sepsis, waves: [] });
+      const total = (level: typeof normal) => level.waves.reduce((sum, wave) => sum + wave.count, 0);
+      expect(total(normal)).toBeLessThan(total(sepsis));
+    }
   });
 });

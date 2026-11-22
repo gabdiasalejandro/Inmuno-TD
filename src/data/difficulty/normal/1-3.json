@@ -1,0 +1,95 @@
+{
+  "waves": [
+    {
+      "at": 5,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 2,
+      "gap": 4
+    },
+    {
+      "at": 22,
+      "enemy": "bacteria_gram_pos",
+      "lane": 0,
+      "count": 2,
+      "gap": 3
+    },
+    {
+      "at": 26,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 2,
+      "gap": 3
+    },
+    {
+      "at": 40,
+      "enemy": "bacteria_gram_pos",
+      "lane": 4,
+      "count": 4,
+      "gap": 2
+    },
+    {
+      "at": 46,
+      "enemy": "bacteria_gram_pos",
+      "lane": 0,
+      "count": 4,
+      "gap": 2
+    },
+    {
+      "at": 52,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 6,
+      "gap": 1.5
+    },
+    {
+      "at": 56,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 2,
+      "gap": 3
+    },
+    {
+      "at": 66,
+      "enemy": "bacteria_gram_pos",
+      "lane": 4,
+      "count": 7,
+      "gap": 1.5
+    },
+    {
+      "at": 70,
+      "enemy": "bacteria_gram_pos",
+      "lane": 0,
+      "count": 7,
+      "gap": 1.5
+    },
+    {
+      "at": 70,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 2,
+      "gap": 3
+    },
+    {
+      "at": 76,
+      "enemy": "bacteria_gram_pos",
+      "lane": 2,
+      "count": 8,
+      "gap": 1.5
+    },
+    {
+      "at": 84,
+      "enemy": "bacteria_gram_pos",
+      "lane": 1,
+      "count": 3,
+      "gap": 2
+    },
+    {
+      "at": 88,
+      "enemy": "bacteria_gram_pos",
+      "lane": 3,
+      "count": 3,
+      "gap": 2
+    }
+  ]
+}
