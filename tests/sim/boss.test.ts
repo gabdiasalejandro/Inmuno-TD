@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSim, secondsToTicks, type Content, type EnemyDef, type LevelDef, type Sim, type SimEvent, type UnitDef } from '../../src/sim';
-import { content as base, grunt, level } from './fixtures';
+import { content as base, level } from './fixtures';
 
 /** Stands its ground, covers three lanes and sheds grunts every 2 s. */
 const king: EnemyDef = {
@@ -9,14 +9,24 @@ const king: EnemyDef = {
   speed: 0.05,
   attack: { damage: 5, rate: 1 },
   span: 1,
-  sheds: { enemy: 'grunt', every: 2 },
+  sheds: { every: 2, pool: [{ enemy: 'grunt', weight: 1 }] },
+  tags: ['big'],
 };
 const hitter: UnitDef = { id: 'hitter', cost: 10, cooldown: 0, hp: 5000, attack: { type: 'melee', damage: 50, rate: 1, range: 1 } };
+/** Eats in slow bites, but against big enemies throws quick, lighter punches. */
+const eater: UnitDef = {
+  id: 'eater',
+  cost: 10,
+  cooldown: 0,
+  hp: 5000,
+  attack: { type: 'bite', damage: 40, rate: 0.25, range: 1, strike: { against: ['big'], damage: 30, rate: 1 } },
+};
+const imp: EnemyDef = { id: 'imp', hp: 30, speed: 1, attack: { damage: 1, rate: 1 } };
 const runner: UnitDef = { id: 'runner', cost: 10, cooldown: 0, hp: 100, tags: ['fast'] };
 const content: Content = {
   ...base,
-  units: [...base.units, hitter, runner],
-  enemies: [...base.enemies, king],
+  units: [...base.units, hitter, runner, eater],
+  enemies: [...base.enemies, king, imp],
   statuses: { marked: {} },
   powers: [{ id: 'mark', cooldown: 1, radius: 1, opsonize: { status: 'marked', at: 0 } }],
 };
@@ -26,7 +36,7 @@ function setup(overrides: Partial<LevelDef> = {}, enemies: EnemyDef[] = []): Sim
     level({
       grid: { rows: 5, cols: 8 },
       startEnergy: 10000,
-      deck: ['hitter', 'runner', 'wall'],
+      deck: ['hitter', 'runner', 'wall', 'eater'],
       waves: [{ at: 0, enemy: 'king', lane: 2, count: 1, gap: 1 }],
       win: { type: 'survive', seconds: 999 },
       ...overrides,
@@ -88,11 +98,36 @@ describe('an anchored enemy', () => {
 });
 
 describe('shedding', () => {
-  it('releases one enemy every `every` seconds from the right edge, rotating through the lanes', () => {
-    const sim = setup();
-    const spawned = run(sim, 10.1).filter((e) => e.type === 'enemy_spawned' && e.defId === 'grunt');
-    expect(spawned).toHaveLength(5);
-    expect(spawned.map((e) => (e as { lane: number }).lane)).toEqual([0, 1, 2, 3, 4]);
+  const mixed: EnemyDef = { ...king, sheds: { every: 1, pool: [{ enemy: 'grunt', weight: 3 }, { enemy: 'imp', weight: 1 }] } };
+  const sheds = (seed: number) => {
+    const sim = createSim(
+      level({ grid: { rows: 5, cols: 8 }, deck: ['wall'], waves: [{ at: 0, enemy: 'king', lane: 2, count: 1, gap: 1 }], win: { type: 'survive', seconds: 999 } }),
+      { ...content, enemies: [...content.enemies.filter((e) => e.id !== 'king'), mixed] },
+      seed,
+    );
+    const shed: Array<{ defId: string; lane: number }> = [];
+    for (let i = 0; i < secondsToTicks(40.1); i++) {
+      for (const e of sim.step()) if (e.type === 'enemy_spawned' && e.defId !== 'king') shed.push({ defId: e.defId, lane: e.lane });
+      // Keep the board from filling up: the test only cares about what is released.
+      sim.state.enemies = sim.state.enemies.filter((enemy) => enemy.defId === 'king');
+    }
+    return shed;
+  };
+
+  it('releases one enemy every `every` seconds from the right edge', () => {
+    expect(sheds(1)).toHaveLength(40);
+  });
+
+  it('picks the kind from its weighted pool and the lane at random, from the level seed', () => {
+    const shed = sheds(1);
+    const imps = shed.filter((s) => s.defId === 'imp').length;
+    expect(imps).toBeGreaterThan(2);
+    expect(imps).toBeLessThan(20);
+    expect(new Set(shed.map((s) => s.lane))).toEqual(new Set([0, 1, 2, 3, 4]));
+    // Not a fixed rotation: some lane repeats right away somewhere in the sequence.
+    expect(shed.some((s, i) => i > 0 && s.lane === shed[i - 1]!.lane)).toBe(true);
+    expect(sheds(1)).toEqual(shed);
+    expect(sheds(2)).not.toEqual(shed);
   });
 
   it('stops when the shedding enemy dies', () => {
@@ -166,15 +201,69 @@ describe('a shield from a health threshold', () => {
   });
 });
 
+describe('a unit that strikes big enemies and engulfs them when weak', () => {
+  it('strikes a big enemy with its quicker, lighter blow instead of its bite', () => {
+    const sim = setup({}, [{ ...king, sheds: undefined }]);
+    sim.placeUnit('eater', 2, 6);
+    const hits = hitsOn(run(sim, 4.05), kingOf(sim).uid);
+    expect(hits.length).toBeGreaterThanOrEqual(4);
+    expect(hits.every((e) => (e as { damage: number }).damage === 30 && (e as { kind?: string }).kind === 'strike')).toBe(true);
+  });
+
+  it('still bites an ordinary enemy', () => {
+    const sim = setup({ waves: [{ at: 0, enemy: 'grunt', lane: 2, count: 1, gap: 1 }] });
+    sim.placeUnit('eater', 2, 5);
+    const bite = run(sim, 3).find((e) => e.type === 'unit_attacked');
+    expect(bite).toMatchObject({ damage: 40 });
+    expect((bite as { kind?: string }).kind).toBeUndefined();
+  });
+
+  it('engulfs the big enemy whole once its health is down to `engulfBelow`, but not through a shield', () => {
+    const sim = setup({}, [{ ...king, sheds: undefined, engulfBelow: 0.1, shield: { from: 0.05, hp: 500 } }]);
+    run(sim, 0.1);
+    const boss = kingOf(sim);
+    boss.hp = 150;
+    sim.placeUnit('eater', 2, 6);
+    const above = hitsOn(run(sim, 1.05), boss.uid);
+    expect(above.every((e) => (e as { kind?: string }).kind === 'strike')).toBe(true);
+    boss.hp = 90;
+    const events = run(sim, 4.1);
+    expect(events.find((e) => e.type === 'unit_attacked' && e.target === boss.uid)).toMatchObject({ kind: 'engulf', damage: 90 });
+    expect(sim.state.enemies.some((e) => e.defId === 'king')).toBe(false);
+  });
+
+  it('does not engulf while the shield stands', () => {
+    const sim = setup({}, [{ ...king, sheds: undefined, engulfBelow: 0.1, shield: { from: 0.5, hp: 500 } }]);
+    run(sim, 0.1);
+    const boss = kingOf(sim);
+    boss.hp = 50;
+    run(sim, 0.1);
+    sim.placeUnit('eater', 2, 6);
+    const hits = hitsOn(run(sim, 3), boss.uid);
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits.every((e) => (e as { kind?: string }).kind === 'strike')).toBe(true);
+    expect(boss.hp).toBe(50);
+  });
+});
+
 describe('boss win condition', () => {
-  it('is won the moment the boss dies, with other enemies still on the board', () => {
+  it('is not won while bacteria remain on the board after the boss dies, and is won once they are gone', () => {
     const sim = setup({ win: { type: 'boss', enemy: 'king' } }, [{ ...king, hp: 300 }]);
     sim.placeUnit('hitter', 2, 6);
-    run(sim, 3);
+    run(sim, 7);
+    expect(sim.state.enemies.some((e) => e.defId === 'king')).toBe(false);
+    expect(sim.state.enemies.length).toBeGreaterThan(0);
     expect(sim.state.status).toBe('playing');
-    run(sim, 4);
+    for (const enemy of sim.state.enemies) enemy.hp = 0;
+    run(sim, 0.1);
     expect(sim.state.status).toBe('won');
-    expect(sim.state.enemies.some((e) => e.defId === grunt.id)).toBe(true);
+  });
+
+  it('is not won with the board clear while the boss lives', () => {
+    const sim = setup({ win: { type: 'boss', enemy: 'king' } }, [{ ...king, sheds: undefined }]);
+    run(sim, 3);
+    expect(sim.state.enemies.map((e) => e.defId)).toEqual(['king']);
+    expect(sim.state.status).toBe('playing');
   });
 
   it('is not won before the boss has appeared', () => {

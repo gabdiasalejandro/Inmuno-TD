@@ -54,10 +54,22 @@ export function createUnitAttacks(world: World): System {
       }
       const target = world.findTarget(unit, attack.range, attack.requires);
       if (!target) continue;
-      const damage = attack.damage * world.enemyDamageMultiplier(target);
+      const targetDef = world.enemyDef(target.defId);
+      const strikes = attack.strike !== undefined && world.enemyHas(target, attack.strike.against);
+      // Too big to swallow: strike it, until it is weak enough (and unshielded) to engulf whole.
+      const engulfs = strikes && targetDef.engulfBelow !== undefined && !(target.shield ?? 0) && target.hp <= targetDef.engulfBelow * targetDef.hp;
+      if (engulfs) {
+        const damage = target.hp;
+        target.hp = 0;
+        unit.attackReadyAt = state.tick + attackIntervalTicks(attack.rate);
+        events.push({ type: 'unit_attacked', uid: unit.uid, target: target.uid, damage, kind: 'engulf' });
+        continue;
+      }
+      const blow = strikes ? attack.strike! : attack;
+      const damage = blow.damage * world.enemyDamageMultiplier(target);
       world.damageEnemy(target, damage);
-      unit.attackReadyAt = state.tick + attackIntervalTicks(attack.rate);
-      events.push({ type: 'unit_attacked', uid: unit.uid, target: target.uid, damage });
+      unit.attackReadyAt = state.tick + attackIntervalTicks(blow.rate);
+      events.push(strikes ? { type: 'unit_attacked', uid: unit.uid, target: target.uid, damage, kind: 'strike' } : { type: 'unit_attacked', uid: unit.uid, target: target.uid, damage });
     }
     state.enemies = state.enemies.filter((enemy) => {
       if (enemy.hp > 0) return true;

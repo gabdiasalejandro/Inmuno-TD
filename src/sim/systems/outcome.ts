@@ -34,7 +34,7 @@ export function createOutcome(
         : win.type === 'antigen'
           ? state.antigenDelivered >= win.count
           : win.type === 'boss'
-            ? bossSeen && !bossAlive
+            ? bossSeen && !bossAlive && state.enemies.length === 0 && !pendingBurst()
             : allSpawned() && state.enemies.length === 0 && !pendingBurst();
     if (!won) return;
     state.status = 'won';

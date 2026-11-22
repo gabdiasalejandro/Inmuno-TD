@@ -39,7 +39,14 @@
       "range": 1,
       "requires": [
         "PAMP"
-      ]
+      ],
+      "strike": {
+        "against": [
+          "colonia"
+        ],
+        "damage": 30,
+        "rate": 0.67
+      }
     },
     "emits": {
       "signal": "citocinas",

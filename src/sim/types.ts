@@ -19,6 +19,12 @@ export interface AttackDef {
   targets?: 'enemies' | 'own';
   /** Statuses an own unit must all carry to be a valid target (only with `targets: 'own'`). */
   status?: string[];
+  /**
+   * Against enemies carrying every `against` tag (too big to swallow), the unit strikes instead:
+   * `damage` at `rate` per second. If the enemy is weak enough (`EnemyDef.engulfBelow`) and has no
+   * shield up, the unit engulfs it whole at its own rate instead.
+   */
+  strike?: { against: string[]; damage: number; rate: number };
 }
 
 /**
@@ -198,8 +204,13 @@ export interface EnemyDef {
   anchor?: number;
   /** Lanes the enemy covers on each side of its own (a wide boss). Units in any of them reach it, and any of them blocks it. */
   span?: number;
-  /** While alive, releases one `enemy` every `every` seconds from the right edge, rotating through the lanes from lane 0. */
-  sheds?: { enemy: string; every: number };
+  /**
+   * While alive, releases one enemy every `every` seconds from the right edge, of a kind drawn from
+   * `pool` by weight and in a lane drawn at random, both with the level's seeded RNG.
+   */
+  sheds?: { every: number; pool: Array<{ enemy: string; weight: number }> };
+  /** Share of max health at or under which a unit that strikes it engulfs it whole (see `AttackDef.strike`). */
+  engulfBelow?: number;
   /**
    * Toxins: once its health falls to `from` (share of max), own units carrying every `requires`
    * tag within `radius` cells of any cell it covers lose `damagePerSecond` hit points per second.
@@ -249,7 +260,7 @@ export interface LevelDef {
 }
 
 /** `antigen`: won as soon as `count` antigen reach the lymph node, whatever is still on the board. */
-/** `boss`: won the moment the last enemy of that id dies, once one has appeared. */
+/** `boss`: won once an enemy of that id has appeared, died, and no other enemy is left (nor about to burst out). */
 export type WinCondition =
   | { type: 'clear' }
   | { type: 'survive'; seconds: number }
@@ -413,7 +424,8 @@ export type SimEvent =
   /** Stored charge that flowed into a signal this tick while the player held the release, in points. */
   | { type: 'signal_released'; signal: string; amount: number }
   | { type: 'enemy_spawned'; uid: number; defId: string; lane: number }
-  | { type: 'unit_attacked'; uid: number; target: number; damage: number }
+  /** A unit hit an enemy; `kind` tells a strike or a final engulfing from an ordinary attack. */
+  | { type: 'unit_attacked'; uid: number; target: number; damage: number; kind?: 'strike' | 'engulf' }
   | { type: 'enemy_attacked'; uid: number; target: number; damage: number }
   | { type: 'enemy_died'; uid: number }
   | { type: 'unit_died'; uid: number; cause: 'killed' | 'expired'; defId: string; row: number; col: number }

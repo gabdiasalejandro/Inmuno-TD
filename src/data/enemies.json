@@ -81,7 +81,7 @@
   },
   {
     "id": "staphylococcus_aureus",
-    "hp": 50,
+    "hp": 40,
     "speed": 0.3,
     "attack": {
       "damage": 10,
@@ -102,8 +102,21 @@
     },
     "span": 1,
     "sheds": {
-      "enemy": "staphylococcus_aureus",
-      "every": 4
+      "every": 5,
+      "pool": [
+        {
+          "enemy": "staphylococcus_aureus",
+          "weight": 6
+        },
+        {
+          "enemy": "bacteria_capsulada",
+          "weight": 1
+        },
+        {
+          "enemy": "virus",
+          "weight": 1
+        }
+      ]
     },
     "aura": {
       "from": 0.7,
@@ -119,8 +132,10 @@
     },
     "tags": [
       "bacteria",
-      "PAMP"
+      "PAMP",
+      "colonia"
     ],
-    "anchor": 6
+    "anchor": 6,
+    "engulfBelow": 0.1
   }
 ]

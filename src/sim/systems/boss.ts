@@ -3,7 +3,7 @@ import type { BossPhase, EnemyDef, EnemyState } from '../types';
 import { CELL, engagedCol, type System, type World } from '../world';
 
 /**
- * Boss behaviour, all declared on the enemy: shedding new enemies while alive, a toxin aura and a
+ * Boss behaviour, all declared on the enemy: shedding random enemies while alive, a toxin aura and a
  * shield that start once its health falls to their thresholds (each phase is reported once).
  */
 export function createBoss(world: World): System {
@@ -29,8 +29,12 @@ export function createBoss(world: World): System {
         const every = secondsToTicks(def.sheds.every);
         enemy.nextShed ??= state.tick + every;
         if (state.tick >= enemy.nextShed) {
-          const shedDef = world.enemyDef(def.sheds.enemy);
-          const lane = (enemy.shed ?? 0) % rows;
+          const { pool } = def.sheds;
+          const total = pool.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
+          let roll = world.random() * total;
+          const pick = pool.find((entry) => (roll -= Math.max(0, entry.weight)) < 0) ?? pool[pool.length - 1]!;
+          const shedDef = world.enemyDef(pick.enemy);
+          const lane = Math.floor(world.random() * rows);
           enemy.shed = (enemy.shed ?? 0) + 1;
           enemy.nextShed += every;
           const child: EnemyState = {
