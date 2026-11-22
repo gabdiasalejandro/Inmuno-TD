@@ -121,7 +121,7 @@
   "obj.1-7.dendritic": "¿Qué hace una célula dendrítica con el antígeno que captura en un tejido?",
   "obj.1-7.memory": "¿Por qué la inmunidad innata no responde más rápido la segunda vez que encuentra el mismo patógeno?",
   "tutorial.1-7.place": "¡Llegan las bacterias! Coloca la célula dendrítica delante de un macrófago: no ataca ni bloquea, recoge lo que muere a su alrededor.",
-  "tutorial.1-7.taken": "¡Ha cogido un trozo de bacteria! Eso es el antígeno. Cuando lleve tres, se irá al ganglio.",
+  "tutorial.1-7.taken": "¡Tomó un trozo de bacteria! Eso es el antígeno. Cuando lleve tres, se irá al ganglio.",
   "tutorial.1-7.migrate": "Ya va llena: viaja por la linfa hasta el ganglio. Allí enseñará el antígeno a los linfocitos; lo verás en el mundo 2.",
   "tutorial.1-7.delivered": "¡Entregado! Arriba ves cuánto antígeno ha llegado. Al llegar a 9 ganas. Mientras no lleguen, la misma bacteria seguirá volviendo, y cada vuelta deja más inflamación."
 }
