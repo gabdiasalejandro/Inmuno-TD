@@ -15,7 +15,9 @@ import {
   type SignalSource,
   type SimEvent,
   type UnitDef,
+  type SignalDef,
 } from '../sim';
+import { tunedSignals } from '../sim/world';
 import { Hud } from '../ui/Hud';
 import { IntroCard } from '../ui/IntroCard';
 import { TutorialGuide } from '../ui/TutorialGuide';
@@ -162,6 +164,8 @@ export class GameScene extends Phaser.Scene {
   private lastFlowAt = -Infinity;
   /** The pause panel is open: the sim, the clocks and the tweens are frozen. */
   private paused = false;
+  /** Content signals as this level (and difficulty) tunes them. */
+  private signals: Record<string, SignalDef> = {};
 
   constructor() {
     super('game');
@@ -201,8 +205,9 @@ export class GameScene extends Phaser.Scene {
     this.ghost = null;
     this.resultShown = false;
     this.released = 0;
-    this.signalNames = shownSignalNames(level, content.signals, content.units);
-    this.gauge = gaugeSignal(level, content.signals);
+    this.signals = tunedSignals(level, content.signals);
+    this.signalNames = shownSignalNames(level, this.signals, content.units);
+    this.gauge = gaugeSignal(level, this.signals);
     this.seenEvents = new Set();
     this.enemyRow = new Map();
     this.introCard = null;
@@ -980,14 +985,14 @@ export class GameScene extends Phaser.Scene {
       charge: marrowCharge(this.sim.marrowFraction()),
       excite: marrowExcitement(cytokines ?? 0),
       cytokines,
-      effects: cytokines === null ? null : cytokineEffects(content.signals, this.signalNames, this.sim.signal),
+      effects: cytokines === null ? null : cytokineEffects(this.signals, this.signalNames, this.sim.signal),
       boosted: new Set(
-        [...this.unitDefs.values()].filter((d) => isRecruitBoosted(d, content.signals, this.signalNames, this.sim.signal)).map((d) => d.id),
+        [...this.unitDefs.values()].filter((d) => isRecruitBoosted(d, this.signals, this.signalNames, this.sim.signal)).map((d) => d.id),
       ),
       release:
         cytokines === null
           ? null
-          : { stored: this.storedCharge(), max: content.signals?.[this.signalNames[0] as string]?.max ?? 100, held: this.hold !== null },
+          : { stored: this.storedCharge(), max: this.signals?.[this.signalNames[0] as string]?.max ?? 100, held: this.hold !== null },
       inflammation: this.gauge ? this.sim.signal(this.gauge.name) : null,
       shake: this.cardShake,
       powerReadyAt: state.powerReadyAt,

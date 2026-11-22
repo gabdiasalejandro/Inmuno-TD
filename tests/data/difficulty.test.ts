@@ -39,12 +39,14 @@ describe('difficulties', () => {
     expect(Object.keys(normalOverrides).sort()).toEqual(files.map((name) => name.replace(/\.json$/, '')).sort());
   });
 
-  it.each(Object.keys(normalOverrides).length ? Object.keys(normalOverrides) : ['(none)'])('override %s targets a real level and only known fields', (id) => {
+  it.each(Object.keys(normalOverrides).length ? Object.keys(normalOverrides) : ['(none)'])('override %s targets a real level and only eases waves or inflammation', (id) => {
     if (id === '(none)') return;
     expect(levels[id], `level ${id}`).toBeDefined();
     const override = normalOverrides[id]!;
     expect(override).not.toHaveProperty('id');
-    const known = new Set(Object.values(levels).flatMap((level) => Object.keys(level)));
-    for (const key of Object.keys(override)) expect(known.has(key), `field ${key}`).toBe(true);
+    // User rule (2026-11-22): Normal only eases the waves and, a little, the inflammation bar;
+    // never the energy economy.
+    for (const key of Object.keys(override)) expect(['waves', 'signalTuning'], `field ${key}`).toContain(key);
+    for (const name of Object.keys(override.signalTuning ?? {})) expect(name, 'tuned signal').toBe('inflamacion');
   });
 });

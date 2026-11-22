@@ -249,6 +249,8 @@ export interface LevelDef {
   win?: WinCondition;
   /** Names of the content signals active in this level. When omitted, all of them are. */
   signals?: string[];
+  /** Per-signal fields that replace the content's in this level only (see `tunedSignals`). */
+  signalTuning?: Record<string, Partial<SignalDef>>;
   /** Lanes that open during the level. When omitted, every lane is open from the start. */
   wounds?: WoundDef[];
   /**

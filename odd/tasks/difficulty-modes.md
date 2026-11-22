@@ -7,10 +7,12 @@ Branch: feat/difficulty-modes. Delivery: ask-on-risk. Runner: `pnpm typecheck &&
 
 - S1. Tutorial in level 1: "poner tutorial en el lvl 1".
 - S2. Two difficulties: "añadir dos dificultades, una normal y otra sépsis, para la normal vamos a bajar la dificultad del dos, 3 4 y 5, y los de la sépsis son los niveles que ya tenemos, tal vez les aumentemos un poquis la diff, pero ya veremos, igual al jefe hay que bajarle en normal."
+- S2b. Normal levers (user, 2026-11-22): "No me gusta que haya cambios en energía para normal, prefiero que sean solo ajustes de oleadas, ahora mismo saturan al jugador (en sépsis está bien)." / "ah sí, y en normal somos un poquito más indulgentes con la barra de inflamación, solo un poco." Normal overrides may only contain `waves` and `signalTuning.inflamacion` (enforced by tests/data/difficulty.test.ts).
 - S3. Testing per difficulty: "Para la dif normal se usan tests y bots normales como siempre, para la sépsis el único \"test\" va a ser que yo lo pueda pasar jajajaja". Balance tests and bots run on Normal; Sepsis has no balance tests.
 - S4. Selection (user, 2026-11-22): "sí, selector normal, no, sépsis disponible desde el inicico" — global selector in the menu, Normal by default, Sepsis available from the start. Progress shared between difficulties (confirmed: "sí, perfecto").
 - S5. Faster loading: "checar una forma de lazy load o algo para que tarde menos en cargar en navegador". Plan: preload only the sprites the current level uses; Phaser in its own chunk.
 - S6. Architecture: "checar la arquitectura, pq ya hay archivos muy largos". Deferred: split GameScene.ts and Hud.ts after this feature, as separate work.
+- S8. Selector look (user, 2026-11-22): "me gustaría que el selector estuviera más pequeño, y que hubiera algún mini efecto al cambiar la dificultad, que salgan bacterias chiquitas simples en el fondo y se vuelva un poco más rojo."
 - S7. World map scenes (2026-11-22): "rediseñe el fono de los mundos a excenas y no solo el logo brillante". Proposal only; integration after user approval (CLAUDE.md 2.4).
 
 ## Tasks
@@ -19,6 +21,7 @@ Branch: feat/difficulty-modes. Delivery: ask-on-risk. Runner: `pnpm typecheck &&
 - [x] T2 (S2, S3, S4) difficulty core: `Difficulty` type, `normal/` override files merged over base levels by `resolveLevel`, stored preference, menu selector, GameScene and balance bots use the resolved level. Route: inline (one dependent unit). Selector bottom right, checked in headless Chromium (map, world view, tap to Sepsis).
 - [ ] T3 (S2, S3) Normal balance of 1-2, 1-3, 1-4, 1-5, 1-8: one override file and balance test per level. Route: delegated, parallel writers (independent levels, disjoint files, long bot iteration). Numbers shown to the user before acceptance (CLAUDE.md 2.2).
 - [x] T4 (S5) loading: Phaser in its own chunk (357 KB gz, cached across deploys), game sprites loaded in the background from the menu instead of per level (no risk of a missing sprite), "Cargando…" placeholder until Phaser boots. Measured at 1.5 Mbps + 4x CPU: JS 2.4 s, level sprites +1 s. Route: inline.
+- [ ] T6 (S8) smaller selector, Sepsis menu effect (redder background, small bacteria drifting). Route: inline.
 - [ ] T5 (S7) world scene proposals. Route: delegated (Sonnet), SVG + preview only.
 
 ## Log
@@ -26,3 +29,5 @@ Branch: feat/difficulty-modes. Delivery: ask-on-risk. Runner: `pnpm typecheck &&
 - L1 (2026-11-22, user): "hay que hacer varias cosas. 1- poner tutorial en el lvl 1. checar una forma de lazy load o algo para que tarde menos en cargar en navegador, checar la arquitectura, pq ya hay archivos muy largos y me preocupa cuando vayamos metiendo más mec+anicas, como los linfocitos, etc. Y la más trabajosa e importante, añadir dos dificultades, una normal y otra sépsis, para la normal vamos a bajar la dificultad del dos, 3 4 y 5, y los de la sépsis son los niveles que ya tenemos, tal vez les aumentemos un poquis la diff, pero ya veremos, igual al jefe hay que bajarle en normal. Para la dif normal se usan tests y bots normales como siempre, para la sépsis el único \"test\" va a ser que yo lo pueda pasar jajajaja"
 - L2: baseline `pnpm test` already fails 8-9 tests in `tests/sim/balance-1-8.test.ts` (commit 556c770 allowed failures for a Pages deploy). Normal 1-8 must make them pass.
 - L3 (2026-11-22, user): "sí, selector normal, no, sépsis disponible desde el inicico." / "sí, perfecto, de momento así. y puedes mandar a otro agente chiquito a que rediseñe el fono de los mundos a excenas y no solo el logo brillante?"
+- L4 (2026-11-22, user): "me gustaría que el selector estuviera más pequeño, y que hubiera algún mini efecto al cambiar la dificultad, que salgan bacterias chiquitas simples en el fondo y se vuelva un poco más rojo. No me gusta que haya cambios en energía para normal, prefiero que sean solo ajustes de oleadas, ahora mismo saturan al jugador (en sépsis está bien)." / "ah sí, y en normal somos un poquito más indulgentes con la barra de inflamación, solo un poco."
+- L5: first 1-2/1-3 proposal (startEnergy 200, marrow 30/4) rejected by S2b. Added `LevelDef.signalTuning` + `tunedSignals` (sim and HUD use it) so Normal can soften inflammation without touching shared content.

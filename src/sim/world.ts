@@ -97,6 +97,17 @@ export function assertLaneInGrid(level: LevelDef, lane: number, what: string): v
   }
 }
 
+/**
+ * The content signals as this level plays them: each field in `level.signalTuning` replaces that
+ * field of its signal (a difficulty can soften one meter without touching the shared content).
+ */
+export function tunedSignals(level: LevelDef, signals: Content['signals']): Record<string, SignalDef> {
+  const all = signals ?? {};
+  const tuning = level.signalTuning;
+  if (!tuning) return all;
+  return Object.fromEntries(Object.entries(all).map(([name, def]) => [name, tuning[name] ? { ...def, ...tuning[name] } : def]));
+}
+
 export function createWorld(level: LevelDef, content: Content, seed: number): World {
   const unitDefs = indexById(content.units);
   const enemyDefs = indexById(content.enemies);
@@ -107,7 +118,7 @@ export function createWorld(level: LevelDef, content: Content, seed: number): Wo
     if (!enemyDefs.has(wave.enemy)) throw new Error(`Level ${level.id}: unknown enemy "${wave.enemy}"`);
   }
   // A level can leave a signal out so a concept does not act before the level that teaches it.
-  const signalDefs = Object.entries(content.signals ?? {}).filter(([name]) => level.signals?.includes(name) ?? true);
+  const signalDefs = Object.entries(tunedSignals(level, content.signals)).filter(([name]) => level.signals?.includes(name) ?? true);
   const activeSignals = new Map(signalDefs);
 
   const state: SimState = {
